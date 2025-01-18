@@ -94,8 +94,3 @@
 ## Notes
 - Assurez-vous que MySQL est installé et accessible sur votre machine.
 - Si vous rencontrez des problèmes avec les étapes ci-dessus, vérifiez vos identifiants MySQL et les configurations réseau.
-- Pour un environnement de production, adaptez les variables du fichier `.env` et configurez votre serveur de manière sécurisée.
-
----
-
-Avec ces instructions, vous pourrez configurer, démarrer, et utiliser votre application complète. Besoin d'autres informations ? 😊
