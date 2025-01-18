@@ -61,10 +61,41 @@
 
 ---
 
-## Notes
-- Assurez-vous que MySQL est installé et accessible sur votre machine.
-- Si vous rencontrez des problèmes avec les étapes ci-dessus, vérifiez vos identifiants MySQL et les configurations réseau.
+## Utilisation de NPM
+
+### 1. **Mise à Jour des Dépendances**
+   - Assurez-vous d'avoir installé toutes les dépendances nécessaires pour le backend et le frontend :
+     ```bash
+     # Dans le dossier backend
+     cd backend
+     npm install
+
+     # Dans le dossier frontend
+     cd ../frontend
+     npm install
+     ```
+
+### 2. **Lancer le Backend**
+   - Depuis le dossier `backend`, démarrez le serveur :
+     ```bash
+     npm start
+     ```
+   - Le backend sera accessible sur le port défini dans le fichier `.env` (par défaut : `http://localhost:5000`).
+
+### 3. **Lancer le Frontend**
+   - Depuis le dossier `frontend`, démarrez le serveur de développement :
+     ```bash
+     npm start
+     ```
+   - Une fois démarré, le frontend sera accessible sur `http://localhost:3000`.
 
 ---
 
-Avec ces instructions, vous devriez être en mesure de configurer et tester votre backend ainsi que de migrer les tables.
+## Notes
+- Assurez-vous que MySQL est installé et accessible sur votre machine.
+- Si vous rencontrez des problèmes avec les étapes ci-dessus, vérifiez vos identifiants MySQL et les configurations réseau.
+- Pour un environnement de production, adaptez les variables du fichier `.env` et configurez votre serveur de manière sécurisée.
+
+---
+
+Avec ces instructions, vous pourrez configurer, démarrer, et utiliser votre application complète. Besoin d'autres informations ? 😊
