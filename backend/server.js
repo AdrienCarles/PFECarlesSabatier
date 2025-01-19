@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { globalLimiter } = require('./middleware/rateLimiter');
+const cookieParser = require('cookie-parser');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
+const { globalLimiter } = require('./middleware/rateLimiter');
 const initCronJobs = require('./cron');
 
 const authRoutes = require('./routes/authRoutes');
@@ -19,8 +20,12 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 app.use(globalLimiter);
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // URL de votre frontend
+  credentials: true, // Autoriser les cookies cross-origin
+}));  
 app.use(express.json());
+app.use(cookieParser()); 
 
 // Routes API
 app.use('/api/auth', authRoutes);        // Authentification

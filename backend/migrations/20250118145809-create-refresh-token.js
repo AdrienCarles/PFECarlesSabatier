@@ -15,9 +15,6 @@ module.exports = {
       token: {
         type: Sequelize.STRING
       },
-      created_at: {
-        type: Sequelize.DATE
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -25,6 +22,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      used: {
+        type: Sequelize.BOOLEAN,  
+        allowNull: false,
+        defaultValue: false,
       }
     });
   },

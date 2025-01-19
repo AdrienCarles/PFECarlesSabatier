@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
   }
   RefreshToken.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+      },
       user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -23,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
       },
+      used: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      }
     },
     {
       sequelize,

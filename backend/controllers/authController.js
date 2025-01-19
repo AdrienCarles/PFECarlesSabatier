@@ -13,52 +13,45 @@ const authController = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      const ip = req.ip;
   
       const user = await USR.findOne({ where: { USR_email: email } });
-  
-      // Journaliser la tentative
-      const attempt = await LoginAttempt.create({
-        ip_address: ip,
-        email,
-        success: !!user,
-        timestamp: new Date(),
-      });
-  
-      // Vérifier si l'utilisateur existe
       if (!user) {
-        // Vérifier le nombre de tentatives échouées récentes
-        const failedAttempts = await LoginAttempt.count({
-          where: { email, success: false, timestamp: { [Op.gt]: new Date(Date.now() - 15 * 60 * 1000) } }, // Derniers 15 min
-        });
-  
-        if (failedAttempts >= 3) {
-          return next(new AppError(429, 'Trop de tentatives échouées. Veuillez patienter avant de réessayer.'));
-        }
-  
-        return next(new AppError(401, 'Identifiants incorrects.'));
+        return next(new AppError(401, 'Email ou mot de passe incorrect'));
       }
   
-      // Vérification du mot de passe
       const isMatch = await bcrypt.compare(password, user.USR_pass);
       if (!isMatch) {
-        return next(new AppError(401, 'Identifiants incorrects.'));
+        return next(new AppError(401, 'Email ou mot de passe incorrect'));
       }
   
-      // Réinitialiser les tentatives échouées en cas de succès
-      await LoginAttempt.destroy({ where: { email, success: false } });
-  
-      // Générer les tokens
-      const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      const refreshToken = generateRefreshToken(user.id);
+      const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+      const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
   
       await RefreshToken.create({ user_id: user.id, token: refreshToken });
   
-      res.json({ accessToken, refreshToken, user: { id: user.id, email: user.USR_email } });
+      // Configuration des cookies sécurisés
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true, // Empêche l'accès au cookie via JavaScript
+        secure: process.env.NODE_ENV === 'production', // Utilise HTTPS en production
+        maxAge: 15 * 60 * 1000, // 15 minutes
+        sameSite: 'Strict', // Prévient les attaques CSRF
+      });
+  
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        sameSite: 'Strict',
+      });
+  
+      res.json({
+        message: 'Connexion réussie',
+        user: { id: user.id, email: user.USR_email, role: user.USR_role },
+      });
     } catch (error) {
-      next(new AppError(500, 'Erreur lors de la connexion.'));
+      next(new AppError(500, 'Erreur lors de la connexion'));
     }
-  },
+  },  
   
   self: async (req, res, next) => {
     try {
@@ -76,36 +69,46 @@ const authController = {
 
   refreshToken: async (req, res, next) => {
     try {
-      const { refreshToken } = req.body;
+      const { refreshToken } = req.cookies;
   
       if (!refreshToken) {
-        return next(new AppError(400, 'Token de rafraîchissement manquant'));
+        return next(new AppError(400, 'Token de rafraîchissement manquant.'));
       }
   
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   
-      // Vérifier le token en base
       const tokenRecord = await RefreshToken.findOne({
         where: { token: refreshToken, user_id: decoded.id },
       });
   
       if (!tokenRecord) {
-        return next(new AppError(403, 'Token de rafraîchissement invalide'));
+        return next(new AppError(403, 'Token de rafraîchissement invalide.'));
       }
   
-      // Supprimer l'ancien token
-      await RefreshToken.destroy({ where: { token: refreshToken } });
-  
-      // Générer un nouveau token
-      const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
       const newRefreshToken = jwt.sign({ id: decoded.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
   
-      // Sauvegarder le nouveau token de rafraîchissement
+      await RefreshToken.destroy({ where: { token: refreshToken } });
       await RefreshToken.create({ user_id: decoded.id, token: newRefreshToken });
   
-      res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      // Stocker les nouveaux tokens dans des cookies sécurisés
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 15 * 60 * 1000,
+        sameSite: 'Strict',
+      });
+  
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: 'Strict',
+      });
+  
+      res.json({ message: 'Token renouvelé avec succès.' });
     } catch (error) {
-      next(new AppError(401, 'Token de rafraîchissement expiré ou invalide'));
+      next(new AppError(401, 'Token invalide ou expiré.'));
     }
   },
 
@@ -123,6 +126,9 @@ const authController = {
       if (!deleted) {
         return next(new AppError(403, 'Token de rafraîchissement invalide ou déjà révoqué'));
       }
+
+      res.clearCookie('accessToken', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });
+      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });  
   
       res.json({ message: 'Déconnexion réussie' });
     } catch (error) {
