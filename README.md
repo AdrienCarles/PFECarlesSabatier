@@ -78,7 +78,7 @@
 ### 2. **Lancer le Backend**
    - Depuis le dossier `backend`, démarrez le serveur :
      ```bash
-     npm start
+     npm run dev
      ```
    - Le backend sera accessible sur le port défini dans le fichier `.env` (par défaut : `http://localhost:5000`).
 
