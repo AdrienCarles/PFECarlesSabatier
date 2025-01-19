@@ -10,6 +10,11 @@ const authSchema = {
       'any.required': 'Le mot de passe est requis',
     }),
   }),
+  refresh: Joi.object({
+    refreshToken: Joi.string().required().messages({
+      'any.required': 'Le token de rafraîchissement est requis',
+    }),
+  }),
 };
 
 module.exports = authSchema;
