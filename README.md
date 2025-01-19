@@ -94,3 +94,27 @@
 ## Notes
 - Assurez-vous que MySQL est installé et accessible sur votre machine.
 - Si vous rencontrez des problèmes avec les étapes ci-dessus, vérifiez vos identifiants MySQL et les configurations réseau.
+
+
+## To Do 19/01
+
+# Authentication Middleware
+
+const protect = async (req, res, next) => {
+  try {
+    // Add authentication check
+    if (!req.headers.authorization) {
+      return next(new AppError(401, 'Non autorisé'));
+    }
+    next();
+  } catch (error) {
+    next(new AppError(401, 'Non autorisé'));
+  }
+};
+
+
+# Hashage des mots de passe :
+
+Si ce n’est pas déjà fait, le hashage des mots de passe peut être déplacé dans un hook Sequelize beforeCreate ou géré via un middleware.
+
+

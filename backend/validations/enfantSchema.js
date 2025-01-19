@@ -1,41 +1,29 @@
 const Joi = require('joi');
+const { commonSchema, buildParamsSchema } = require('./commonSchema');
 
 const enfantSchema = {
     create: Joi.object({
-        ENFA_prenom: Joi.string().max(50).required()
+        ENFA_prenom: commonSchema.maxLength50.required()
             .messages({
-                'string.max': 'Le prénom ne peut pas dépasser 50 caractères',
+                ...commonSchema.messages.maxLength,
                 'any.required': 'Le prénom est requis'
             }),
-        ENFA_nom: Joi.string().max(50).required()
+        ENFA_nom: commonSchema.maxLength50.required()
             .messages({
-                'string.max': 'Le nom ne peut pas dépasser 50 caractères',
+                ...commonSchema.messages.maxLength,
                 'any.required': 'Le nom est requis'
             }),
-        ENFA_dateNaissance: Joi.date().required()
-            .messages({
-                'date.base': 'La date de naissance doit être une date valide',
-                'any.required': 'La date de naissance est requise'
-            }),
-        ENFA_niveauAudition: Joi.string().max(50),
-        ENFA_dateDebutSuivi: Joi.date()
-            .messages({
-                'date.base': 'La date de début de suivi doit être une date valide',
-            }),
-        ENFA_dateFinSuivi: Joi.date()
-            .messages({
-                'date.base': 'La date de fin de suivi doit être une date valide',
-            }),
-        USR_parent_id: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID du parent doit être un nombre',
-                'any.required': 'L\'ID du parent est requis'
-            }),
-        USR_orthophoniste_id: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID de l\'orthophoniste doit être un nombre',
-                'any.required': 'L\'ID de l\'orthophoniste est requis'
-            }),
+        ENFA_dateNaissance: commonSchema.requiredDate
+            .messages(commonSchema.messages.date),
+        ENFA_niveauAudition: commonSchema.maxLength50,
+        ENFA_dateDebutSuivi: commonSchema.date
+            .messages(commonSchema.messages.date),
+        ENFA_dateFinSuivi: commonSchema.date
+            .messages(commonSchema.messages.date),
+        USR_parent_id: commonSchema.id
+            .messages(commonSchema.messages.id),
+        USR_orthophoniste_id: commonSchema.id
+            .messages(commonSchema.messages.id)
     }).custom((value, helpers) => {
         if (value.ENFA_dateDebutSuivi && value.ENFA_dateFinSuivi &&
             value.ENFA_dateDebutSuivi > value.ENFA_dateFinSuivi) {
@@ -45,14 +33,14 @@ const enfantSchema = {
     }),
 
     update: Joi.object({
-        ENFA_nom: Joi.string().max(50),
-        ENFA_prenom: Joi.string().max(50),
-        ENFA_dateNaissance: Joi.date(),
-        ENFA_niveauAudition: Joi.string().max(50),
-        ENFA_dateDebutSuivi: Joi.date(),
-        ENFA_dateFinSuivi: Joi.date(),
-        USR_parent_id: Joi.number().integer(),
-        USR_orthophoniste_id: Joi.number().integer()
+        ENFA_nom: commonSchema.maxLength50,
+        ENFA_prenom: commonSchema.maxLength50,
+        ENFA_dateNaissance: commonSchema.date,
+        ENFA_niveauAudition: commonSchema.maxLength50,
+        ENFA_dateDebutSuivi: commonSchema.date,
+        ENFA_dateFinSuivi: commonSchema.date,
+        USR_parent_id: commonSchema.id,
+        USR_orthophoniste_id: commonSchema.id
     }).custom((value, helpers) => {
         if (value.ENFA_dateDebutSuivi && value.ENFA_dateFinSuivi &&
             value.ENFA_dateDebutSuivi > value.ENFA_dateFinSuivi) {
@@ -61,21 +49,8 @@ const enfantSchema = {
         return value;
     }),
 
-    params: Joi.object({
-        enfaId: Joi.number().integer().required()
-            .messages({
-                'number.base': "L'ID de l'enfant doit être un nombre",
-                'any.required': "L'ID de l'enfant est requis"
-            })
-    }),
-
-    userParams: Joi.object({
-        usrId: Joi.number().integer().required()
-            .messages({
-                'number.base': "L'ID de l'utilisateur doit être un nombre",
-                'any.required': "L'ID de l'utilisateur est requis"
-            })
-    })
+    params: Joi.object(buildParamsSchema('enfa')),
+    userParams: Joi.object(buildParamsSchema('usr'))
 };
 
 module.exports = enfantSchema;

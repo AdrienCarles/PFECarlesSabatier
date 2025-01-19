@@ -1,17 +1,12 @@
 const Joi = require('joi');
+const { commonSchema, buildParamsSchema } = require('./commonSchema');
 
 const abonnementSchema = {
     create: Joi.object({
-        USR_id: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID utilisateur doit être un nombre',
-                'any.required': 'L\'ID utilisateur est requis'
-            }),
-        ABM_dateDebut: Joi.date().required()
-            .messages({
-                'date.base': 'La date de début doit être une date valide',
-                'any.required': 'La date de début est requise'
-            }),
+        USR_id: commonSchema.id
+            .messages(commonSchema.messages.id),
+        ABM_dateDebut: commonSchema.requiredDate
+            .messages(commonSchema.messages.date),
         ABM_dateFin: Joi.date().greater(Joi.ref('ABM_dateDebut')).required()
             .messages({
                 'date.greater': 'La date de fin doit être postérieure à la date de début',
@@ -26,22 +21,18 @@ const abonnementSchema = {
             .messages({
                 'any.only': 'Le statut doit être actif, inactif ou suspendu',
                 'any.required': 'Le statut est requis'
-            }),
-    }),
-
-    params: Joi.object({
-        abmId: Joi.number().integer().required().messages({
-            'number.base': "L'ID de l'abonnement doit être un nombre entier",
-            'any.required': "L'ID de l'abonnement est requis",
-        }),
-    }),
-
-    userParams: Joi.object({
-        usrId: Joi.number().integer().required()
-            .messages({
-                'number.base': "L'ID de l'utilisateur doit être un nombre entier",
-                'any.required': "L'ID de l'utilisateur est requis"
             })
+    }),
+
+    params: Joi.object(buildParamsSchema('abm')),
+    userParams: Joi.object(buildParamsSchema('usr')),
+
+    query: Joi.object({
+        statut: Joi.string().valid('actif', 'inactif', 'suspendu'),
+        dateDebut: commonSchema.date,
+        dateFin: commonSchema.date,
+        page: Joi.number().integer().min(1),
+        limit: Joi.number().integer().min(1).max(100)
     })
 };
 

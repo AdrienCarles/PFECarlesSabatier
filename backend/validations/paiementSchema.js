@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { commonSchema, buildParamsSchema } = require('./commonSchema');
 
 const paiementSchema = {
     create: Joi.object({
@@ -12,20 +13,21 @@ const paiementSchema = {
                 'number.positive': 'Le montant doit être positif',
                 'any.required': 'Le montant est requis'
             }),
-        PAI_date: Joi.date().required()
-            .messages({
-                'date.base': 'La date doit être valide',
-                'any.required': 'La date est requise'
-            })
+        PAI_date: commonSchema.requiredDate
+            .messages(commonSchema.messages.date)
     }),
 
-    params: Joi.object({
-        paiId: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID du paiement doit être un nombre',
-                'any.required': 'L\'ID du paiement est requis'
-            })
-    }),
+    params: Joi.object(buildParamsSchema('pai')),
+
+    query: Joi.object({
+        type: Joi.string().valid('carte', 'paypal'),
+        dateDebut: commonSchema.date,
+        dateFin: commonSchema.date,
+        montantMin: Joi.number().positive(),
+        montantMax: Joi.number().positive(),
+        page: Joi.number().integer().min(1),
+        limit: Joi.number().integer().min(1).max(100)
+    })
 };
 
 module.exports = paiementSchema;

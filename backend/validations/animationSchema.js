@@ -1,10 +1,11 @@
 const Joi = require('joi');
+const { commonSchema, buildParamsSchema } = require('./commonSchema');
 
 const animationSchema = {
     create: Joi.object({
-        ANI_titre: Joi.string().max(50).required()
+        ANI_titre: commonSchema.maxLength50.required()
             .messages({
-                'string.max': 'Le titre ne peut pas dépasser 50 caractères',
+                ...commonSchema.messages.maxLength,
                 'any.required': 'Le titre est requis'
             }),
         ANI_urlAnimation: Joi.string().uri().required()
@@ -21,36 +22,25 @@ const animationSchema = {
                 'any.only': 'Le type doit être dessin ou réel',
                 'any.required': 'Le type est requis'
             }),
-        SES_id: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID de la série doit être un nombre',
-                'any.required': 'L\'ID de la série est requis'
-            }),
-        USR_creator_id: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID du créateur doit être un nombre',
-                'any.required': 'L\'ID du créateur est requis'
-            }),
+        SES_id: commonSchema.id
+            .messages(commonSchema.messages.id),
+        USR_creator_id: commonSchema.id
+            .messages(commonSchema.messages.id),
         ANI_duree: Joi.number().positive()
             .messages({
                 'number.positive': 'La durée doit être positive'
             })
     }),
-    params: Joi.object({
-        aniId: Joi.number().integer().required()
-            .messages({
-                'number.base': "L'ID de l'animation doit être un nombre",
-                'any.required': "L'ID de l'animation est requis"
-            })
-    }),
-    serieParams: Joi.object({
-        sesId: Joi.number().integer().required()
-            .messages({
-                'number.base': "L'ID de la série doit être un nombre",
-                'any.required': "L'ID de la série est requis"
-            })
-    })
 
+    params: Joi.object(buildParamsSchema('ani')),
+    serieParams: Joi.object(buildParamsSchema('ses')),
+
+    query: Joi.object({
+        titre: commonSchema.maxLength50,
+        type: Joi.string().valid('dessin', 'réel'),
+        page: Joi.number().integer().min(1),
+        limit: Joi.number().integer().min(1).max(100)
+    })
 };
 
 module.exports = animationSchema;

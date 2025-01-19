@@ -1,35 +1,30 @@
 const Joi = require('joi');
+const { commonSchema, buildParamsSchema } = require('./commonSchema');
 
 const serieSchema = {
     create: Joi.object({
-        SES_titre: Joi.string().max(50).required()
+        SES_titre: commonSchema.maxLength50.required()
             .messages({
-                'string.max': 'Le titre ne peut pas dépasser 50 caractères',
+                ...commonSchema.messages.maxLength,
                 'any.required': 'Le titre est requis'
             }),
-        SES_theme: Joi.string().max(50)
-            .messages({
-                'string.max': 'Le thème ne peut pas dépasser 50 caractères'
-            }),
-        SES_description: Joi.string().max(255)
-            .messages({
-                'string.max': 'La description ne peut pas dépasser 255 caractères'
-            }),
-        SES_statut: Joi.string().valid('actif', 'inactif').required()
-            .messages({
-                'any.only': 'Le statut doit être actif ou inactif',
-                'any.required': 'Le statut est requis'
-            })
+        SES_theme: commonSchema.maxLength50
+            .messages(commonSchema.messages.maxLength),
+        SES_description: commonSchema.maxLength255
+            .messages(commonSchema.messages.maxLength),
+        SES_statut: commonSchema.activeStatus
+            .messages(commonSchema.messages.status)
     }),
 
-    // URL params validation
-    params: Joi.object({
-        sesId: Joi.number().integer().required()
-            .messages({
-                'number.base': 'L\'ID de la série doit être un nombre',
-                'any.required': 'L\'ID de la série est requis'
-            })
-    }),
+    params: Joi.object(buildParamsSchema('ses')),
+
+    query: Joi.object({
+        titre: commonSchema.maxLength50,
+        theme: commonSchema.maxLength50,
+        statut: commonSchema.activeStatus,
+        page: Joi.number().integer().min(1),
+        limit: Joi.number().integer().min(1).max(100)
+    })
 };
 
 module.exports = serieSchema;
