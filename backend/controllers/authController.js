@@ -13,8 +13,18 @@ const authController = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
+      const ip = req.ip;
   
       const user = await USR.findOne({ where: { USR_email: email } });
+
+      // Log de la tentative
+      await LoginAttempt.create({
+        ip_address: ip,
+        email: email,
+        success: !!user,
+        timestamp: new Date()
+      });
+
       if (!user) {
         return next(new AppError(401, 'Email ou mot de passe incorrect'));
       }
@@ -63,6 +73,7 @@ const authController = {
   
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   
+      // Vérifier le token en base
       const tokenRecord = await RefreshToken.findOne({
         where: { token: refreshToken, user_id: decoded.id },
       });
@@ -71,15 +82,42 @@ const authController = {
         return next(new AppError(403, 'Token de rafraîchissement invalide'));
       }
   
-      const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
-      });
+      // Supprimer l'ancien token
+      await RefreshToken.destroy({ where: { token: refreshToken } });
   
-      res.json({ accessToken: newAccessToken });
+      // Générer un nouveau token
+      const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const newRefreshToken = jwt.sign({ id: decoded.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  
+      // Sauvegarder le nouveau token de rafraîchissement
+      await RefreshToken.create({ user_id: decoded.id, token: newRefreshToken });
+  
+      res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
     } catch (error) {
       next(new AppError(401, 'Token de rafraîchissement expiré ou invalide'));
     }
-  }
+  },
+
+  logout: async (req, res, next) => {
+    try {
+      const { refreshToken } = req.body;
+  
+      if (!refreshToken) {
+        return next(new AppError(400, 'Token de rafraîchissement manquant'));
+      }
+  
+      // Supprimer le token de rafraîchissement de la base
+      const deleted = await RefreshToken.destroy({ where: { token: refreshToken } });
+  
+      if (!deleted) {
+        return next(new AppError(403, 'Token de rafraîchissement invalide ou déjà révoqué'));
+      }
+  
+      res.json({ message: 'Déconnexion réussie' });
+    } catch (error) {
+      next(new AppError(500, 'Erreur lors de la déconnexion'));
+    }
+  },
 };
 
 export default authController;

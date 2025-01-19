@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { globalLimiter } = require('./middleware/rateLimiter');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
+const initCronJobs = require('./cron');
 
 const authRoutes = require('./routes/authRoutes');
 const abonnementRoutes = require('./routes/abonnementRoutes');
@@ -15,6 +17,8 @@ const statistiqueRoutes = require('./routes/statistiqueRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
+
+app.use(globalLimiter);
 app.use(cors());
 app.use(express.json());
 
@@ -45,4 +49,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Serveur Express démarré sur http://localhost:${PORT}`);
+  initCronJobs(); 
 });

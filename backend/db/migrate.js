@@ -1,6 +1,8 @@
+// pas fonctionnel 
+
 const fs = require('fs').promises;
 const path = require('path');
-const pool = require('../db/connection');
+const pool = require('./connection');
 
 async function runMigration() {
   try {
