@@ -3,12 +3,6 @@ import bcrypt from 'bcrypt';
 import { USR, RefreshToken } from '../models';
 import AppError from '../utils/AppError';
 
-const generateRefreshToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: '7d',
-  });
-};
-
 const authController = {
   login: async (req, res, next) => {
     try {
@@ -81,14 +75,16 @@ const authController = {
         where: { token: refreshToken, user_id: decoded.id },
       });
   
-      if (!tokenRecord) {
-        return next(new AppError(403, 'Token de rafraîchissement invalide.'));
+      if (!tokenRecord || tokenRecord.used) {
+        return next(new AppError(403, 'Token invalide ou déjà utilisé.'));
       }
+  
+      // Marquer le token comme utilisé
+      await tokenRecord.update({ used: true });
   
       const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
       const newRefreshToken = jwt.sign({ id: decoded.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
   
-      await RefreshToken.destroy({ where: { token: refreshToken } });
       await RefreshToken.create({ user_id: decoded.id, token: newRefreshToken });
   
       // Stocker les nouveaux tokens dans des cookies sécurisés
@@ -110,7 +106,7 @@ const authController = {
     } catch (error) {
       next(new AppError(401, 'Token invalide ou expiré.'));
     }
-  },
+  },  
 
   logout: async (req, res, next) => {
     try {
