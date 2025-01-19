@@ -1,18 +1,17 @@
 const { USR, ENFA, ABM, ACCES, ANI, SES } = require('../models');
+const AppError = require('../utils/AppError');
 
 const userController = {
-  // Obtenir la liste complète des utilisateurs
-  getAllUsers: async (req, res) => {
+  getAllUsers: async (req, res, next) => {
     try {
       const users = await USR.findAll();
       res.json(users);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des utilisateurs'));
     }
   },
 
-  // Obtenir un utilisateur par ID
-  getUserById: async (req, res) => {
+  getUserById: async (req, res, next) => {
     try {
       const user = await USR.findByPk(req.params.id, {
         include: [
@@ -24,21 +23,20 @@ const userController = {
         ]
       });
       if (!user) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        return next(new AppError(404, 'Utilisateur non trouvé'));
       }
       res.json(user);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération de l\'utilisateur'));
     }
   },
 
-  // Créer un utilisateur
-  createUser: async (req, res) => {
+  createUser: async (req, res, next) => {
     try {
       const { USR_email, USR_pass, USR_role, ...otherData } = req.body;
       
       if (!USR_email || !USR_pass || !USR_role) {
-        return res.status(400).json({ message: 'Email, mot de passe et rôle requis' });
+        return next(new AppError(400, 'Email, mot de passe et rôle requis'));
       }
 
       const user = await USR.create({
@@ -50,59 +48,61 @@ const userController = {
       });
       res.status(201).json(user);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données utilisateur invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la création de l\'utilisateur'));
     }
   },
 
-  // Mettre à jour un utilisateur
-  updateUser: async (req, res) => {
+  updateUser: async (req, res, next) => {
     try {
       const user = await USR.findByPk(req.params.id);
       if (!user) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        return next(new AppError(404, 'Utilisateur non trouvé'));
       }
       await user.update(req.body);
       res.json(user);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de mise à jour invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la mise à jour de l\'utilisateur'));
     }
   },
 
-  // Supprimer un utilisateur
-  deleteUser: async (req, res) => {
+  deleteUser: async (req, res, next) => {
     try {
       const user = await USR.findByPk(req.params.id);
       if (!user) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        return next(new AppError(404, 'Utilisateur non trouvé'));
       }
       await user.destroy();
-      res.json({ message: 'Utilisateur supprimé' });
+      res.json({ message: 'Utilisateur supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la suppression de l\'utilisateur'));
     }
   },
 
-  // Obtenir les enfants d'un parent
-  getParentChildren: async (req, res) => {
+  getParentChildren: async (req, res, next) => {
     try {
       const children = await ENFA.findAll({
         where: { USR_parent_id: req.params.id }
       });
       res.json(children);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des enfants du parent'));
     }
   },
 
-  // Obtenir les enfants d'un orthophoniste
-  getOrthophonisteChildren: async (req, res) => {
+  getOrthophonisteChildren: async (req, res, next) => {
     try {
       const children = await ENFA.findAll({
         where: { USR_orthophoniste_id: req.params.id }
       });
       res.json(children);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des enfants de l\'orthophoniste'));
     }
   }
 };

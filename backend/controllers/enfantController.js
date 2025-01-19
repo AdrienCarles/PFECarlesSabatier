@@ -1,8 +1,8 @@
 const { ENFA, USR, STAT } = require('../models');
+const AppError = require('../utils/AppError');
 
 const enfantController = {
-  // Obtenir la liste complète des enfants
-  getAllEnfants: async (req, res) => {
+  getAllEnfants: async (req, res, next) => {
     try {
       const enfants = await ENFA.findAll({
         include: [
@@ -13,12 +13,11 @@ const enfantController = {
       });
       res.json(enfants);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir un enfant par ID
-  getEnfantById: async (req, res) => {
+  getEnfantById: async (req, res, next) => {
     try {
       const enfant = await ENFA.findByPk(req.params.id, {
         include: [
@@ -28,76 +27,56 @@ const enfantController = {
         ]
       });
       if (!enfant) {
-        return res.status(404).json({ message: 'Enfant non trouvé' });
+        return next(new AppError(404, 'Enfant non trouvé'));
       }
       res.json(enfant);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Créer un enfant
-  createEnfant: async (req, res) => {
+  createEnfant: async (req, res, next) => {
     try {
-      const {
-        ENFA_prenom,
-        ENFA_nom,
-        ENFA_dateNaissance,
-        USR_parent_id,
-        USR_orthophoniste_id,
-        ...otherData
-      } = req.body;
-
-      if (!ENFA_prenom || !ENFA_nom || !ENFA_dateNaissance || !USR_parent_id || !USR_orthophoniste_id) {
-        return res.status(400).json({ message: 'Champs requis manquants' });
+      const { ENFA_nom, ENFA_prenom, USR_parent_id, USR_orthophoniste_id } = req.body;
+      
+      if (!ENFA_nom || !ENFA_prenom || !USR_parent_id || !USR_orthophoniste_id) {
+        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
       }
 
-      const enfant = await ENFA.create({
-        ENFA_prenom,
-        ENFA_nom,
-        ENFA_dateNaissance,
-        USR_parent_id,
-        USR_orthophoniste_id,
-        ENFA_dateCreation: new Date(),
-        ...otherData
-      });
-
+      const enfant = await ENFA.create(req.body);
       res.status(201).json(enfant);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Mettre à jour un enfant
-  updateEnfant: async (req, res) => {
+  updateEnfant: async (req, res, next) => {
     try {
       const enfant = await ENFA.findByPk(req.params.id);
       if (!enfant) {
-        return res.status(404).json({ message: 'Enfant non trouvé' });
+        return next(new AppError(404, 'Enfant non trouvé'));
       }
       await enfant.update(req.body);
       res.json(enfant);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Supprimer un enfant
-  deleteEnfant: async (req, res) => {
+  deleteEnfant: async (req, res, next) => {
     try {
       const enfant = await ENFA.findByPk(req.params.id);
       if (!enfant) {
-        return res.status(404).json({ message: 'Enfant non trouvé' });
+        return next(new AppError(404, 'Enfant non trouvé'));
       }
       await enfant.destroy();
-      res.json({ message: 'Enfant supprimé' });
+      res.json({ message: 'Enfant supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir les enfants par parent
-  getEnfantsByParent: async (req, res) => {
+  getEnfantsByParent: async (req, res, next) => {
     try {
       const enfants = await ENFA.findAll({
         where: { USR_parent_id: req.params.parentId },
@@ -108,12 +87,11 @@ const enfantController = {
       });
       res.json(enfants);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir les enfants par orthophoniste
-  getEnfantsByOrthophoniste: async (req, res) => {
+  getEnfantsByOrthophoniste: async (req, res, next) => {
     try {
       const enfants = await ENFA.findAll({
         where: { USR_orthophoniste_id: req.params.orthophonisteId },
@@ -124,7 +102,7 @@ const enfantController = {
       });
       res.json(enfants);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   }
 };

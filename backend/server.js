@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const AppError = require('./utils/AppError');
+const errorHandler = require('./middleware/errorHandler');
+
 
 const abonnementRoutes = require('./routes/abonnementRoutes');
 const accesRoutes = require('./routes/accesRoutes');
@@ -25,12 +28,14 @@ app.use('/api/ses', serieRoutes);         // Séries
 app.use('/api/stat', statistiqueRoutes);  // Statistiques
 app.use('/api/usr', userRoutes);          // Utilisateurs
 
-// Route par défaut
-app.get('/', (req, res) => {
-  res.send('Le serveur backend fonctionne 🚀');
+// Handle undefined routes
+app.all('*', (req, res, next) => {
+  next(new AppError(404, `Route ${req.originalUrl} introuvable`));
 });
 
-// Port par défaut ou celui défini dans le fichier .env
+// Global error handler
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

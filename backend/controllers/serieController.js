@@ -1,8 +1,8 @@
 const { SES, ANI, ACCES, USR } = require('../models');
+const AppError = require('../utils/AppError');
 
 const serieController = {
-  // Obtenir la liste complète des séries
-  getAllSeries: async (req, res) => {
+  getAllSeries: async (req, res, next) => {
     try {
       const series = await SES.findAll({
         include: [
@@ -12,12 +12,11 @@ const serieController = {
       });
       res.json(series);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des séries'));
     }
   },
 
-  // Obtenir une série par ID
-  getSerieById: async (req, res) => {
+  getSerieById: async (req, res, next) => {
     try {
       const serie = await SES.findByPk(req.params.id, {
         include: [
@@ -26,59 +25,58 @@ const serieController = {
         ]
       });
       if (!serie) {
-        return res.status(404).json({ message: 'Série non trouvée' });
+        return next(new AppError(404, 'Série non trouvée'));
       }
       res.json(serie);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération de la série'));
     }
   },
 
-  // Créer une série
-  createSerie: async (req, res) => {
+  createSerie: async (req, res, next) => {
     try {
-      const { SES_titre, SES_statut, ...otherData } = req.body;
+      const { SES_titre, SES_description } = req.body;
       
-      if (!SES_titre || !SES_statut) {
-        return res.status(400).json({ message: 'Titre et statut requis' });
+      if (!SES_titre || !SES_description) {
+        return next(new AppError(400, 'Titre et description requis'));
       }
 
-      const serie = await SES.create({
-        SES_titre,
-        SES_statut,
-        ...otherData
-      });
+      const serie = await SES.create(req.body);
       res.status(201).json(serie);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de série invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la création de la série'));
     }
   },
 
-  // Mettre à jour une série
-  updateSerie: async (req, res) => {
+  updateSerie: async (req, res, next) => {
     try {
       const serie = await SES.findByPk(req.params.id);
       if (!serie) {
-        return res.status(404).json({ message: 'Série non trouvée' });
+        return next(new AppError(404, 'Série non trouvée'));
       }
       await serie.update(req.body);
       res.json(serie);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de mise à jour invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la mise à jour de la série'));
     }
   },
 
-  // Supprimer une série
-  deleteSerie: async (req, res) => {
+  deleteSerie: async (req, res, next) => {
     try {
       const serie = await SES.findByPk(req.params.id);
       if (!serie) {
-        return res.status(404).json({ message: 'Série non trouvée' });
+        return next(new AppError(404, 'Série non trouvée'));
       }
       await serie.destroy();
-      res.json({ message: 'Série supprimée' });
+      res.json({ message: 'Série supprimée avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la suppression de la série'));
     }
   }
 };

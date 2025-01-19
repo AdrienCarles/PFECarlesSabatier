@@ -1,8 +1,8 @@
 const { ABM, USR, PAI } = require('../models');
+const AppError = require('../utils/AppError');
 
 const abonnementController = {
-  // Obtenir la liste complète des abonnements
-  getAllAbonnements: async (req, res) => {
+  getAllAbonnements: async (req, res, next) => {
     try {
       const abonnements = await ABM.findAll({
         include: [
@@ -12,12 +12,11 @@ const abonnementController = {
       });
       res.json(abonnements);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir un abonnement par ID
-  getAbonnementById: async (req, res) => {
+  getAbonnementById: async (req, res, next) => {
     try {
       const abonnement = await ABM.findByPk(req.params.id, {
         include: [
@@ -26,21 +25,20 @@ const abonnementController = {
         ]
       });
       if (!abonnement) {
-        return res.status(404).json({ message: 'Abonnement non trouvé' });
+        return next(new AppError(404, 'Abonnement non trouvé'));
       }
       res.json(abonnement);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Créer un abonnement
-  createAbonnement: async (req, res) => {
+  createAbonnement: async (req, res, next) => {
     try {
       const { USR_id, ABM_dateDebut, ABM_dateFin, ABM_prix, ABM_statut } = req.body;
-      
+
       if (!USR_id || !ABM_dateDebut || !ABM_dateFin || !ABM_prix || !ABM_statut) {
-        return res.status(400).json({ message: 'Tous les champs requis doivent être remplis' });
+        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
       }
 
       const abonnement = await ABM.create({
@@ -53,40 +51,37 @@ const abonnementController = {
 
       res.status(201).json(abonnement);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Mettre à jour un abonnement
-  updateAbonnement: async (req, res) => {
+  updateAbonnement: async (req, res, next) => {
     try {
       const abonnement = await ABM.findByPk(req.params.id);
       if (!abonnement) {
-        return res.status(404).json({ message: 'Abonnement non trouvé' });
+        return next(new AppError(404, 'Abonnement non trouvé'));
       }
       await abonnement.update(req.body);
       res.json(abonnement);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Supprimer un abonnement
-  deleteAbonnement: async (req, res) => {
+  deleteAbonnement: async (req, res, next) => {
     try {
       const abonnement = await ABM.findByPk(req.params.id);
       if (!abonnement) {
-        return res.status(404).json({ message: 'Abonnement non trouvé' });
+        return next(new AppError(404, 'Abonnement non trouvé'));
       }
       await abonnement.destroy();
       res.json({ message: 'Abonnement supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir les abonnements par utilisateur
-  getAbonnementsByUser: async (req, res) => {
+  getAbonnementsByUser: async (req, res, next) => {
     try {
       const abonnements = await ABM.findAll({
         where: { USR_id: req.params.userId },
@@ -94,7 +89,7 @@ const abonnementController = {
       });
       res.json(abonnements);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   }
 };

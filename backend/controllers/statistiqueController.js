@@ -1,8 +1,8 @@
 const { STAT, ENFA, SES } = require('../models');
+const AppError = require('../utils/AppError');
 
 const statistiqueController = {
-  // Obtenir la liste complète des statistiques
-  getAllStats: async (req, res) => {
+  getAllStats: async (req, res, next) => {
     try {
       const stats = await STAT.findAll({
         include: [
@@ -12,12 +12,11 @@ const statistiqueController = {
       });
       res.json(stats);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des statistiques'));
     }
   },
 
-  // Obtenir une statistique par ID
-  getStatById: async (req, res) => {
+  getStatById: async (req, res, next) => {
     try {
       const { enfaId, sesId } = req.params;
       const stat = await STAT.findOne({
@@ -28,16 +27,15 @@ const statistiqueController = {
         ]
       });
       if (!stat) {
-        return res.status(404).json({ message: 'Statistique non trouvée' });
+        return next(new AppError(404, 'Statistique non trouvée'));
       }
       res.json(stat);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération de la statistique'));
     }
   },
 
-  // Créer une statistique
-  createStat: async (req, res) => {
+  createStat: async (req, res, next) => {
     try {
       const stat = await STAT.create({
         ...req.body,
@@ -45,19 +43,21 @@ const statistiqueController = {
       });
       res.status(201).json(stat);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de statistique invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la création de la statistique'));
     }
   },
 
-  // Mettre à jour une statistique
-  updateStat: async (req, res) => {
+  updateStat: async (req, res, next) => {
     try {
       const { enfaId, sesId } = req.params;
       const stat = await STAT.findOne({
         where: { ENFA_id: enfaId, SES_id: sesId }
       });
       if (!stat) {
-        return res.status(404).json({ message: 'Statistique non trouvée' });
+        return next(new AppError(404, 'Statistique non trouvée'));
       }
       await stat.update({
         ...req.body,
@@ -65,12 +65,14 @@ const statistiqueController = {
       });
       res.json(stat);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de mise à jour invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la mise à jour de la statistique'));
     }
   },
 
-  // Obtenir les statistiques par enfant
-  getStatsByEnfant: async (req, res) => {
+  getStatsByEnfant: async (req, res, next) => {
     try {
       const stats = await STAT.findAll({
         where: { ENFA_id: req.params.enfaId },
@@ -78,12 +80,11 @@ const statistiqueController = {
       });
       res.json(stats);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des statistiques de l\'enfant'));
     }
   },
 
-  // Obtenir les statistiques par série
-  getStatsBySerie: async (req, res) => {
+  getStatsBySerie: async (req, res, next) => {
     try {
       const stats = await STAT.findAll({
         where: { SES_id: req.params.sesId },
@@ -91,7 +92,7 @@ const statistiqueController = {
       });
       res.json(stats);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des statistiques de la série'));
     }
   }
 };

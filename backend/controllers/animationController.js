@@ -1,8 +1,8 @@
 const { ANI, USR, SES } = require('../models');
+const AppError = require('../utils/AppError');
 
 const animationController = {
-  // Obtenir la liste complète des animations
-  getAllAnimations: async (req, res) => {
+  getAllAnimations: async (req, res, next) => {
     try {
       const animations = await ANI.findAll({
         include: [
@@ -12,12 +12,11 @@ const animationController = {
       });
       res.json(animations);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir une animation par ID
-  getAnimationById: async (req, res) => {
+  getAnimationById: async (req, res, next) => {
     try {
       const animation = await ANI.findByPk(req.params.id, {
         include: [
@@ -26,16 +25,15 @@ const animationController = {
         ]
       });
       if (!animation) {
-        return res.status(404).json({ message: 'Animation non trouvée' });
+        return next(new AppError(404, 'Animation non trouvée'));
       }
       res.json(animation);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Créer une animation
-  createAnimation: async (req, res) => {
+  createAnimation: async (req, res, next) => {
     try {
       const {
         ANI_titre,
@@ -46,7 +44,7 @@ const animationController = {
       } = req.body;
 
       if (!ANI_titre || !ANI_urlAnimation || !USR_creator_id || !SES_id) {
-        return res.status(400).json({ message: 'Champs requis manquants' });
+        return next(new AppError(400, 'Champs requis manquants'));
       }
 
       const animation = await ANI.create({
@@ -60,40 +58,37 @@ const animationController = {
 
       res.status(201).json(animation);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Mettre à jour une animation
-  updateAnimation: async (req, res) => {
+  updateAnimation: async (req, res, next) => {
     try {
       const animation = await ANI.findByPk(req.params.id);
       if (!animation) {
-        return res.status(404).json({ message: 'Animation non trouvée' });
+        return next(new AppError(404, 'Animation non trouvée'));
       }
       await animation.update(req.body);
       res.json(animation);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Supprimer une animation
-  deleteAnimation: async (req, res) => {
+  deleteAnimation: async (req, res, next) => {
     try {
       const animation = await ANI.findByPk(req.params.id);
       if (!animation) {
-        return res.status(404).json({ message: 'Animation non trouvée' });
+        return next(new AppError(404, 'Animation non trouvée'));
       }
       await animation.destroy();
       res.json({ message: 'Animation supprimée' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir les animations par série
-  getAnimationsBySeries: async (req, res) => {
+  getAnimationsBySeries: async (req, res, next) => {
     try {
       const animations = await ANI.findAll({
         where: { SES_id: req.params.serieId },
@@ -101,7 +96,7 @@ const animationController = {
       });
       res.json(animations);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   }
 };

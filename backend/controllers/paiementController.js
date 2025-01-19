@@ -1,68 +1,76 @@
 const { PAI, ABM } = require('../models');
+const AppError = require('../utils/AppError');
 
 const paiementController = {
-  // Obtenir la liste complète des paiements
-  getAllPaiements: async (req, res) => {
+  getAllPaiements: async (req, res, next) => {
     try {
       const paiements = await PAI.findAll({
         include: [{ model: ABM, as: 'abonnements' }]
       });
       res.json(paiements);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération des paiements'));
     }
   },
 
-  // Obtenir un paiement par ID
-  getPaiementById: async (req, res) => {
+  getPaiementById: async (req, res, next) => {
     try {
       const paiement = await PAI.findByPk(req.params.id, {
         include: [{ model: ABM, as: 'abonnements' }]
       });
       if (!paiement) {
-        return res.status(404).json({ message: 'Paiement non trouvé' });
+        return next(new AppError(404, 'Paiement non trouvé'));
       }
       res.json(paiement);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la récupération du paiement'));
     }
   },
 
-  // Créer un paiement
-  createPaiement: async (req, res) => {
+  createPaiement: async (req, res, next) => {
     try {
+      const { PAI_montant, PAI_date, PAI_methode } = req.body;
+
+      if (!PAI_montant || !PAI_date || !PAI_methode) {
+        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
+      }
+
       const paiement = await PAI.create(req.body);
       res.status(201).json(paiement);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de paiement invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la création du paiement'));
     }
   },
 
-  // Mettre à jour un paiement
-  updatePaiement: async (req, res) => {
+  updatePaiement: async (req, res, next) => {
     try {
       const paiement = await PAI.findByPk(req.params.id);
       if (!paiement) {
-        return res.status(404).json({ message: 'Paiement non trouvé' });
+        return next(new AppError(404, 'Paiement non trouvé'));
       }
       await paiement.update(req.body);
       res.json(paiement);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error.name === 'SequelizeValidationError') {
+        return next(new AppError(400, 'Données de mise à jour invalides'));
+      }
+      next(new AppError(500, 'Erreur lors de la mise à jour du paiement'));
     }
   },
 
-  // Supprimer un paiement
-  deletePaiement: async (req, res) => {
+  deletePaiement: async (req, res, next) => {
     try {
       const paiement = await PAI.findByPk(req.params.id);
       if (!paiement) {
-        return res.status(404).json({ message: 'Paiement non trouvé' });
+        return next(new AppError(404, 'Paiement non trouvé'));
       }
       await paiement.destroy();
-      res.json({ message: 'Paiement supprimé' });
+      res.json({ message: 'Paiement supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, 'Erreur lors de la suppression du paiement'));
     }
   }
 };

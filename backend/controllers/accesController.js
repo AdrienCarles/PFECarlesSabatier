@@ -1,23 +1,22 @@
 const { ACCES, USR, SES } = require('../models');
+const AppError = require('../utils/AppError');
 
 const accesController = {
-  // Obtenir la liste complète des accès
-  getAllAcces: async (req, res) => {
+  getAllAcces: async (req, res, next) => {
     try {
-      const acces = await ACCES.findAll({
+      const allAcces = await ACCES.findAll({
         include: [
           { model: USR, as: 'utilisateur' },
           { model: SES, as: 'serie' }
         ]
       });
-      res.json(acces);
+      res.json(allAcces);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir un accès par ID
-  getAccesById: async (req, res) => {
+  getAccesById: async (req, res, next) => {
     try {
       const { userId, serieId } = req.params;
       const acces = await ACCES.findOne({
@@ -30,22 +29,22 @@ const accesController = {
           { model: SES, as: 'serie' }
         ]
       });
+      
       if (!acces) {
-        return res.status(404).json({ message: 'Accès non trouvé' });
+        return next(new AppError(404, 'Accès non trouvé'));
       }
       res.json(acces);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Créer un accès
-  createAcces: async (req, res) => {
+  createAcces: async (req, res, next) => {
     try {
       const { USR_id, SES_id } = req.body;
       
       if (!USR_id || !SES_id) {
-        return res.status(400).json({ message: 'Utilisateur et série requis' });
+        return next(new AppError(400, 'Utilisateur et série requis'));
       }
 
       const acces = await ACCES.create({
@@ -54,30 +53,31 @@ const accesController = {
       });
       res.status(201).json(acces);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      next(new AppError(400, error.message));
     }
   },
 
-  // Supprimer un accès
-  deleteAcces: async (req, res) => {
+  deleteAcces: async (req, res, next) => {
     try {
       const { userId, serieId } = req.params;
-      const deleted = await ACCES.destroy({
+      const acces = await ACCES.findOne({
         where: {
           USR_id: userId,
           SES_id: serieId
         }
       });
-      if (!deleted) {
-        return res.status(404).json({ message: 'Accès non trouvé' });
+
+      if (!acces) {
+        return next(new AppError(404, 'Accès non trouvé'));
       }
+
+      await acces.destroy();
       res.json({ message: 'Accès supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   },
 
-  // Obtenir les accès par utilisateur
   getUserAcces: async (req, res) => {
     try {
       const acces = await ACCES.findAll({
@@ -86,7 +86,7 @@ const accesController = {
       });
       res.json(acces);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new AppError(500, error.message));
     }
   }
 };
