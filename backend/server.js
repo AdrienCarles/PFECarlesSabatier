@@ -4,6 +4,7 @@ require('dotenv').config();
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
 
+const authRoutes = require('./routes/authRoutes');
 const abonnementRoutes = require('./routes/abonnementRoutes');
 const accesRoutes = require('./routes/accesRoutes');
 const animationRoutes = require('./routes/animationRoutes');
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes API
+app.use('/api/auth', authRoutes);        // Authentification
 app.use('/api/abm', abonnementRoutes);    // Abonnements
 app.use('/api/acces', accesRoutes);       // Accès
 app.use('/api/ani', animationRoutes);     // Animations
