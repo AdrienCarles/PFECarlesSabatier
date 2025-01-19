@@ -6,18 +6,33 @@ const serieSchema = require('../validations/serieSchema');
 
 
 // GET /api/ses - Liste complète
-router.get('/', serieController.getAllSeries);
+router.get('/', 
+    serieController.getAllSeries
+);
 
-// GET /api/ses/:serieId - Détail
-router.get('/:serieId', serieController.getSerieById);
+// GET /api/ses/:sesId - Détail
+router.get('/:sesId', 
+    validateSchema(serieSchema.params, 'params'),
+    serieController.getSerieById
+);
 
 // POST /api/ses - Création
-router.post('/', validateSchema(serieSchema), serieController.createSerie);
+router.post('/', 
+    validateSchema(serieSchema.create),
+    serieController.createSerie
+);
 
-// PUT /api/ses/:serieId - Mise à jour
-router.put('/:serieId', validateSchema(serieSchema), serieController.updateSerie);
+// PUT /api/ses/:sesId - Mise à jour
+router.put('/:sesId', 
+    validateSchema(serieSchema.params, 'params'),
+    validateSchema(serieSchema.create), 
+    serieController.updateSerie
+);
 
-// DELETE /api/ses/:serieId - Suppression
-router.delete('/:serieId', serieController.deleteSerie);
+// DELETE /api/ses/:sesId - Suppression
+router.delete('/:sesId', 
+    validateSchema(serieSchema.params, 'params'),
+    serieController.deleteSerie
+);
 
 module.exports = router;

@@ -5,22 +5,43 @@ const validateSchema = require('../middleware/validateSchema');
 const userSchema = require('../validations/userSchema');
 
 // GET /api/utilisateurs - Liste complète
-router.get('/', userController.getAllUsers);
+router.get('/', 
+    userController.getAllUsers
+);
 
-// GET /api/utilisateurs/:utilisateurId - Détail
-router.get('/:utilisateurId', userController.getUserById);
+// GET /api/utilisateurs/:usrId - Détail
+router.get('/:usrId', 
+    validateSchema(userSchema.params, 'params'),
+    userController.getUserById
+);
 
 // POST /api/utilisateurs - Création
-router.post('/',  validateSchema(userSchema), userController.createUser);
+router.post('/',  
+    validateSchema(userSchema.create),
+    userController.createUser
+);
 
-// PUT /api/utilisateurs/:utilisateurId - Mise à jour
-router.put('/:utilisateurId', validateSchema(userSchema), userController.updateUser);
+// PUT /api/utilisateurs/:usrId - Mise à jour
+router.put('/:usrId', 
+    validateSchema(userSchema.params, 'params'),
+    validateSchema(userSchema.create),
+    userController.updateUser
+);
 
-// DELETE /api/utilisateurs/:utilisateurId - Suppression
-router.delete('/:utilisateurId', userController.deleteUser);
+// DELETE /api/utilisateurs/:usrId - Suppression
+router.delete('/:usrId', 
+    validateSchema(userSchema.params, 'params'),
+    userController.deleteUser
+);
 
 // Relations spécifiques
-router.get('/par-parent/:utilisateurId/enfants', userController.getParentChildren);
-router.get('/par-orthophoniste/:utilisateurId/enfants', userController.getOrthophonisteChildren);
+router.get('/par-parent/:usrId/enfants', 
+    validateSchema(userSchema.params, 'params'),
+    userController.getParentChildren
+);
+router.get('/par-orthophoniste/:usrId/enfants', 
+    validateSchema(userSchema.params, 'params'),
+    userController.getOrthophonisteChildren
+);
 
 module.exports = router;

@@ -5,18 +5,33 @@ const validateSchema = require('../middleware/validateSchema');
 const paiementSchema = require('../validations/paiementSchema');
 
 // GET /api/pai - Liste complète
-router.get('/', paiementController.getAllPaiements);
+router.get('/', 
+    paiementController.getAllPaiements
+);
 
-// GET /api/pai/:paiementId - Détail
-router.get('/:paiementId', paiementController.getPaiementById);
+// GET /api/pai/:paiId - Détail
+router.get('/:paiId',
+    validateSchema(paiementSchema.params, 'params'),
+    paiementController.getPaiementById
+);
 
 // POST /api/pai - Création
-router.post('/', validateSchema(paiementSchema), paiementController.createPaiement);
+router.post('/', 
+    validateSchema(paiementSchema.create),
+    paiementController.createPaiement
+);
 
-// PUT /api/pai/:paiementId - Mise à jour
-router.put('/:paiementId', validateSchema(paiementSchema), paiementController.updatePaiement);
+// PUT /api/pai/:paiId - Mise à jour
+router.put('/:paiId', 
+    validateSchema(paiementSchema.params, 'params'),
+    validateSchema(paiementSchema.create),
+    paiementController.updatePaiement
+);
 
-// DELETE /api/pai/:paiementId - Suppression
-router.delete('/:paiementId', paiementController.deletePaiement);
+// DELETE /api/pai/:paiId - Suppression
+router.delete('/:paiId', 
+    validateSchema(paiementSchema.params, 'params'),
+    paiementController.deletePaiement
+);
 
 module.exports = router;

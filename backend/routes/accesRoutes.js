@@ -5,18 +5,32 @@ const validateSchema = require('../middleware/validateSchema');
 const accesSchema = require('../validations/accesSchema');
 
 // GET /api/acces - Liste complète
-router.get('/', accesController.getAllAcces);
+router.get('/', 
+    accesController.getAllAcces
+);
 
-// GET /api/acces/:utilisateurId/:serieId - Détail
-router.get('/:utilisateurId/:serieId', accesController.getAccesById);
+// GET /api/acces/:usrId/:sesId - Détail
+router.get('/:usrId/:sesId', 
+    validateSchema(accesSchema.params, 'params'), 
+    accesController.getAccesById
+);
 
 // POST /api/acces - Création (avec validation)
-router.post('/', validateSchema(accesSchema), accesController.createAcces);
+router.post('/', 
+    validateSchema(accesSchema.create), 
+    accesController.createAcces
+);
 
-// DELETE /api/acces/:utilisateurId/:serieId - Suppression
-router.delete('/:utilisateurId/:serieId', accesController.deleteAcces);
+// DELETE /api/acces/:usrId/:sesId - Suppression
+router.delete('/:usrId/:sesId', 
+    validateSchema(accesSchema.params, 'params'), 
+    accesController.deleteAcces
+);
 
 // Relations spécifiques
-router.get('/par-utilisateur/:utilisateurId', accesController.getUserAcces);
+router.get('/par-utilisateur/:usrId', 
+    validateSchema(accesSchema.userParams, 'params'), 
+    accesController.getUserAcces
+);
 
 module.exports = router;

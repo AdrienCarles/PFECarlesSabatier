@@ -2,24 +2,42 @@ const express = require('express');
 const router = express.Router();
 const abonnementController = require('../controllers/abonnementController');
 const validateSchema = require('../middleware/validateSchema');
-const { abonnementIdSchema, abonnementSchema } = require('../validations/abonnementSchema');
+const abonnementSchema = require('../validations/abonnementSchema');
 
 // GET /api/abm - Liste complète
-router.get('/', abonnementController.getAllAbonnements);
+router.get('/', 
+    abonnementController.getAllAbonnements
+);
 
-// GET /api/abm/:abonnementId - Détail
-router.get('/:abonnementId', validateSchema(abonnementIdSchema), abonnementController.getAbonnementById);
+// GET /api/abm/:abmId - Détail
+router.get('/:abmId', 
+    validateSchema(abonnementSchema.params, 'params'), 
+    abonnementController.getAbonnementById
+);
 
-// POST /api/abm - Création (avec validation)
-router.post('/', validateSchema(abonnementSchema), abonnementController.createAbonnement);
+// POST /api/abm - Création
+router.post('/', 
+    validateSchema(abonnementSchema.create), 
+    abonnementController.createAbonnement
+);
 
-// PUT /api/abm/:abonnementId - Mise à jour (avec validation)
-router.put('/:abonnementId', validateSchema(abonnementSchema), abonnementController.updateAbonnement);
+// PUT /api/abm/:abmId - Mise à jour (avec validation)
+router.put('/:abmId', 
+    validateSchema(abonnementSchema.params, 'params'),
+    validateSchema(abonnementSchema.create),
+    abonnementController.updateAbonnement
+);
 
-// DELETE /api/abm/:abonnementId - Suppression
-router.delete('/:abonnementId', validateSchema(abonnementIdSchema), abonnementController.deleteAbonnement);
+// DELETE /api/abm/:abmId - Suppression
+router.delete('/:abmId', 
+    validateSchema(abonnementSchema.params, 'params'), 
+    abonnementController.deleteAbonnement
+);
 
 // Relations spécifiques
-router.get('/par-utilisateur/:utilisateurId', abonnementController.getAbonnementsByUser);
+router.get('/par-utilisateur/:usrId', 
+    validateSchema(abonnementSchema.userParams, 'params'), 
+    abonnementController.getAbonnementsByUser
+);
 
 module.exports = router;

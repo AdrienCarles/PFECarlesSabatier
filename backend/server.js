@@ -4,7 +4,6 @@ require('dotenv').config();
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
 
-
 const abonnementRoutes = require('./routes/abonnementRoutes');
 const accesRoutes = require('./routes/accesRoutes');
 const animationRoutes = require('./routes/animationRoutes');
@@ -29,12 +28,16 @@ app.use('/api/stat', statistiqueRoutes);  // Statistiques
 app.use('/api/usr', userRoutes);          // Utilisateurs
 
 // Handle undefined routes
-app.all('*', (req, res, next) => {
-  next(new AppError(404, `Route ${req.originalUrl} introuvable`));
-});
+// app.all('*', (req, res, next) => {
+//   next(new AppError(404, `Route ${req.originalUrl} introuvable`));
+// });
 
-// Global error handler
-app.use(errorHandler);
+// // Global error handler
+// app.use(errorHandler);
+
+app.get('/', (req, res) => {
+  res.send('Le serveur backend fonctionne 🚀');
+});
 
 const PORT = process.env.PORT || 5000;
 
