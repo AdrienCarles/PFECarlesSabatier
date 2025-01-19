@@ -1,4 +1,5 @@
-const { USR, ENFA, ABM, ACCES, ANI, SES } = require('../models');
+const { USR, ENFA, ABM, ANI, SES } = require('../models');
+const bcrypt = require('bcrypt');
 const AppError = require('../utils/AppError');
 
 const userController = {
@@ -33,8 +34,10 @@ const userController = {
 
   createUser: async (req, res, next) => {
     try {
+      const hashedPassword = await bcrypt.hash(req.body.USR_pass, 10);
       const user = await USR.create({
         ...req.body,
+        USR_pass: hashedPassword,
         USR_dateCreation: new Date(),
       });
       res.status(201).json(user);
