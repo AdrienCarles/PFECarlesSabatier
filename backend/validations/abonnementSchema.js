@@ -28,4 +28,11 @@ const abonnementSchema = Joi.object({
         }),
 });
 
-module.exports = abonnementSchema;
+const abonnementIdSchema = Joi.object({
+    abonnementId: Joi.number().integer().required().messages({
+      'number.base': "L'ID de l'abonnement doit être un nombre entier",
+      'any.required': "L'ID de l'abonnement est requis",
+    }),
+  });
+  
+module.exports = { abonnementSchema, abonnementIdSchema };

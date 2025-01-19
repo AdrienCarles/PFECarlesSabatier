@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class USR extends Model {
     static associate(models) {
@@ -41,15 +40,56 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   USR.init({
-    USR_email: DataTypes.STRING(50),
-    USR_pass: DataTypes.STRING(255),
-    USR_prenom: DataTypes.STRING(50),
-    USR_nom: DataTypes.STRING(50),
-    USR_role: DataTypes.STRING(50),
-    USR_telephone: DataTypes.STRING(15),
-    USR_dateCreation: DataTypes.DATE,
-    USR_derniereConnexion: DataTypes.DATE,
-    USR_statut: DataTypes.STRING(50)
+    USR_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    USR_email: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true
+      }
+    },
+    USR_pass: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    USR_prenom: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    USR_nom: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    USR_role: {
+      type: DataTypes.ENUM('admin', 'parent', 'orthophoniste'),
+      allowNull: false,
+      defaultValue: 'parent'
+    },
+    USR_telephone: {
+      type: DataTypes.STRING(15),
+      validate: {
+        is: /^[0-9+\s-]+$/
+      }
+    },
+    USR_dateCreation: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    USR_derniereConnexion: {
+      type: DataTypes.DATE
+    },
+    USR_statut: {
+      type: DataTypes.ENUM('actif', 'inactif', 'suspendu'),
+      allowNull: false,
+      defaultValue: 'actif'
+    }
   }, {
     sequelize,
     modelName: 'USR',

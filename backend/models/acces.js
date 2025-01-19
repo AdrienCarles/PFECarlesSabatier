@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class ACCES extends Model {
@@ -24,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
     USR_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
       references: {
         model: 'USR',
         key: 'USR_id'
@@ -33,12 +30,11 @@ module.exports = (sequelize, DataTypes) => {
     SES_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
       references: {
         model: 'SES',
         key: 'SES_id'
       }
-    }
+    },
   }, {
     sequelize,
     modelName: 'ACCES',

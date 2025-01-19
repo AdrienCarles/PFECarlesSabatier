@@ -17,16 +17,35 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   STAT.init({
-    ENFA_id: {
+ENFA_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'ENFA',
+        key: 'ENFA_id'
+      }
     },
     SES_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'SES',
+        key: 'SES_id'
+      }
     },
-    STAT_dernierAcces: DataTypes.DATE,
-    STAT_tempUtil: DataTypes.TIME
+    STAT_dernierAcces: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    STAT_tempUtil: {
+      type: DataTypes.INTEGER, // Temps en secondes
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      }
+    },
   }, {
     sequelize,
     modelName: 'STAT',

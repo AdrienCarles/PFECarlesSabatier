@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const abonnementController = require('../controllers/abonnementController');
 const validateSchema = require('../middleware/validateSchema');
-const abonnementSchema = require('../validations/abonnementSchema');
+const { abonnementIdSchema, abonnementSchema } = require('../validations/abonnementSchema');
 
 // GET /api/abm - Liste complète
 router.get('/', abonnementController.getAllAbonnements);
 
 // GET /api/abm/:abonnementId - Détail
-router.get('/:abonnementId', abonnementController.getAbonnementById);
+router.get('/:abonnementId', validateSchema(abonnementIdSchema), abonnementController.getAbonnementById);
 
 // POST /api/abm - Création (avec validation)
 router.post('/', validateSchema(abonnementSchema), abonnementController.createAbonnement);
@@ -17,7 +17,7 @@ router.post('/', validateSchema(abonnementSchema), abonnementController.createAb
 router.put('/:abonnementId', validateSchema(abonnementSchema), abonnementController.updateAbonnement);
 
 // DELETE /api/abm/:abonnementId - Suppression
-router.delete('/:abonnementId', abonnementController.deleteAbonnement);
+router.delete('/:abonnementId', validateSchema(abonnementIdSchema), abonnementController.deleteAbonnement);
 
 // Relations spécifiques
 router.get('/par-utilisateur/:utilisateurId', abonnementController.getAbonnementsByUser);

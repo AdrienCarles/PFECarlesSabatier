@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class ABM extends Model {
     static associate(models) {
@@ -18,16 +17,60 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ABM.init({
-    ABM_dateDebut: DataTypes.DATE,
-    ABM_dateFin: DataTypes.DATE,
-    ABM_prix: DataTypes.DECIMAL(15, 2),
-    ABM_statut: DataTypes.STRING(50),
-    PAI_id: DataTypes.INTEGER,
-    USR_id: DataTypes.INTEGER
+    ABM_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    ABM_dateDebut: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    ABM_dateFin: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        isAfterDebut(value) {
+          if (value <= this.ABM_dateDebut) {
+            throw new Error('La date de fin doit être postérieure à la date de début');
+          }
+        }
+      }
+    },
+    ABM_prix: {
+      type: DataTypes.DECIMAL(15, 2),
+      allowNull: false,
+      validate: {
+        min: 0
+      }
+    },
+    ABM_statut: {
+      type: DataTypes.ENUM('actif', 'inactif', 'suspendu'),
+      allowNull: false,
+      defaultValue: 'actif'
+    },
+    PAI_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'PAI',
+        key: 'PAI_id'
+      }
+    },
+    USR_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'USR',
+        key: 'USR_id'
+      }
+    }
   }, {
     sequelize,
     modelName: 'ABM',
     tableName: 'ABM'
   });
+  
   return ABM;
 };

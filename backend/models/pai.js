@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class PAI extends Model {
     static associate(models) {
@@ -16,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
     PAI_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
+      allowNull: false
     }
   }, {
     sequelize,

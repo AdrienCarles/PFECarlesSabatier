@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class SES extends Model {
     static associate(models) {
@@ -28,12 +27,33 @@ module.exports = (sequelize, DataTypes) => {
     SES_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
+      allowNull: false
     },
-    SES_titre: DataTypes.STRING(50),
-    SES_theme: DataTypes.STRING(50),
-    SES_description: DataTypes.STRING(255),
-    SES_statut: DataTypes.STRING(50)
+    SES_titre: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    SES_theme: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    SES_description: {
+      type: DataTypes.TEXT
+    },
+    SES_statut: {
+      type: DataTypes.ENUM('actif', 'inactif', 'en_preparation'),
+      allowNull: false,
+      defaultValue: 'en_preparation'
+    },
+    SES_dateCreation: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
   }, {
     sequelize,
     modelName: 'SES',
