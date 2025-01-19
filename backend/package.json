@@ -33,6 +33,10 @@
     "supertest": "^7.0.0"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleFileExtensions": ["js", "json"],
+    "testMatch": ["**/__tests__/**/*.js", "**/?(*.)+(spec|test).js"],
+    "transform": {},
+    "verbose": true
   }
 }
