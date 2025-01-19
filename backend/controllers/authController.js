@@ -16,39 +16,50 @@ const authController = {
       const ip = req.ip;
   
       const user = await USR.findOne({ where: { USR_email: email } });
-
-      // Log de la tentative
-      await LoginAttempt.create({
+  
+      // Journaliser la tentative
+      const attempt = await LoginAttempt.create({
         ip_address: ip,
-        email: email,
+        email,
         success: !!user,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-
+  
+      // Vérifier si l'utilisateur existe
       if (!user) {
-        return next(new AppError(401, 'Email ou mot de passe incorrect'));
+        // Vérifier le nombre de tentatives échouées récentes
+        const failedAttempts = await LoginAttempt.count({
+          where: { email, success: false, timestamp: { [Op.gt]: new Date(Date.now() - 15 * 60 * 1000) } }, // Derniers 15 min
+        });
+  
+        if (failedAttempts >= 3) {
+          return next(new AppError(429, 'Trop de tentatives échouées. Veuillez patienter avant de réessayer.'));
+        }
+  
+        return next(new AppError(401, 'Identifiants incorrects.'));
       }
   
+      // Vérification du mot de passe
       const isMatch = await bcrypt.compare(password, user.USR_pass);
       if (!isMatch) {
-        return next(new AppError(401, 'Email ou mot de passe incorrect'));
+        return next(new AppError(401, 'Identifiants incorrects.'));
       }
   
+      // Réinitialiser les tentatives échouées en cas de succès
+      await LoginAttempt.destroy({ where: { email, success: false } });
+  
+      // Générer les tokens
       const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
       const refreshToken = generateRefreshToken(user.id);
   
       await RefreshToken.create({ user_id: user.id, token: refreshToken });
   
-      res.json({
-        accessToken,
-        refreshToken,
-        user: { id: user.id, email: user.USR_email, role: user.USR_role },
-      });
+      res.json({ accessToken, refreshToken, user: { id: user.id, email: user.USR_email } });
     } catch (error) {
-      next(new AppError(500, 'Erreur lors de la connexion'));
+      next(new AppError(500, 'Erreur lors de la connexion.'));
     }
   },
-
+  
   self: async (req, res, next) => {
     try {
       const user = await USR.findByPk(req.user.id, {
