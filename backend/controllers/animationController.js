@@ -35,30 +35,13 @@ const animationController = {
 
   createAnimation: async (req, res, next) => {
     try {
-      const {
-        ANI_titre,
-        ANI_urlAnimation,
-        USR_creator_id,
-        SES_id,
-        ...otherData
-      } = req.body;
-
-      if (!ANI_titre || !ANI_urlAnimation || !USR_creator_id || !SES_id) {
-        return next(new AppError(400, 'Champs requis manquants'));
-      }
-
       const animation = await ANI.create({
-        ANI_titre,
-        ANI_urlAnimation,
-        USR_creator_id,
-        SES_id,
+        ...req.body,
         ANI_date_creation: new Date(),
-        ...otherData
       });
-
       res.status(201).json(animation);
     } catch (error) {
-      next(new AppError(400, error.message));
+      next(new AppError(500, error.message));
     }
   },
 
@@ -71,7 +54,7 @@ const animationController = {
       await animation.update(req.body);
       res.json(animation);
     } catch (error) {
-      next(new AppError(400, error.message));
+      next(new AppError(500, error.message));
     }
   },
 

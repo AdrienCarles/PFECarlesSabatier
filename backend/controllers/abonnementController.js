@@ -35,20 +35,7 @@ const abonnementController = {
 
   createAbonnement: async (req, res, next) => {
     try {
-      const { USR_id, ABM_dateDebut, ABM_dateFin, ABM_prix, ABM_statut } = req.body;
-
-      if (!USR_id || !ABM_dateDebut || !ABM_dateFin || !ABM_prix || !ABM_statut) {
-        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
-      }
-
-      const abonnement = await ABM.create({
-        USR_id,
-        ABM_dateDebut,
-        ABM_dateFin,
-        ABM_prix,
-        ABM_statut
-      });
-
+      const abonnement = await ABM.create(req.body);
       res.status(201).json(abonnement);
     } catch (error) {
       next(new AppError(400, error.message));

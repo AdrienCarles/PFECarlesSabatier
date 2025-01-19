@@ -39,7 +39,7 @@ const statistiqueController = {
     try {
       const stat = await STAT.create({
         ...req.body,
-        STAT_dernierAcces: new Date()
+        STAT_dernierAcces: new Date(),
       });
       res.status(201).json(stat);
     } catch (error) {
@@ -48,7 +48,7 @@ const statistiqueController = {
       }
       next(new AppError(500, 'Erreur lors de la création de la statistique'));
     }
-  },
+  },  
 
   updateStat: async (req, res, next) => {
     try {

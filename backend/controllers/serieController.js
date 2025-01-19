@@ -35,12 +35,6 @@ const serieController = {
 
   createSerie: async (req, res, next) => {
     try {
-      const { SES_titre, SES_description } = req.body;
-      
-      if (!SES_titre || !SES_description) {
-        return next(new AppError(400, 'Titre et description requis'));
-      }
-
       const serie = await SES.create(req.body);
       res.status(201).json(serie);
     } catch (error) {
@@ -50,6 +44,7 @@ const serieController = {
       next(new AppError(500, 'Erreur lors de la création de la série'));
     }
   },
+  
 
   updateSerie: async (req, res, next) => {
     try {

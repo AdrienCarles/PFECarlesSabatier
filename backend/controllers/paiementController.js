@@ -29,12 +29,6 @@ const paiementController = {
 
   createPaiement: async (req, res, next) => {
     try {
-      const { PAI_montant, PAI_date, PAI_methode } = req.body;
-
-      if (!PAI_montant || !PAI_date || !PAI_methode) {
-        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
-      }
-
       const paiement = await PAI.create(req.body);
       res.status(201).json(paiement);
     } catch (error) {
@@ -44,7 +38,7 @@ const paiementController = {
       next(new AppError(500, 'Erreur lors de la création du paiement'));
     }
   },
-
+  
   updatePaiement: async (req, res, next) => {
     try {
       const paiement = await PAI.findByPk(req.params.id);

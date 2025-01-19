@@ -41,19 +41,10 @@ const accesController = {
 
   createAcces: async (req, res, next) => {
     try {
-      const { USR_id, SES_id } = req.body;
-      
-      if (!USR_id || !SES_id) {
-        return next(new AppError(400, 'Utilisateur et série requis'));
-      }
-
-      const acces = await ACCES.create({
-        USR_id,
-        SES_id
-      });
+      const acces = await ACCES.create(req.body);
       res.status(201).json(acces);
     } catch (error) {
-      next(new AppError(400, error.message));
+      next(new AppError(500, error.message));
     }
   },
 

@@ -37,16 +37,10 @@ const enfantController = {
 
   createEnfant: async (req, res, next) => {
     try {
-      const { ENFA_nom, ENFA_prenom, USR_parent_id, USR_orthophoniste_id } = req.body;
-      
-      if (!ENFA_nom || !ENFA_prenom || !USR_parent_id || !USR_orthophoniste_id) {
-        return next(new AppError(400, 'Tous les champs requis doivent être remplis'));
-      }
-
       const enfant = await ENFA.create(req.body);
       res.status(201).json(enfant);
     } catch (error) {
-      next(new AppError(400, error.message));
+      next(new AppError(500, error.message));
     }
   },
 

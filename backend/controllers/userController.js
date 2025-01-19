@@ -33,18 +33,9 @@ const userController = {
 
   createUser: async (req, res, next) => {
     try {
-      const { USR_email, USR_pass, USR_role, ...otherData } = req.body;
-      
-      if (!USR_email || !USR_pass || !USR_role) {
-        return next(new AppError(400, 'Email, mot de passe et rôle requis'));
-      }
-
       const user = await USR.create({
-        USR_email,
-        USR_pass,
-        USR_role,
+        ...req.body,
         USR_dateCreation: new Date(),
-        ...otherData
       });
       res.status(201).json(user);
     } catch (error) {
@@ -54,7 +45,7 @@ const userController = {
       next(new AppError(500, 'Erreur lors de la création de l\'utilisateur'));
     }
   },
-
+  
   updateUser: async (req, res, next) => {
     try {
       const user = await USR.findByPk(req.params.id);
