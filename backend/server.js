@@ -24,6 +24,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL, // URL de votre frontend
   credentials: true, // Autoriser les cookies cross-origin
 }));  
+
 app.use(express.json());
 app.use(cookieParser()); 
 

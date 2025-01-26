@@ -4,7 +4,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class RefreshToken extends Model {
     static associate(models) {
-      RefreshToken.belongsTo(models.User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+      RefreshToken.belongsTo(models.USR, {
+        foreignKey: 'USR_id',
+        targetKey: 'USR_id',
+        as: 'utilisateur'
+      });
     }
   }
   RefreshToken.init(
@@ -15,10 +19,13 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false
       },
-      user_id: {
+      USR_id: { 
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: 'Users', key: 'id' },
+        references: {
+          model: 'USR',
+          key: 'USR_id'
+        },
       },
       token: {
         type: DataTypes.STRING,

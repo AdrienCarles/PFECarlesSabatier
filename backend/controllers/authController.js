@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { USR, RefreshToken } from '../models';
-import AppError from '../utils/AppError';
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { USR, RefreshToken } = require('../models');
+const AppError = require('../utils/AppError');
 
 const authController = {
   login: async (req, res, next) => {
@@ -133,4 +133,4 @@ const authController = {
   },
 };
 
-export default authController;
+module.exports = authController;

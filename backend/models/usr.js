@@ -37,6 +37,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'USR_orthophoniste_id',
         as: 'enfantsOrthophoniste'
       });
+      USR.hasMany(models.RefreshToken, {
+        foreignKey: 'user_id',
+        sourceKey: 'USR_id',
+        as: 'refreshTokens'
+      });
     }
   }
   USR.init({
