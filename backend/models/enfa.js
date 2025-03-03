@@ -27,11 +27,6 @@ module.exports = (sequelize, DataTypes) => {
     ENFA_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
-    },
-    ENFA_id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
       autoIncrement: true,
       allowNull: false
     },

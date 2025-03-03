@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>ESLint Report</title>
+        <link rel="icon" type="image/png" sizes="any" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAHaAAAB2gGFomX7AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABD1JREFUWMPFl11sk2UUx3/nbYtjxS1MF7MLMTECMgSTtSSyrQkLhAj7UBPnDSEGoxegGzMwojhXVpmTAA5iYpSoMQa8GBhFOrMFk03buei6yRAlcmOM0SEmU9d90b19jxcM1o5+sGnsc/e+z/l6ztf/HFFVMnns6QieeOCHBePGsHM+wrOtvLG2C4WRVDSSygNV7sCjlspxwDnPB44aols/DXk+mbMBmx/6OseITF1CuOtfevkPh2Uu+/jbdX8lujSScRlT5r7/QDlAfsRmfzmpnkQ/H3H13gf6bBrBn1uqK8WylgEnU8eZmk1repbfchJG1TyKyIKEwuBHFd3lD3naY3O1siiwXsVoBV2VgM1ht/QQUJk2ByqKghsQziYQ8ifKgexIXmuyzC4r67Y7R+xPAfuB/Nn3Cpva+0s7khpQVtZtd4bt51BWxtBYAiciprG7c7D4SixzU9PYalDL6110Ifb/w8W9eY7JqFeFHbO8fPGyLHwwFHJNJTSgwtVTB9oaw9BlQ+tO93vOxypoaQnfEYlI43SeCHDC4TDq9+51/h5fxr33q0ZfV9g04wat9Q943rjJgCp3952W2i8Bi6eDvdsfKj0cK/DYMRyXL4/sUJUmIHd2zYMezsvLaamp4WpcWN3BXSiHpuMwbGbZlnZ8tXY4rgosy+G7oRwQ0cAsd28YGgqfU5UjCZQDLALxDg+Hv/P5Rqvj4hwrS8izXzWb4spwc1GgENFnkpWRzxeuB+ssUHgLdb9UVdt8vpGdKQpze7n7y1U3DBChNRUuqOo9c+0+qpKKxyZqtAIYla7gY4JszAAQri93BSsMRZoyBcUC+w3Q3AyOA4sNhAOZ0q7Iq0b2vUNvK5zPgP+/H8+Zetdoa6uOikhdGurxebwvJY8Iz3V1rTMNAH+opEuQj5KTT/qA1yC+wyUjBm12OidaUtCcPNNX2h0Hx2JG69VulANZAJZJwfU7rzd/FHixuXniTdM0m4GtSQT7bTartqEh9yfImUEzkwKZmTwmo5a5JwkYBfcDL01/RkR5y8iWhtPBknB8ZxwtU9UjwOrrKCeizzc25nTGg1F/turEHoU9wMLpDvWKf8DTmNCAKnd/tqUTF4ElMXJ+A5rWDJS+41WsGWzALhJ+ErBWrLj9g+pqojHxlXJX8HGUg0BsR/x1yhxf3jm4cSzpQFLp6tmi6PEE7g1ZhtZ91ufpSZUAFa6gC+UoQslNaSmypT1U8mHKiUgEKS8KfgF4EpYunFI16tsHin+OG0LcgQK7yj7g6cSzpva2D3hKVNG0Y3mVO1BkqfSlmJrHBQ4uvM12gJHc6ETW8HZVfMRmXvyxxNC1Z/o839zyXlDuCr4nsC11J+MXueaVJWn6yPv+/pJtc9oLTNN4AeTvNGByd3rlhE2x9s5pLwDoHCy+grDzWmOZ95lUtLYj5Bma126Y8eX0/zj/ADxGyViSg4BXAAAAAElFTkSuQmCC">
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjk0LjgyNSAyNTguOTgyJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPg0KPHBhdGggZmlsbD0nIzgwODBGMicgZD0nTTk3LjAyMSw5OS4wMTZsNDguNDMyLTI3Ljk2MmMxLjIxMi0wLjcsMi43MDYtMC43LDMuOTE4LDBsNDguNDMzLDI3Ljk2MiBjMS4yMTEsMC43LDEuOTU5LDEuOTkzLDEuOTU5LDMuMzkzdjU1LjkyNGMwLDEuMzk5LTAuNzQ4LDIuNjkzLTEuOTU5LDMuMzk0bC00OC40MzMsMjcuOTYyYy0xLjIxMiwwLjctMi43MDYsMC43LTMuOTE4LDAgbC00OC40MzItMjcuOTYyYy0xLjIxMi0wLjctMS45NTktMS45OTQtMS45NTktMy4zOTR2LTU1LjkyNEM5NS4wNjMsMTAxLjAwOSw5NS44MSw5OS43MTYsOTcuMDIxLDk5LjAxNicvPg0KPHBhdGggZmlsbD0nIzRCMzJDMycgZD0nTTI3My4zMzYsMTI0LjQ4OEwyMTUuNDY5LDIzLjgxNmMtMi4xMDItMy42NC01Ljk4NS02LjMyNS0xMC4xODgtNi4zMjVIODkuNTQ1IGMtNC4yMDQsMC04LjA4OCwyLjY4NS0xMC4xOSw2LjMyNWwtNTcuODY3LDEwMC40NWMtMi4xMDIsMy42NDEtMi4xMDIsOC4yMzYsMCwxMS44NzdsNTcuODY3LDk5Ljg0NyBjMi4xMDIsMy42NCw1Ljk4Niw1LjUwMSwxMC4xOSw1LjUwMWgxMTUuNzM1YzQuMjAzLDAsOC4wODctMS44MDUsMTAuMTg4LTUuNDQ2bDU3Ljg2Ny0xMDAuMDEgQzI3NS40MzksMTMyLjM5NiwyNzUuNDM5LDEyOC4xMjgsMjczLjMzNiwxMjQuNDg4IE0yMjUuNDE5LDE3Mi44OThjMCwxLjQ4LTAuODkxLDIuODQ5LTIuMTc0LDMuNTlsLTczLjcxLDQyLjUyNyBjLTEuMjgyLDAuNzQtMi44ODgsMC43NC00LjE3LDBsLTczLjc2Ny00Mi41MjdjLTEuMjgyLTAuNzQxLTIuMTc5LTIuMTA5LTIuMTc5LTMuNTlWODcuODQzYzAtMS40ODEsMC44ODQtMi44NDksMi4xNjctMy41OSBsNzMuNzA3LTQyLjUyN2MxLjI4Mi0wLjc0MSwyLjg4Ni0wLjc0MSw0LjE2OCwwbDczLjc3Miw0Mi41MjdjMS4yODMsMC43NDEsMi4xODYsMi4xMDksMi4xODYsMy41OVYxNzIuODk4eicvPg0KPC9zdmc+">
+        <style>
+            body {
+                font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+                font-size: 16px;
+                font-weight: normal;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            #overview {
+                padding: 20px 30px;
+            }
+
+            td,
+            th {
+                padding: 5px 10px;
+            }
+
+            h1 {
+                margin: 0;
+            }
+
+            table {
+                margin: 30px;
+                width: calc(100% - 60px);
+                max-width: 1000px;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+                border-spacing: 0;
+            }
+
+            th {
+                font-weight: 400;
+                font-size: medium;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            td.clr-1,
+            td.clr-2,
+            th span {
+                font-weight: 700;
+            }
+
+            th span {
+                float: right;
+                margin-left: 20px;
+            }
+
+            th span::after {
+                content: "";
+                clear: both;
+                display: block;
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            tr td:first-child,
+            tr td:last-child {
+                color: #9da0a4;
+            }
+
+            #overview.bg-0,
+            tr.bg-0 th {
+                color: #468847;
+                background: #dff0d8;
+                border-bottom: 1px solid #d6e9c6;
+            }
+
+            #overview.bg-1,
+            tr.bg-1 th {
+                color: #f0ad4e;
+                background: #fcf8e3;
+                border-bottom: 1px solid #fbeed5;
+            }
+
+            #overview.bg-2,
+            tr.bg-2 th {
+                color: #b94a48;
+                background: #f2dede;
+                border-bottom: 1px solid #eed3d7;
+            }
+
+            td {
+                border-bottom: 1px solid #ddd;
+            }
+
+            td.clr-1 {
+                color: #f0ad4e;
+            }
+
+            td.clr-2 {
+                color: #b94a48;
+            }
+
+            td a {
+                color: #3a33d1;
+                text-decoration: none;
+            }
+
+            td a:hover {
+                color: #272296;
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overview" class="bg-2">
+            <h1>ESLint Report</h1>
+            <div>
+                <span>60 problems (4 errors, 56 warnings)</span> - Generated on Mon Mar 03 2025 14:53:23 GMT+0100 (heure normale d’Europe centrale)
+            </div>
+        </div>
+        <table>
+            <tbody>
+                <tr class="bg-0" data-group="f-0">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\config\auth.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-1">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\config\config.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-2">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\abonnementController.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-2" data-group="f-3">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\accesController.js
+        <span>1 problem (1 error, 0 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-3">
+    <td>80:7</td>
+    <td class="clr-2">Error</td>
+    <td>&#39;next&#39; is not defined.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-undef" target="_blank" rel="noopener noreferrer">no-undef</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-4">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\animationController.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-5">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\authController.js
+        <span>4 problems (0 errors, 4 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-5">
+    <td>45:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-5">
+    <td>59:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-5">
+    <td>106:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-5">
+    <td>130:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-6">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\enfantController.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-7">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\paiementController.js
+        <span>3 problems (0 errors, 3 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-7">
+    <td>11:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-7">
+    <td>25:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-7">
+    <td>66:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-8">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\serieController.js
+        <span>4 problems (0 errors, 4 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-8">
+    <td>1:19</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;ACCES&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-8">
+    <td>14:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-8">
+    <td>31:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-8">
+    <td>73:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-9">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\statistiqueController.js
+        <span>4 problems (0 errors, 4 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-9">
+    <td>14:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-9">
+    <td>33:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-9">
+    <td>82:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-9">
+    <td>94:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-10">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\controllers\userController.js
+        <span>6 problems (0 errors, 6 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-10">
+    <td>2:16</td>
+    <td class="clr-1">Warning</td>
+    <td>`bcrypt` import should occur before import of `../models`</td>
+    <td>
+        <a href="https://github.com/import-js/eslint-plugin-import/blob/v2.31.0/docs/rules/order.md" target="_blank" rel="noopener noreferrer">import/order</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-10">
+    <td>10:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-10">
+    <td>30:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-10">
+    <td>76:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-10">
+    <td>87:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-10">
+    <td>98:14</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-11">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\cron\config.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-12">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\cron\index.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-12">
+    <td>9:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-13">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\cron\jobs\tokenCleaner.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-13">
+    <td>2:16</td>
+    <td class="clr-1">Warning</td>
+    <td>`sequelize` import should occur before import of `../../models`</td>
+    <td>
+        <a href="https://github.com/import-js/eslint-plugin-import/blob/v2.31.0/docs/rules/order.md" target="_blank" rel="noopener noreferrer">import/order</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-14">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\db\connection.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-15">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\db\migrate.js
+        <span>2 problems (0 errors, 2 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-15">
+    <td>17:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-15">
+    <td>20:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-16">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\eslint.config.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-17">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\middleware\authMiddleware.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-17">
+    <td>14:12</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;error&#39; is defined but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-18">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\middleware\errorHandler.js
+        <span>2 problems (0 errors, 2 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-18">
+    <td>32:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-18">
+    <td>40:34</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;next&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-19">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\middleware\rateLimiter.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-20">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\middleware\validateSchema.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-20">
+    <td>3:32</td>
+    <td class="clr-1">Warning</td>
+    <td>Variable Assigned to Object Injection Sink</td>
+    <td>
+        <a href="https://github.com/eslint-community/eslint-plugin-security/blob/main/docs/rules/detect-object-injection.md" target="_blank" rel="noopener noreferrer">security/detect-object-injection</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-21">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145801-create-usr.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-21">
+    <td>51:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-22">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145802-create-pai.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-22">
+    <td>16:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-23">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145803-create-enfa.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-23">
+    <td>64:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-24">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145804-create-ses.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-24">
+    <td>30:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-25">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145805-create-abm.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-25">
+    <td>51:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-26">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145806-create-ani.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-26">
+    <td>70:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-27">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145807-create-stat.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-27">
+    <td>38:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-28">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145808-create-acces.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-28">
+    <td>32:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-29">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145809-create-refresh-token.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-29">
+    <td>33:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-30">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\migrations\20250118145810-create-login-attempts.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-30">
+    <td>47:30</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Sequelize&#39; is defined but never used. Allowed unused args must match /^_/u.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-31">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\abm.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-32">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\acces.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-33">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\ani.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-2" data-group="f-34">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\enfa.js
+        <span>1 problem (1 error, 0 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-34">
+    <td>32:5</td>
+    <td class="clr-2">Error</td>
+    <td>Duplicate key &#39;ENFA_id&#39;.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-dupe-keys" target="_blank" rel="noopener noreferrer">no-dupe-keys</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-35">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\index.js
+        <span>4 problems (0 errors, 4 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-35">
+    <td>6:17</td>
+    <td class="clr-1">Warning</td>
+    <td>`process` import should occur before import of `sequelize`</td>
+    <td>
+        <a href="https://github.com/import-js/eslint-plugin-import/blob/v2.31.0/docs/rules/order.md" target="_blank" rel="noopener noreferrer">import/order</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-35">
+    <td>9:16</td>
+    <td class="clr-1">Warning</td>
+    <td>Variable Assigned to Object Injection Sink</td>
+    <td>
+        <a href="https://github.com/eslint-community/eslint-plugin-security/blob/main/docs/rules/detect-object-injection.md" target="_blank" rel="noopener noreferrer">security/detect-object-injection</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-35">
+    <td>35:7</td>
+    <td class="clr-1">Warning</td>
+    <td>Generic Object Injection Sink</td>
+    <td>
+        <a href="https://github.com/eslint-community/eslint-plugin-security/blob/main/docs/rules/detect-object-injection.md" target="_blank" rel="noopener noreferrer">security/detect-object-injection</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-35">
+    <td>36:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Generic Object Injection Sink</td>
+    <td>
+        <a href="https://github.com/eslint-community/eslint-plugin-security/blob/main/docs/rules/detect-object-injection.md" target="_blank" rel="noopener noreferrer">security/detect-object-injection</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-36">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\loginAttempt.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-37">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\pai.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-38">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\refreshtoken.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-39">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\ses.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-40">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\stat.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-41">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\models\usr.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-42">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\abonnementRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-43">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\accesRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-44">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\animationRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-45">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\authRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-46">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\enfantRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-47">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\paiementRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-48">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\serieRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-49">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\statistiqueRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-50">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\routes\userRoutes.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-1" data-group="f-51">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\server.js
+        <span>3 problems (0 errors, 3 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-51">
+    <td>5:7</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;AppError&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-51">
+    <td>6:7</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;errorHandler&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-51">
+    <td>59:3</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-52">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\test-db.js
+        <span>5 problems (0 errors, 5 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-52">
+    <td>7:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-52">
+    <td>11:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-52">
+    <td>27:7</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-52">
+    <td>29:9</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-52">
+    <td>34:5</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-53">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\tests\controllers\AbonnementController.test.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-53">
+    <td>60:7</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;AppError&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-54">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\tests\routes\abonnementRoutes.test.js
+        <span>2 problems (0 errors, 2 warnings)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-54">
+    <td>10:9</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-54">
+    <td>20:9</td>
+    <td class="clr-1">Warning</td>
+    <td>Unexpected console statement.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-console" target="_blank" rel="noopener noreferrer">no-console</a>
+    </td>
+</tr>
+
+<tr class="bg-1" data-group="f-55">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\tests\validations\abonnementSchema.test.js
+        <span>1 problem (0 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-55">
+    <td>1:7</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;Joi&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-56">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\utils\AppError.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-2" data-group="f-57">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\utils\CleanExpiredTokens.js
+        <span>3 problems (2 errors, 1 warning)</span>
+    </th>
+</tr>
+<tr style="display: none;" class="f-57">
+    <td>1:7</td>
+    <td class="clr-1">Warning</td>
+    <td>&#39;cleanExpiredTokens&#39; is assigned a value but never used.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-unused-vars" target="_blank" rel="noopener noreferrer">no-unused-vars</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-57">
+    <td>3:11</td>
+    <td class="clr-2">Error</td>
+    <td>&#39;RefreshToken&#39; is not defined.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-undef" target="_blank" rel="noopener noreferrer">no-undef</a>
+    </td>
+</tr>
+
+<tr style="display: none;" class="f-57">
+    <td>5:24</td>
+    <td class="clr-2">Error</td>
+    <td>&#39;Sequelize&#39; is not defined.</td>
+    <td>
+        <a href="https://eslint.org/docs/latest/rules/no-undef" target="_blank" rel="noopener noreferrer">no-undef</a>
+    </td>
+</tr>
+
+<tr class="bg-0" data-group="f-58">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\abonnementSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-59">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\accesSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-60">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\animationSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-61">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\authSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-62">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\commonSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-63">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\enfantSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-64">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\paiementSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-65">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\serieSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-66">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\statistiqueSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+<tr class="bg-0" data-group="f-67">
+    <th colspan="4">
+        [+] C:\Users\adrie\Desktop\Codes\MFECarlesSabatier\backend\validations\userSchema.js
+        <span>0 problems</span>
+    </th>
+</tr>
+
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            var groups = document.querySelectorAll("tr[data-group]");
+            for (i = 0; i < groups.length; i++) {
+                groups[i].addEventListener("click", function() {
+                    var inGroup = document.getElementsByClassName(this.getAttribute("data-group"));
+                    this.innerHTML = (this.innerHTML.indexOf("+") > -1) ? this.innerHTML.replace("+", "-") : this.innerHTML.replace("-", "+");
+                    for (var j = 0; j < inGroup.length; j++) {
+                        inGroup[j].style.display = (inGroup[j].style.display !== "none") ? "none" : "table-row";
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
