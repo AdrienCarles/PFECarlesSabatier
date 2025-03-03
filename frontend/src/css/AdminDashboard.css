@@ -1,0 +1,17 @@
+.admin-dashboard {
+    min-height: 100vh; /* Fond couvrant toute la page */
+    width: 100%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .hover-card {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-card:hover {
+    transform: scale(1.05);
+  }
+  
