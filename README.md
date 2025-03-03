@@ -1,3 +1,5 @@
+Mary a créer une fork comment peut t'elle avoir les droits de push sur main 
+
 # Configuration du Backend et Migration des Tables
 
 ## Prérequis
