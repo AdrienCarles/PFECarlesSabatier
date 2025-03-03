@@ -20,24 +20,26 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 app.use(globalLimiter);
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // URL de votre frontend
-  credentials: true, // Autoriser les cookies cross-origin
-}));  
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // URL de votre frontend
+    credentials: true, // Autoriser les cookies cross-origin
+  })
+);
 
 app.use(express.json());
-app.use(cookieParser()); 
+app.use(cookieParser());
 
 // Routes API
-app.use('/api/auth', authRoutes);        // Authentification
-app.use('/api/abm', abonnementRoutes);    // Abonnements
-app.use('/api/acces', accesRoutes);       // Accès
-app.use('/api/ani', animationRoutes);     // Animations
-app.use('/api/enfa', enfantRoutes);       // Enfants
-app.use('/api/pai', paiementRoutes);      // Paiements
-app.use('/api/ses', serieRoutes);         // Séries
-app.use('/api/stat', statistiqueRoutes);  // Statistiques
-app.use('/api/usr', userRoutes);          // Utilisateurs
+app.use('/api/auth', authRoutes); // Authentification
+app.use('/api/abm', abonnementRoutes); // Abonnements
+app.use('/api/acces', accesRoutes); // Accès
+app.use('/api/ani', animationRoutes); // Animations
+app.use('/api/enfa', enfantRoutes); // Enfants
+app.use('/api/pai', paiementRoutes); // Paiements
+app.use('/api/ses', serieRoutes); // Séries
+app.use('/api/stat', statistiqueRoutes); // Statistiques
+app.use('/api/usr', userRoutes); // Utilisateurs
 
 // Handle undefined routes
 // app.all('*', (req, res, next) => {
@@ -55,5 +57,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Serveur Express démarré sur http://localhost:${PORT}`);
-  initCronJobs(); 
+  initCronJobs();
 });
