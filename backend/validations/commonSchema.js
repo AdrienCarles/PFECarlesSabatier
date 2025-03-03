@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 const commonSchema = {
     // ID validations
@@ -44,7 +44,4 @@ const buildParamsSchema = (entityName) => ({
         })
 });
 
-module.exports = {
-    commonSchema,
-    buildParamsSchema
-};
+export { commonSchema, buildParamsSchema };

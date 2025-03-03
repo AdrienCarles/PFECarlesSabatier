@@ -1,5 +1,5 @@
-const { ANI, USR, SES } = require('../models');
-const AppError = require('../utils/AppError');
+import { ANI, USR, SES } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const animationController = {
   getAllAnimations: async (req, res, next) => {
@@ -84,4 +84,4 @@ const animationController = {
   }
 };
 
-module.exports = animationController;
+export default animationController;

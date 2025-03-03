@@ -1,5 +1,5 @@
-const { RefreshToken } = require('../../models');
-const { Op } = require('sequelize');
+import { RefreshToken } from '../../models/index.js';
+import { Op } from 'sequelize';
 
 const cleanExpiredTokens = async () => {
   const expirationDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 jours
@@ -13,4 +13,4 @@ const cleanExpiredTokens = async () => {
   });
 };
 
-module.exports = cleanExpiredTokens;
+export default cleanExpiredTokens;

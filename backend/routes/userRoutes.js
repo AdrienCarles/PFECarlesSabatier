@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as userController from '../controllers/userController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import userSchema from '../validations/userSchema.js';
+
 const router = express.Router();
-const userController = require('../controllers/userController');
-const validateSchema = require('../middleware/validateSchema');
-const userSchema = require('../validations/userSchema');
 
 // GET /api/utilisateurs - Liste complète
 router.get('/', 
@@ -44,4 +45,4 @@ router.get('/par-orthophoniste/:usrId/enfants',
     userController.getOrthophonisteChildren
 );
 
-module.exports = router;
+export default router;

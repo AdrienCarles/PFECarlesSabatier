@@ -2,11 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
+  "exports": {
+    ".": "./server.js"
+  },
   "scripts": {
     "test": "jest",
     "start": "NODE_ENV=production node server.js",
-    "dev": "NODE_ENV=development nodemon server.js",
+    "dev": "nodemon server.js",
     "migrate": "node migrations/migrate.js",
     "sequelize:init": "sequelize init",
     "lint": "eslint .",

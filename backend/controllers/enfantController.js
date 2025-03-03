@@ -1,5 +1,5 @@
-const { ENFA, USR, STAT } = require('../models');
-const AppError = require('../utils/AppError');
+import { ENFA, USR, STAT } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const enfantController = {
   getAllEnfants: async (req, res, next) => {
@@ -101,4 +101,4 @@ const enfantController = {
   }
 };
 
-module.exports = enfantController;
+export default enfantController;

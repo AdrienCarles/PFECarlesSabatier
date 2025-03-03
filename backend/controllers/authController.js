@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { USR, RefreshToken } = require('../models');
-const AppError = require('../utils/AppError');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { USR, RefreshToken } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const authController = {
   login: async (req, res, next) => {
@@ -23,18 +23,17 @@ const authController = {
   
       await RefreshToken.create({ user_id: user.id, token: refreshToken });
   
-      // Configuration des cookies sécurisés
       res.cookie('accessToken', accessToken, {
-        httpOnly: true, // Empêche l'accès au cookie via JavaScript
-        secure: process.env.NODE_ENV === 'production', // Utilise HTTPS en production
-        maxAge: 15 * 60 * 1000, // 15 minutes
-        sameSite: 'Strict', // Prévient les attaques CSRF
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 15 * 60 * 1000,
+        sameSite: 'Strict',
       });
   
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: 'Strict',
       });
   
@@ -45,7 +44,7 @@ const authController = {
     } catch (error) {
       next(new AppError(500, 'Erreur lors de la connexion'));
     }
-  },  
+  },
   
   self: async (req, res, next) => {
     try {

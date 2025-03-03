@@ -1,5 +1,5 @@
-const { STAT, ENFA, SES } = require('../models');
-const AppError = require('../utils/AppError');
+import { STAT, ENFA, SES } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const statistiqueController = {
   getAllStats: async (req, res, next) => {
@@ -97,4 +97,4 @@ const statistiqueController = {
   }
 };
 
-module.exports = statistiqueController;
+export default statistiqueController;

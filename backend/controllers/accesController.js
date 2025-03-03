@@ -1,5 +1,5 @@
-const { ACCES, USR, SES } = require('../models');
-const AppError = require('../utils/AppError');
+import { ACCES, USR, SES } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const accesController = {
   getAllAcces: async (req, res, next) => {
@@ -69,7 +69,7 @@ const accesController = {
     }
   },
 
-  getUserAcces: async (req, res) => {
+  getUserAcces: async (req, res, next) => {
     try {
       const acces = await ACCES.findAll({
         where: { USR_id: req.params.userId },
@@ -82,4 +82,4 @@ const accesController = {
   }
 };
 
-module.exports = accesController;
+export default accesController;

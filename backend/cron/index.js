@@ -1,6 +1,6 @@
-const cron = require('node-cron');
-const config = require('./config');
-const cleanExpiredTokens = require('./jobs/tokenCleaner');
+import cron from 'node-cron';
+import config from './config.js';
+import cleanExpiredTokens from './jobs/tokenCleaner.js';
 
 const initCronJobs = () => {
   // Token cleanup job
@@ -12,4 +12,4 @@ const initCronJobs = () => {
   // d'autres tâches cron ici
 };
 
-module.exports = initCronJobs;
+export default initCronJobs;

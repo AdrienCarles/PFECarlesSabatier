@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const { commonSchema, buildParamsSchema } = require('./commonSchema');
+import Joi from 'joi';
+import { commonSchema, buildParamsSchema } from './commonSchema.js';
 
 const paiementSchema = {
     create: Joi.object({
@@ -30,4 +30,4 @@ const paiementSchema = {
     })
 };
 
-module.exports = paiementSchema;
+export default paiementSchema;

@@ -1,7 +1,6 @@
-'use strict';
-const { Model } = require('sequelize');
+import { Model } from 'sequelize';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   class SES extends Model {
     static associate(models) {
       // Une série peut avoir plusieurs accès

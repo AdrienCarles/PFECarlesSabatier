@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as paiementController from '../controllers/paiementController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import paiementSchema from '../validations/paiementSchema.js';
+
 const router = express.Router();
-const paiementController = require('../controllers/paiementController');
-const validateSchema = require('../middleware/validateSchema');
-const paiementSchema = require('../validations/paiementSchema');
 
 // GET /api/pai - Liste complète
 router.get('/', 
@@ -34,4 +35,4 @@ router.delete('/:paiId',
     paiementController.deletePaiement
 );
 
-module.exports = router;
+export default router;

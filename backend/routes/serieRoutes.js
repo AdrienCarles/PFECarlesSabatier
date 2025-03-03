@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const serieController = require('../controllers/serieController');
-const validateSchema = require('../middleware/validateSchema');
-const serieSchema = require('../validations/serieSchema');
+import express from 'express';
+import * as serieController from '../controllers/serieController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import serieSchema from '../validations/serieSchema.js';
 
+const router = express.Router();
 
 // GET /api/ses - Liste complète
 router.get('/', 
@@ -35,4 +35,4 @@ router.delete('/:sesId',
     serieController.deleteSerie
 );
 
-module.exports = router;
+export default router;

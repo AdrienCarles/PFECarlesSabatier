@@ -1,103 +1,97 @@
-'use strict';
-const { Model} = require('sequelize');
+import { Model } from 'sequelize';
 
-module.exports = (sequelize, DataTypes) => {
-  class ENFA extends Model {
+export default (sequelize, DataTypes) => {
+  class ANI extends Model {
     static associate(models) {
-      // ENFA appartient à un utilisateur (parent)
-      ENFA.belongsTo(models.USR, {
-        foreignKey: 'USR_parent_id',
-        as: 'parent'
+      // ANI appartient à un utilisateur (créateur)
+      ANI.belongsTo(models.USR, {
+        foreignKey: 'USR_creator_id',
+        as: 'createur',
       });
 
-      // ENFA appartient à un utilisateur (orthophoniste)
-      ENFA.belongsTo(models.USR, {
-        foreignKey: 'USR_orthophoniste_id',
-        as: 'orthophoniste'
-      });
-
-      // ENFA peut avoir plusieurs statistiques
-      ENFA.hasMany(models.STAT, {
-        foreignKey: 'ENFA_id',
-        as: 'statistiques'
+      // ANI appartient à une série
+      ANI.belongsTo(models.SES, {
+        foreignKey: 'SES_id',
+        as: 'serie',
       });
     }
   }
-  ENFA.init({
-    ENFA_id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false
+
+  ANI.init(
+    {
+      ANI_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      ANI_titre: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      ANI_description: {
+        type: DataTypes.STRING(255),
+      },
+      ANI_type: {
+        type: DataTypes.STRING(50),
+      },
+      ANI_urlAnimation: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        validate: {
+          isUrl: true,
+        },
+      },
+      ANI_urlAudio: {
+        type: DataTypes.STRING(255),
+        validate: {
+          isUrl: true,
+        },
+      },
+      ANI_duree: {
+        type: DataTypes.DECIMAL(15, 2),
+      },
+      ANI_taille: {
+        type: DataTypes.INTEGER,
+      },
+      ANI_valider: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      ANI_date_creation: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      ANI_dateValidation: {
+        type: DataTypes.DATE,
+      },
+      USR_creator_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'USR',
+          key: 'USR_id',
+        },
+      },
+      SES_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'SES',
+          key: 'SES_id',
+        },
+      },
     },
-    ENFA_prenom: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      validate: {
-        notEmpty: true
-      }
-    },
-    ENFA_nom: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      validate: {
-        notEmpty: true
-      }
-    },
-    ENFA_dateNaissance: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        isDate: true,
-        isBefore: new Date().toISOString()
-      }
-    },
-    ENFA_niveauAudition: {
-      type: DataTypes.ENUM('leger', 'modere', 'severe', 'profond'),
-      allowNull: false
-    },
-    ENFA_dateCreation: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    ENFA_dateDebutSuivi: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    ENFA_dateFinSuivi: {
-      type: DataTypes.DATE,
-      validate: {
-        isAfterDebutSuivi(value) {
-          if (value && value <= this.ENFA_dateDebutSuivi) {
-            throw new Error('La date de fin doit être postérieure à la date de début');
-          }
-        }
-      }
-    },
-    ENFA_notesSuivi: {
-      type: DataTypes.TEXT
-    },
-    USR_parent_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'USR',
-        key: 'USR_id'
-      }
-    },
-    USR_orthophoniste_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'USR',
-        key: 'USR_id'
-      }
+    {
+      sequelize,
+      modelName: 'ANI',
+      tableName: 'ANI',
     }
-  }, {
-    sequelize,
-    modelName: 'ENFA',
-    tableName: 'ENFA'
-  });
-  return ENFA;
+  );
+
+  return ANI;
 };

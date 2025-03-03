@@ -1,7 +1,6 @@
-'use strict';
-const { Model } = require('sequelize');
+import { Model } from 'sequelize';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   class ANI extends Model {
     static associate(models) {
       // ANI appartient à un utilisateur (créateur)

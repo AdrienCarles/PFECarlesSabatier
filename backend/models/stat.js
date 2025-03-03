@@ -1,7 +1,6 @@
-'use strict';
-const { Model } = require('sequelize');
+import { Model } from 'sequelize';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   class STAT extends Model {
     static associate(models) {
       STAT.belongsTo(models.ENFA, {
@@ -17,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   STAT.init({
-ENFA_id: {
+    ENFA_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {

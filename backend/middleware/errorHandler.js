@@ -1,4 +1,4 @@
-const AppError = require('../utils/AppError');
+import AppError from '../utils/AppError.js';
 
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
@@ -37,7 +37,7 @@ const sendErrorProd = (err, res) => {
   }
 };
 
-module.exports = (err, req, res, next) => {
+export default (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 

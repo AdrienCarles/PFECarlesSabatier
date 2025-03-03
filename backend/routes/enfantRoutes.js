@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as enfantController from '../controllers/enfantController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import enfantSchema from '../validations/enfantSchema.js';
+
 const router = express.Router();
-const enfantController = require('../controllers/enfantController');
-const validateSchema = require('../middleware/validateSchema');
-const enfantSchema = require('../validations/enfantSchema');
 
 // GET /api/enfa - Liste complète
 router.get('/', 
@@ -39,9 +40,10 @@ router.get('/par-parent/:usrId',
     validateSchema(enfantSchema.userParams, 'params'), 
     enfantController.getEnfantsByParent
 );
+
 router.get('/par-orthophoniste/:usrId', 
     validateSchema(enfantSchema.userParams, 'params'), 
     enfantController.getEnfantsByOrthophoniste
 );
 
-module.exports = router;
+export default router;

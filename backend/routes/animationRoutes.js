@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as animationController from '../controllers/animationController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import animationSchema from '../validations/animationSchema.js';
+
 const router = express.Router();
-const animationController = require('../controllers/animationController');
-const validateSchema = require('../middleware/validateSchema');
-const animationSchema = require('../validations/animationSchema');
 
 // GET /api/ani - Liste complète
 router.get('/', 
@@ -39,4 +40,4 @@ router.get('/par-serie/:sesId',
     animationController.getAnimationsBySeries
 );
 
-module.exports = router;
+export default router;

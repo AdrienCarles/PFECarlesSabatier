@@ -1,5 +1,5 @@
-const { SES, ANI, ACCES, USR } = require('../models');
-const AppError = require('../utils/AppError');
+import { SES, ANI, ACCES, USR } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const serieController = {
   getAllSeries: async (req, res, next) => {
@@ -76,4 +76,4 @@ const serieController = {
   }
 };
 
-module.exports = serieController;
+export default serieController;

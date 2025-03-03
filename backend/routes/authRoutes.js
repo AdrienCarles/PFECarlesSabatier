@@ -1,11 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const authController = require('../controllers/authController');
-const validateSchema = require('../middleware/validateSchema');
-const authMiddleware = require('../middleware/authMiddleware');
-const { loginLimiter } = require('../middleware/rateLimiter');
-const authSchema = require('../validations/authSchema');
+import express from 'express';
+import * as authController from '../controllers/authController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { loginLimiter } from '../middleware/rateLimiter.js';
+import authSchema from '../validations/authSchema.js';
 
+const router = express.Router();
 
 // Route pour se connecter
 router.post('/login',
@@ -25,5 +25,4 @@ router.post('/logout',
     authController.logout
 );
 
-
-module.exports = router;
+export default router;

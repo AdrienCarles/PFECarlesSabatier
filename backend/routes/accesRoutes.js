@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as accesController from '../controllers/accesController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import accesSchema from '../validations/accesSchema.js';
+
 const router = express.Router();
-const accesController = require('../controllers/accesController');
-const validateSchema = require('../middleware/validateSchema');
-const accesSchema = require('../validations/accesSchema');
 
 // GET /api/acces - Liste complète
 router.get('/', 
@@ -33,4 +34,4 @@ router.get('/par-utilisateur/:usrId',
     accesController.getUserAcces
 );
 
-module.exports = router;
+export default router;

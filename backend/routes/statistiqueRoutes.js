@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as statistiqueController from '../controllers/statistiqueController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import statistiqueSchema from '../validations/statistiqueSchema.js';
+
 const router = express.Router();
-const statistiqueController = require('../controllers/statistiqueController');
-const validateSchema = require('../middleware/validateSchema');
-const statistiqueSchema = require('../validations/statistiqueSchema');
 
 // GET /api/stat - Liste complète
 router.get('/', 
@@ -38,4 +39,4 @@ router.get('/par-serie/:sesId',
     statistiqueController.getStatsBySerie
 );
 
-module.exports = router;
+export default router;

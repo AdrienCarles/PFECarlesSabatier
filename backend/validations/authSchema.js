@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 const authSchema = {
   login: Joi.object({
@@ -17,4 +17,4 @@ const authSchema = {
   }),
 };
 
-module.exports = authSchema;
+export default authSchema;

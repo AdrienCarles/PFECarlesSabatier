@@ -1,5 +1,5 @@
-const { ABM, USR, PAI } = require('../models');
-const AppError = require('../utils/AppError');
+import { ABM, USR, PAI } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const abonnementController = {
   getAllAbonnements: async (req, res, next) => {
@@ -81,4 +81,4 @@ const abonnementController = {
   }
 };
 
-module.exports = abonnementController;
+export default abonnementController;

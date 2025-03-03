@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const { commonSchema, buildParamsSchema } = require('./commonSchema');
+import Joi from 'joi';
+import { commonSchema, buildParamsSchema } from './commonSchema.js';
 
 const userSchema = {
     create: Joi.object({
@@ -10,13 +10,9 @@ const userSchema = {
             }),
         USR_pass: Joi.string()
             .min(8)
-            .regex(/[A-Z]/, 'au moins une lettre majuscule')
-            .regex(/[0-9]/, 'au moins un chiffre')
-            .regex(/[@$!%*?&]/, 'au moins un caractère spécial')
             .required()
             .messages({
                 'string.min': 'Le mot de passe doit contenir au moins 8 caractères',
-                'string.pattern.name': 'Le mot de passe doit inclure au moins une lettre majuscule, un chiffre et un caractère spécial',
                 'any.required': 'Le mot de passe est requis',
             }),
         USR_prenom: commonSchema.maxLength50
@@ -36,4 +32,4 @@ const userSchema = {
     params: Joi.object(buildParamsSchema('usr'))
 };
 
-module.exports = userSchema;
+export default userSchema;

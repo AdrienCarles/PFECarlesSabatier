@@ -1,21 +1,24 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const cookieParser = require('cookie-parser');
-const AppError = require('./utils/AppError');
-const errorHandler = require('./middleware/errorHandler');
-const { globalLimiter } = require('./middleware/rateLimiter');
-const initCronJobs = require('./cron');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
-const authRoutes = require('./routes/authRoutes');
-const abonnementRoutes = require('./routes/abonnementRoutes');
-const accesRoutes = require('./routes/accesRoutes');
-const animationRoutes = require('./routes/animationRoutes');
-const enfantRoutes = require('./routes/enfantRoutes');
-const paiementRoutes = require('./routes/paiementRoutes');
-const serieRoutes = require('./routes/serieRoutes');
-const statistiqueRoutes = require('./routes/statistiqueRoutes');
-const userRoutes = require('./routes/userRoutes');
+import AppError from './utils/AppError.js';
+import errorHandler from './middleware/errorHandler.js';
+import { globalLimiter } from './middleware/rateLimiter.js';
+import initCronJobs from './cron/index.js';
+
+import authRoutes from './routes/authRoutes.js';
+import abonnementRoutes from './routes/abonnementRoutes.js';
+import accesRoutes from './routes/accesRoutes.js';
+import animationRoutes from './routes/animationRoutes.js';
+import enfantRoutes from './routes/enfantRoutes.js';
+import paiementRoutes from './routes/paiementRoutes.js';
+import serieRoutes from './routes/serieRoutes.js';
+import statistiqueRoutes from './routes/statistiqueRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+
+dotenv.config();
 
 const app = express();
 
@@ -31,15 +34,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes API
-app.use('/api/auth', authRoutes); // Authentification
-app.use('/api/abm', abonnementRoutes); // Abonnements
-app.use('/api/acces', accesRoutes); // Accès
-app.use('/api/ani', animationRoutes); // Animations
-app.use('/api/enfa', enfantRoutes); // Enfants
-app.use('/api/pai', paiementRoutes); // Paiements
-app.use('/api/ses', serieRoutes); // Séries
-app.use('/api/stat', statistiqueRoutes); // Statistiques
-app.use('/api/usr', userRoutes); // Utilisateurs
+app.use('/api/auth', authRoutes);
+app.use('/api/abm', abonnementRoutes);
+app.use('/api/acces', accesRoutes);
+app.use('/api/ani', animationRoutes);
+app.use('/api/enfa', enfantRoutes);
+app.use('/api/pai', paiementRoutes);
+app.use('/api/ses', serieRoutes);
+app.use('/api/stat', statistiqueRoutes);
+app.use('/api/usr', userRoutes);
 
 // Handle undefined routes
 // app.all('*', (req, res, next) => {

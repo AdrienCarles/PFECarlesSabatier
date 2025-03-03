@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as abonnementController from '../controllers/abonnementController.js';
+import validateSchema from '../middleware/validateSchema.js';
+import abonnementSchema from '../validations/abonnementSchema.js';
+
 const router = express.Router();
-const abonnementController = require('../controllers/abonnementController');
-const validateSchema = require('../middleware/validateSchema');
-const abonnementSchema = require('../validations/abonnementSchema');
 
 // GET /api/abm - Liste complète
 router.get('/', 
@@ -40,4 +41,4 @@ router.get('/par-utilisateur/:usrId',
     abonnementController.getAbonnementsByUser
 );
 
-module.exports = router;
+export default router;

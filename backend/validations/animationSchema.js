@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const { commonSchema, buildParamsSchema } = require('./commonSchema');
+import Joi from 'joi';
+import { commonSchema, buildParamsSchema } from './commonSchema.js';
 
 const animationSchema = {
     create: Joi.object({
@@ -43,4 +43,4 @@ const animationSchema = {
     })
 };
 
-module.exports = animationSchema;
+export default animationSchema;

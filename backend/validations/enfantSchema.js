@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const { commonSchema, buildParamsSchema } = require('./commonSchema');
+import Joi from 'joi';
+import { commonSchema, buildParamsSchema } from './commonSchema.js';
 
 const enfantSchema = {
     create: Joi.object({
@@ -53,4 +53,4 @@ const enfantSchema = {
     userParams: Joi.object(buildParamsSchema('usr'))
 };
 
-module.exports = enfantSchema;
+export default enfantSchema;

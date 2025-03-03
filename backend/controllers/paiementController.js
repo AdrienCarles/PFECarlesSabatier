@@ -1,5 +1,5 @@
-const { PAI, ABM } = require('../models');
-const AppError = require('../utils/AppError');
+import { PAI, ABM } from '../models/index.js';
+import AppError from '../utils/AppError.js';
 
 const paiementController = {
   getAllPaiements: async (req, res, next) => {
@@ -69,4 +69,4 @@ const paiementController = {
   }
 };
 
-module.exports = paiementController;
+export default paiementController;

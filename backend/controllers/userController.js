@@ -1,7 +1,7 @@
-const { USR, ENFA, ABM, ANI, SES } = require('../models');
-const bcrypt = require('bcrypt');
-const AppError = require('../utils/AppError');
+import bcrypt from 'bcrypt';
 
+import AppError from '../utils/AppError.js';
+import { USR, ENFA, ABM, ANI, SES } from '../models/index.js';
 const userController = {
   getAllUsers: async (req, res, next) => {
     try {
@@ -101,4 +101,4 @@ const userController = {
   }
 };
 
-module.exports = userController;
+export default userController;
