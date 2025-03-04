@@ -1,5 +1,5 @@
 import express from 'express';
-import * as serieController from '../controllers/serieController.js';
+import serieController from '../controllers/serieController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import serieSchema from '../validations/serieSchema.js';
 

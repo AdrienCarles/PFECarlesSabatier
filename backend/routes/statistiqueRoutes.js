@@ -1,5 +1,5 @@
 import express from 'express';
-import * as statistiqueController from '../controllers/statistiqueController.js';
+import statistiqueController from '../controllers/statistiqueController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import statistiqueSchema from '../validations/statistiqueSchema.js';
 

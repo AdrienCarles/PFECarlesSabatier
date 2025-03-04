@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import process from 'process';
 import { Sequelize, DataTypes } from 'sequelize';
 import configFile from '../config/config.js';
@@ -35,10 +35,11 @@ const files = fs
 
 // Chargement dynamique des modèles en utilisant import() dynamique
 for (const file of files) {
-  const modelPath = path.join(__dirname, file);
+  const modelPath = pathToFileURL(path.join(__dirname, file)).href;
   const modelModule = await import(modelPath);
   const model = modelModule.default(sequelize, DataTypes);
   db[model.name] = model;
+  console.log(`✅ Chargement du modèle : ${model.name}`);
 }
 
 Object.keys(db).forEach(modelName => {

@@ -1,5 +1,5 @@
 import express from 'express';
-import * as abonnementController from '../controllers/abonnementController.js';
+import abonnementController from '../controllers/abonnementController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import abonnementSchema from '../validations/abonnementSchema.js';
 

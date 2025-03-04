@@ -1,5 +1,5 @@
 import express from 'express';
-import * as enfantController from '../controllers/enfantController.js';
+import enfantController from '../controllers/enfantController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import enfantSchema from '../validations/enfantSchema.js';
 

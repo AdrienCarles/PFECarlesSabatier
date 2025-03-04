@@ -1,5 +1,5 @@
 import express from 'express';
-import * as paiementController from '../controllers/paiementController.js';
+import paiementController from '../controllers/paiementController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import paiementSchema from '../validations/paiementSchema.js';
 

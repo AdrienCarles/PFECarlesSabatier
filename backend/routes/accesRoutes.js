@@ -1,5 +1,5 @@
 import express from 'express';
-import * as accesController from '../controllers/accesController.js';
+import accesController from '../controllers/accesController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import accesSchema from '../validations/accesSchema.js';
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import * as animationController from '../controllers/animationController.js';
+import animationController from '../controllers/animationController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import animationSchema from '../validations/animationSchema.js';
 

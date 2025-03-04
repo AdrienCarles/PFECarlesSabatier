@@ -1,5 +1,5 @@
 import express from 'express';
-import * as userController from '../controllers/userController.js';
+import userController from '../controllers/userController.js';
 import validateSchema from '../middleware/validateSchema.js';
 import userSchema from '../validations/userSchema.js';
 
