@@ -1,0 +1,40 @@
+.welcome-container {
+    background: url("../assets/flowers.gif") center/cover no-repeat;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  
+  .cloud-background {
+    background: rgba(255, 255, 255, 0.8); /* Blanc semi-transparent */
+    padding: 20px;
+    border-radius: 50px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 80%;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    text-shadow: none; /* Supprimer l’ombre du texte */
+  }
+  
+  button {
+    border: 2px solid black;
+    background-color: white;
+    color: black;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    transition: 0.3s;
+  }
+  
+  button:hover {
+    background-color: black;
+    color: white;
+  }
+  

@@ -1,0 +1,25 @@
+.ortho-dashboard {
+    min-height: 100vh; /* Assure que le fond couvre toute la page */
+    width: 100%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh; /* Ajustement pour bien centrer */
+  }
+  
+  .hover-card {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-card:hover {
+    transform: scale(1.05);
+  }
+  

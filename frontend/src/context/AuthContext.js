@@ -6,14 +6,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     
-    // Vérifier si l'utilisateur est connecté au chargement de l'application
     useEffect(() => {
         axios.get("http://localhost:5000/api/auth/self", { withCredentials: true })
             .then(response => setUser(response.data))
             .catch(() => setUser(null));
     }, []);
 
-    // Connexion utilisateur
     const login = async (email, password) => {
         try {
             await axios.post("http://localhost:5000/api/auth/login", { email, password }, { withCredentials: true });
@@ -24,10 +22,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Déconnexion utilisateur
     const logout = async () => {
-        await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
-        setUser(null);
+        try {
+            await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+            setUser(null);
+        } catch (error) {
+            console.error("Erreur lors de la déconnexion", error);
+        }
     };
 
     return (
