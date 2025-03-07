@@ -56,7 +56,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SES',
-    tableName: 'SES'
+    tableName: 'SES',
+    timestamps: false
   });
   return SES;
 };

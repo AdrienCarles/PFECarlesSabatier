@@ -68,7 +68,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ABM',
-    tableName: 'ABM'
+    tableName: 'ABM',
+    timestamps: false
   });
   
   return ABM;

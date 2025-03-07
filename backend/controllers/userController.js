@@ -43,10 +43,17 @@ const userController = {
       });
       res.status(201).json(user);
     } catch (error) {
+      console.error("User creation error details:", error);
+      
       if (error.name === 'SequelizeValidationError') {
-        return next(new AppError(400, 'Données utilisateur invalides'));
+        return next(new AppError(400, `Données invalides: ${error.message}`));
+      } else if (error.name === 'SequelizeUniqueConstraintError') {
+        return next(new AppError(400, `Email déjà utilisé`));
+      } else if (error.name === 'SequelizeForeignKeyConstraintError') {
+        return next(new AppError(400, `Référence invalide`));
       }
-      next(new AppError(500, 'Erreur lors de la création de l\'utilisateur'));
+      
+      next(new AppError(500, `Erreur: ${error.message}`));
     }
   },
   

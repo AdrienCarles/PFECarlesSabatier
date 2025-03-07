@@ -20,7 +20,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'PAI',
-    tableName: 'PAI'
+    tableName: 'PAI',
+    timestamps: false
   });
   return PAI;
 };

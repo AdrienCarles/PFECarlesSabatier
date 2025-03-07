@@ -90,6 +90,7 @@ export default (sequelize, DataTypes) => {
       sequelize,
       modelName: 'ANI',
       tableName: 'ANI',
+      timestamps: false
     }
   );
 

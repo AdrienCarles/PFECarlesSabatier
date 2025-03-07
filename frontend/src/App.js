@@ -17,20 +17,18 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/login" element={<Login />} />
-                    <Route path="/home" element={<Home />} />
+                    <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                     <Route path="/Welcome" element={<Welcome />} />
-                    <Route path="*" element={<Navigate to="/Welcome" />} /> {/* Redirection par défaut */}
                     {/* ADMIN */}
                     <Route path="/admin/AdminDashboard" element={<AdminDashboard />} />
                     <Route path="/admin/AdminDashboard/GestionUsers" element={<GestionUsers />} />
                     <Route path="/admin/AdminDashboard/GestionAbonnement" element={<GestionAbonnements />} />
                     <Route path="/admin/AdminDashboard/GestionSeries" element={<GestionSeries />} />
-
-
                     {/* ORTHO */}
                     <Route path="/ortho/OrthoDashboard" element={<OrthoDashboard />} />
                     {/* PARENT */}
-
+                    {/* Redirection par défaut */}
+                    <Route path="*" element={<Navigate to="/Welcome" />} /> 
                 </Routes>
             </Router>
         </AuthProvider>

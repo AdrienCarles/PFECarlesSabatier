@@ -97,7 +97,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'USR',
-    tableName: 'USR'
+    tableName: 'USR',
+    timestamps: false
   });
   return USR;
 };

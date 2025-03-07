@@ -95,7 +95,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ENFA',
-    tableName: 'ENFA'
+    tableName: 'ENFA',
+    timestamps: false
   });
   return ENFA;
 };

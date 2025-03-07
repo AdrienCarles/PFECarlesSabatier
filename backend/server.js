@@ -23,12 +23,13 @@ dotenv.config();
 const app = express();
 
 app.use(globalLimiter);
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL, // URL de votre frontend
-    credentials: true, // Autoriser les cookies cross-origin
-  })
-);
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // This uses http://localhost:3000 from your .env
+  credentials: true, // Important for cookies/authentication
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 app.use(cookieParser());

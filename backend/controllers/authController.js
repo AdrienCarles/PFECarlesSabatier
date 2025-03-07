@@ -7,6 +7,7 @@ const authController = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
+      console.log(email, password);
   
       const user = await USR.findOne({ where: { USR_email: email } });
       if (!user) {
@@ -18,10 +19,9 @@ const authController = {
         return next(new AppError(401, 'Email ou mot de passe incorrect'));
       }
   
-      const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-      const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
-  
-      await RefreshToken.create({ user_id: user.id, token: refreshToken });
+      const accessToken = jwt.sign({ id: user.USR_id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+      const refreshToken = jwt.sign({ id: user.USR_id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+      await RefreshToken.create({ USR_id: user.USR_id, token: refreshToken });      
   
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
@@ -39,23 +39,36 @@ const authController = {
   
       res.json({
         message: 'Connexion réussie',
-        user: { id: user.id, email: user.USR_email, role: user.USR_role },
+        user: { id: user.USR_id, email: user.USR_email, role: user.USR_role },
+        token: accessToken
       });
     } catch (error) {
+      console.log(error);
       next(new AppError(500, 'Erreur lors de la connexion'));
     }
   },
   
   self: async (req, res, next) => {
     try {
+      // Utilisez le bon nom de colonne
       const user = await USR.findByPk(req.user.id, {
-        attributes: ['id', 'USR_email', 'USR_nom', 'USR_prenom', 'USR_role'],
+        attributes: ['USR_id', 'USR_email', 'USR_nom', 'USR_prenom', 'USR_role'],
       });
+      
       if (!user) {
         return next(new AppError(404, 'Utilisateur non trouvé'));
       }
-      res.json(user);
+      
+      // Transformez la réponse pour correspondre à ce que le frontend attend
+      res.json({
+        id: user.USR_id,
+        email: user.USR_email,
+        nom: user.USR_nom,
+        prenom: user.USR_prenom, 
+        role: user.USR_role
+      });
     } catch (error) {
+      console.error("Erreur détaillée:", error);
       next(new AppError(500, 'Erreur lors de la récupération du profil'));
     }
   },
@@ -71,7 +84,7 @@ const authController = {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   
       const tokenRecord = await RefreshToken.findOne({
-        where: { token: refreshToken, user_id: decoded.id },
+        where: { token: refreshToken, USR_id: decoded.id },
       });
   
       if (!tokenRecord || tokenRecord.used) {
@@ -84,7 +97,7 @@ const authController = {
       const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
       const newRefreshToken = jwt.sign({ id: decoded.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
   
-      await RefreshToken.create({ user_id: decoded.id, token: newRefreshToken });
+      await RefreshToken.create({ USR_id: decoded.id, token: newRefreshToken });
   
       // Stocker les nouveaux tokens dans des cookies sécurisés
       res.cookie('accessToken', newAccessToken, {

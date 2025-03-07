@@ -1,40 +1,63 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Table, Button, Modal, Form } from "react-bootstrap";
+import { Container, Table, Button, Modal, Form, Alert } from "react-bootstrap";
 import AuthContext from "../../context/AuthContext";
-import axios from "axios";
+import axiosInstance from "../../api/axiosConfig";
 
 const GestionUsers = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [showModal, setShowModal] = useState(false); // Gère l'affichage de la modale
+  const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
-    name: "",
-    prenom: "",
-    email: "",
-    role: "Choix",
-    phone: "",
+    USR_nom: "",
+    USR_prenom: "",
+    USR_email: "",
+    USR_pass: "", // Ajout du champ mot de passe
+    USR_role: "parent", // Valeur par défaut valide
+    USR_telephone: "",
+    USR_statut: "actif",
   });
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users") // Modifier l'URL selon ton backend
+    axiosInstance
+      .get("/usr")
       .then((response) => setUsers(response.data))
-      .catch((error) => console.error("Erreur lors du chargement des utilisateurs", error));
+      .catch((error) => {
+        console.error("Erreur lors du chargement des utilisateurs", error);
+        setError("Impossible de charger les utilisateurs");
+      });
   }, []);
 
   const handleDelete = (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
-      axios.delete(`http://localhost:5000/api/users/${id}`)
-        .then(() => setUsers(users.filter(user => user.id !== id)))
-        .catch((error) => console.error("Erreur lors de la suppression", error));
+      axiosInstance
+        .delete(`/usr/${id}`)
+        .then(() => setUsers(users.filter((user) => user.id !== id)))
+        .catch((error) => {
+          console.error("Erreur lors de la suppression", error);
+          setError("Erreur lors de la suppression de l'utilisateur");
+        });
     }
   };
 
   const handleShow = () => setShowModal(true);
+
   const handleClose = () => {
     setShowModal(false);
-    setFormData({ name: "", prenom: "", email: "", role: "Choix", phone: "" });
+    setError("");
+    // Réinitialiser avec les noms de champs corrects
+    setFormData({
+      USR_nom: "",
+      USR_prenom: "",
+      USR_email: "",
+      USR_pass: "",
+      USR_role: "parent",
+      USR_telephone: "",
+      USR_statut: "actif",
+    });
   };
 
   const handleChange = (e) => {
@@ -43,29 +66,36 @@ const GestionUsers = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.role === "Choix") {
-      alert("Veuillez sélectionner un rôle.");
-      return;
-    }
-  
+    setError("");
+
     try {
-      const response = await axios.post("http://localhost:5000/api/users", formData);
-      const newUser = response.data; // Récupérer les données du nouvel utilisateur ajouté
-  
-      setUsers([...users, newUser]); // Mettre à jour le tableau sans rechargement
+      const response = await axiosInstance.post("/usr", formData);
+      const newUser = response.data;
+
+      setUsers([...users, newUser]);
       alert("Utilisateur ajouté avec succès !");
-      handleClose(); // Fermer la modale après l'ajout
+      handleClose();
     } catch (error) {
       console.error("Erreur lors de l'ajout de l'utilisateur", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("Erreur lors de l'ajout de l'utilisateur");
+      }
     }
   };
-  
 
   return (
     <Container className="gestion-users">
       {/* Bouton de déconnexion */}
       <div className="d-flex justify-content-end my-3">
-        <Button variant="danger" onClick={logout}>Déconnexion</Button>
+        <Button variant="danger" onClick={logout}>
+          Déconnexion
+        </Button>
       </div>
 
       <h1 className="text-center mb-4">Gestion des utilisateurs</h1>
@@ -75,7 +105,10 @@ const GestionUsers = () => {
         <Button variant="primary" onClick={handleShow}>
           Ajouter un utilisateur
         </Button>
-        <Button variant="secondary" onClick={() => navigate("/admin/AdminDashboard")}>
+        <Button
+          variant="secondary"
+          onClick={() => navigate("/admin/AdminDashboard")}
+        >
           Retour au dashboard
         </Button>
       </div>
@@ -102,7 +135,11 @@ const GestionUsers = () => {
                 <Button variant="warning" size="sm" className="me-2">
                   Modifier
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => handleDelete(user.id)}>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleDelete(user.id)}
+                >
                   Supprimer
                 </Button>
               </td>
@@ -117,34 +154,93 @@ const GestionUsers = () => {
           <Modal.Title>Ajouter un utilisateur</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {error && <Alert variant="danger">{error}</Alert>}
+
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Nom :</Form.Label>
-              <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} required />
+              <Form.Control
+                type="text"
+                name="USR_nom" // Nom de champ correct
+                value={formData.USR_nom}
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Prénom :</Form.Label>
-              <Form.Control type="text" name="prenom" value={formData.prenom} onChange={handleChange} required />
+              <Form.Control
+                type="text"
+                name="USR_prenom" // Nom de champ correct
+                value={formData.USR_prenom}
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Adresse mail :</Form.Label>
-              <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required />
+              <Form.Control
+                type="email"
+                name="USR_email" // Nom de champ correct
+                value={formData.USR_email}
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Rôle :</Form.Label>
-              <Form.Select name="role" value={formData.role} onChange={handleChange} required>
-                <option>Choix</option>
-                <option>Administrateur</option>
-                <option>Orthophoniste</option>
-              </Form.Select>
+              <Form.Label>Mot de passe :</Form.Label>
+              <Form.Control
+                type="password"
+                name="USR_pass" // Champ mot de passe requis
+                value={formData.USR_pass}
+                onChange={handleChange}
+                required
+                minLength="8"
+              />
+              <Form.Text className="text-muted">Minimum 8 caractères</Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Numéro de téléphone :</Form.Label>
-              <Form.Control type="text" name="phone" value={formData.phone} onChange={handleChange} required />
+              <Form.Control
+                type="text"
+                name="USR_telephone" // Nom de champ correct
+                value={formData.USR_telephone}
+                onChange={handleChange}
+                placeholder="Format: 0612345678"
+                pattern="[0-9]{10,15}" // Validation du format selon le backend
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Rôle :</Form.Label>
+              <Form.Select
+                name="USR_role" // Nom de champ correct
+                value={formData.USR_role}
+                onChange={handleChange}
+                required
+              >
+                <option value="parent">Parent</option>
+                <option value="orthophoniste">Orthophoniste</option>
+                <option value="admin">Admin</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Statut :</Form.Label>
+              <Form.Select
+                name="USR_statut"
+                value={formData.USR_statut}
+                onChange={handleChange}
+                required
+              >
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="suspendu">Suspendu</option>
+              </Form.Select>
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100">

@@ -39,7 +39,6 @@ for (const file of files) {
   const modelModule = await import(modelPath);
   const model = modelModule.default(sequelize, DataTypes);
   db[model.name] = model;
-  console.log(`✅ Chargement du modèle : ${model.name}`);
 }
 
 Object.keys(db).forEach(modelName => {

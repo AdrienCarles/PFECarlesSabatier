@@ -28,7 +28,8 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'LoginAttempt',
-    tableName: 'login_attempts'
+    tableName: 'login_attempts',
+    timestamps: false
   });
   
   return LoginAttempt;
