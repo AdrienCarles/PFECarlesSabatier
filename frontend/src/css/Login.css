@@ -1,5 +1,5 @@
 .login-container {
-    background: url("../assets/flowers.gif") center/cover no-repeat;
+    /* background: url("../assets/flowers.gif") center/cover no-repeat; */
     height: 100vh;
     display: flex;
     justify-content: center;

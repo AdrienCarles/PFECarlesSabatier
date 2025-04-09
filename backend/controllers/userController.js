@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 import AppError from '../utils/AppError.js';
-import { USR, ENFA, ABM, ANI, SES } from '../models/index.js';
+import { USR, ENFA, ABM, ANI, SES, RefreshToken } from '../models/index.js';
 
 const userController = {
   getAllUsers: async (req, res, next) => {
@@ -75,13 +75,28 @@ const userController = {
 
   deleteUser: async (req, res, next) => {
     try {
-      const user = await USR.findByPk(req.params.id);
+      const user = await USR.findByPk(req.params.usrId);
       if (!user) {
         return next(new AppError(404, 'Utilisateur non trouvé'));
       }
+  
+      // 1. Supprimer d'abord tous les refresh tokens associés à cet utilisateur
+      await RefreshToken.destroy({
+        where: { USR_id: user.USR_id }
+      });
+  
+      // 2. Ensuite supprimer l'utilisateur
       await user.destroy();
+      
       res.json({ message: 'Utilisateur supprimé avec succès' });
     } catch (error) {
+      console.error("Erreur complète:", error);
+      
+      // Afficher un message plus spécifique en cas d'erreur de contrainte
+      if (error.name === 'SequelizeForeignKeyConstraintError') {
+        return next(new AppError(400, 'Impossible de supprimer cet utilisateur car il est référencé par d\'autres données'));
+      }
+      
       next(new AppError(500, 'Erreur lors de la suppression de l\'utilisateur'));
     }
   },

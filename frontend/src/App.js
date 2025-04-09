@@ -16,16 +16,18 @@ function App() {
         <AuthProvider>
             <Router>
                 <Routes>
+                    {/* ROUTES NON PROTEGES */}
                     <Route path="/login" element={<Login />} />
-                    <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                     <Route path="/Welcome" element={<Welcome />} />
+                    {/* ROUTES PROTEGES */}
+                    <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                     {/* ADMIN */}
-                    <Route path="/admin/AdminDashboard" element={<AdminDashboard />} />
-                    <Route path="/admin/AdminDashboard/GestionUsers" element={<GestionUsers />} />
-                    <Route path="/admin/AdminDashboard/GestionAbonnement" element={<GestionAbonnements />} />
-                    <Route path="/admin/AdminDashboard/GestionSeries" element={<GestionSeries />} />
+                    <Route path="/admin/AdminDashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/AdminDashboard/GestionUsers" element={<ProtectedRoute><GestionUsers /></ProtectedRoute>} />
+                    <Route path="/admin/AdminDashboard/GestionAbonnement" element={<ProtectedRoute><GestionAbonnements /></ProtectedRoute>} />
+                    <Route path="/admin/AdminDashboard/GestionSeries" element={<ProtectedRoute><GestionSeries /></ProtectedRoute>} />
                     {/* ORTHO */}
-                    <Route path="/ortho/OrthoDashboard" element={<OrthoDashboard />} />
+                    <Route path="/ortho/OrthoDashboard" element={<ProtectedRoute><OrthoDashboard /></ProtectedRoute>} />
                     {/* PARENT */}
                     {/* Redirection par défaut */}
                     <Route path="*" element={<Navigate to="/Welcome" />} /> 

@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
           // Vérifiez que la réponse contient bien un token
           if (!loginResponse.data.token) {
             console.error("Le serveur n'a pas renvoyé de token");
-            return false;
+            return { success: false };
           }
           
           // Sauvegardez le token dans localStorage
@@ -48,12 +48,12 @@ export const AuthProvider = ({ children }) => {
           // Récupérez les informations utilisateur
           const userResponse = await axiosInstance.get("/auth/self");
           setUser(userResponse.data);
-          return true;
+          return { success: true, userRole: userResponse.data.role };
         } catch (error) {
           console.error("Erreur de connexion", error);
-          return false;
+          return { success: false };
         }
-      };
+    };
 
     const logout = async () => {
         try {

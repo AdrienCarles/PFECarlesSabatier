@@ -35,10 +35,16 @@ const GestionUsers = () => {
     if (window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
       axiosInstance
         .delete(`/usr/${id}`)
-        .then(() => setUsers(users.filter((user) => user.id !== id)))
+        .then(() => {
+          setUsers(users.filter((user) => user.USR_id !== id));
+        })
         .catch((error) => {
           console.error("Erreur lors de la suppression", error);
-          setError("Erreur lors de la suppression de l'utilisateur");
+          if (error.response && error.response.data && error.response.data.message) {
+            setError(error.response.data.message);
+          } else {
+            setError("Erreur lors de la suppression de l'utilisateur");
+          }
         });
     }
   };
@@ -59,6 +65,9 @@ const GestionUsers = () => {
       USR_statut: "actif",
     });
   };
+
+  console.log(users);
+  console.log(formData);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -127,10 +136,12 @@ const GestionUsers = () => {
         <tbody>
           {users.map((user, index) => (
             <tr key={index}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>{user.phone}</td>
+              <td>
+                {user.USR_nom} {user.USR_prenom}
+              </td>
+              <td>{user.USR_email}</td>
+              <td>{user.USR_role}</td>
+              <td>{user.USR_telephone}</td>
               <td>
                 <Button variant="warning" size="sm" className="me-2">
                   Modifier
@@ -138,7 +149,7 @@ const GestionUsers = () => {
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => handleDelete(user.id)}
+                  onClick={() => handleDelete(user.USR_id)}
                 >
                   Supprimer
                 </Button>

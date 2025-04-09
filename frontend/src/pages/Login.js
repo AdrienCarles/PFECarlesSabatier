@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../css/Login.css"; // Import du CSS
@@ -6,14 +6,31 @@ import "../css/Login.css"; // Import du CSS
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
-    navigate("/home"); // Redirection après connexion
+    setError("");
+    
+    const result = await login(email, password);
+    
+    if (result.success) {
+      // Redirection basée sur le rôle
+      if (result.userRole === "admin") {
+        navigate("/admin/AdminDashboard");
+      } else if (result.userRole === "ortho") {
+        navigate("/ortho/OrthoDashboard");
+      } else {
+        // Pour les autres rôles comme "parent"
+        navigate("/home");
+      }
+    } else {
+      setError("Identifiants incorrects");
+    }
   };
+
 
   return (
     <div className="login-container">

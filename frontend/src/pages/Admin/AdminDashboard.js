@@ -23,7 +23,7 @@ const AdminDashboard = () => {
       </div>
 
       <Container className="text-center d-flex flex-column justify-content-center align-items-center">
-        <h1 className="mb-4 fw-bold">Bienvenue admin {user?.name || "XXXX"}</h1>
+        <h1 className="mb-4 fw-bold">Bienvenue admin {user?.nom || "XXXX"}</h1>
 
         <Row className="justify-content-center w-100">
           <Col xs={12} sm={6} md={4} className="d-flex justify-content-center">
