@@ -9,6 +9,7 @@ import OrthoDashboard from "./pages/Ortho/OrthoDashboard";
 import GestionUsers from "./pages/Admin/GestionUsers";
 import GestionAbonnements from "./pages/Admin/GestionAbonnements";
 import GestionSeries from "./pages/Admin/GestionSeries";
+import GestionEnfants from "./pages/Ortho/GestionEnfants";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                     <Route path="/admin/AdminDashboard/GestionSeries" element={<ProtectedRoute><GestionSeries /></ProtectedRoute>} />
                     {/* ORTHO */}
                     <Route path="/ortho/OrthoDashboard" element={<ProtectedRoute><OrthoDashboard /></ProtectedRoute>} />
+                    <Route path="/ortho/OrthoDashboard/GestionEnfants" element={<ProtectedRoute><GestionEnfants /></ProtectedRoute>} />
                     {/* PARENT */}
                     {/* Redirection par défaut */}
                     <Route path="*" element={<Navigate to="/Welcome" />} /> 

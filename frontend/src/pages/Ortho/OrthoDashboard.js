@@ -24,11 +24,11 @@ const OrthoDashboard = () => {
 
       {/* Conteneur centré */}
       <Container className="dashboard-content text-center">
-        <h1 className="mb-4 fw-bold">Bienvenue ortho {user?.name || "XXXX"}</h1>
+        <h1 className="mb-4 fw-bold">Bienvenue orthophoniste {user?.nom} {user?.prenom}</h1>
 
         <Row className="justify-content-center w-100">
           <Col xs={12} sm={6} md={4} className="d-flex justify-content-center">
-            <Card className="text-center shadow-lg border-0 p-4 hover-card" onClick={() => navigate("/ortho/patients")}>
+            <Card className="text-center shadow-lg border-0 p-4 hover-card" onClick={() => navigate("/ortho/OrthoDashboard/GestionEnfants")}>
               <Card.Body>
                 <FaUserMd size={40} className="mb-2 text-primary" />
                 <h5 className="fw-bold">Gestion des patients</h5>

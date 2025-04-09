@@ -36,11 +36,14 @@ const enfantController = {
   },
 
   createEnfant: async (req, res, next) => {
+    console.log("📥 Données reçues pour création d'enfant :", req.body); // ← on log ce qu’on reçoit
+  
     try {
       const enfant = await ENFA.create(req.body);
       res.status(201).json(enfant);
     } catch (error) {
-      next(new AppError(500, error.message));
+      console.error("❌ ERREUR SQL :", error); // ← on log l’erreur SQL détaillée
+      next(new AppError(500, error?.original?.sqlMessage || error.message));
     }
   },
 
