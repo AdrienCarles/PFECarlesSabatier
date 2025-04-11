@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: process.env.REACT_APP_API_URL + "/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -36,14 +36,11 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        console.log("Tentative de rafraîchissement du token...");
-        await axios.post('http://localhost:5000/api/auth/refresh-token', {}, { withCredentials: true });
-        console.log("Token rafraîchi avec succès, réessai de la requête originale");
+        await axios.post(process.env.REACT_APP_API_URL + '/api/auth/refresh-token', {}, { withCredentials: true });
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error("Échec du rafraîchissement", refreshError);
         if (!isPublicPage) {
-          console.log("Redirection vers la page de connexion");
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);

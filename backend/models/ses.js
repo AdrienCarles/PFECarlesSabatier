@@ -44,15 +44,19 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.TEXT
     },
     SES_statut: {
-      type: DataTypes.ENUM('actif', 'inactif', 'en_preparation'),
+      type: DataTypes.ENUM('actif', 'inactif', 'en_attente'),
       allowNull: false,
-      defaultValue: 'en_preparation'
+      defaultValue: 'en_attente'
     },
     SES_dateCreation: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
-    }
+    }, 
+    SES_icone: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'SES',

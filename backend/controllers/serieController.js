@@ -35,13 +35,17 @@ const serieController = {
 
   createSerie: async (req, res, next) => {
     try {
+      if (req.file) {
+        // Construire le chemin relatif pour accéder à l'image
+        req.body.SES_icone = `/uploads/series/${req.file.filename}`;
+      }
       const serie = await SES.create(req.body);
       res.status(201).json(serie);
     } catch (error) {
       if (error.name === 'SequelizeValidationError') {
         return next(new AppError(400, 'Données de série invalides'));
       }
-      next(new AppError(500, 'Erreur lors de la création de la série'));
+      next(new AppError(500, `Erreur lors de la création de la série: ${error.message}`));
     }
   },
   

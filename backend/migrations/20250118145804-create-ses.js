@@ -28,6 +28,10 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW
       },
+      SES_icone: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
     }, {
       timestamps: false
     });

@@ -1,5 +1,8 @@
 import express from 'express';
 import serieController from '../controllers/serieController.js';
+import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
+import { uploadSeriesIcon } from '../middleware/uploadMiddleware.js';
+
 
 const router = express.Router();
 
@@ -15,8 +18,11 @@ router.get('/:sesId',
 
 // POST /api/ses - Création
 router.post('/', 
+    authenticateToken, 
+    authorizeRoles('admin', 'orthophoniste'),
+    uploadSeriesIcon,
     serieController.createSerie
-);
+  );
 
 // PUT /api/ses/:sesId - Mise à jour
 router.put('/:sesId', 
