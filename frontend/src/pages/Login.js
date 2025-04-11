@@ -20,7 +20,7 @@ const Login = () => {
       // Redirection basée sur le rôle
       if (result.userRole === "admin") {
         navigate("/admin/AdminDashboard");
-      } else if (result.userRole === "ortho") {
+      } else if (result.userRole === "orthophoniste") {
         navigate("/ortho/OrthoDashboard");
       } else {
         // Pour les autres rôles comme "parent"
