@@ -1,15 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Table, Button, Form, Image } from "react-bootstrap";
+import {
+  Container,
+  Table,
+  Button,
+  Form,
+  Image,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
+import { FaTrashAlt, FaEdit, FaEye } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
 import CreateSerie from "./SeriesGestion/CreateSerie";
+import EditSerie from "./SeriesGestion/EditSerie";
 
 const GestionSeries = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [series, setSeries] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSerieId, setSelectedSerieId] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -21,14 +33,48 @@ const GestionSeries = () => {
       });
   }, []);
 
+  const handleDeleteSerie = (serieId) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette série ?")) {
+      axiosInstance
+        .delete(`/ses/${serieId}`)
+        .then(() => {
+          setSeries(series.filter((serie) => serie.SES_id !== serieId));
+          alert("Série supprimée avec succès");
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la suppression:", error);
+          alert("Une erreur est survenue lors de la suppression");
+        });
+    }
+  };
+
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+
+  const handleEditShow = (serieId) => {
+    setSelectedSerieId(serieId);
+    setShowEditModal(true);
+  };
+
+  const handleEditClose = () => {
+    setShowEditModal(false);
+    setSelectedSerieId(null);
+  };
 
   // Fonction pour ajouter une nouvelle série à la liste
   const addSerie = (newSerie) => {
     setSeries([...series, newSerie]);
   };
-  console.log(series);
+
+    // Fonction pour mettre à jour la série dans la liste
+    const updateSerie = (updatedSerie) => {
+      setSeries(
+        series.map((serie) =>
+          serie.SES_id === updatedSerie.SES_id ? updatedSerie : serie
+        )
+      );
+    };
+
   return (
     <Container className="gestion-series">
       {/* Bouton de déconnexion */}
@@ -87,7 +133,41 @@ const GestionSeries = () => {
               </td>
               <td>{serie.SES_titre}</td>
               <td>{serie.SES_description}</td>
-              <td>
+              <td className="text-center">
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id={`tooltip-edit-${serie.SES_id}`}>
+                      Modifier
+                    </Tooltip>
+                  }
+                >
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="me-1"
+                    onClick={() => handleEditShow(serie.SES_id)}
+                  >
+                    <FaEdit />
+                  </Button>
+                </OverlayTrigger>
+
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id={`tooltip-delete-${serie.SES_id}`}>
+                      Supprimer
+                    </Tooltip>
+                  }
+                >
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => handleDeleteSerie(serie.SES_id)}
+                  >
+                    <FaTrashAlt />
+                  </Button>
+                </OverlayTrigger>
               </td>
             </tr>
           ))}
@@ -99,6 +179,13 @@ const GestionSeries = () => {
         show={showModal}
         handleClose={handleClose}
         addSerie={addSerie}
+      />
+      {/* Composant modal de modification de la série */}
+      <EditSerie
+        show={showEditModal}
+        handleClose={handleEditClose}
+        updateSerie={updateSerie}
+        serieId={selectedSerieId}
       />
     </Container>
   );

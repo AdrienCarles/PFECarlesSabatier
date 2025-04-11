@@ -8,7 +8,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import OrthoDashboard from "./pages/Ortho/OrthoDashboard";
 import GestionUsers from "./pages/Admin/GestionUsers";
 import GestionAbonnements from "./pages/Admin/GestionAbonnements";
-import GestionSeries from "./pages/Admin/GestionSeries";
+import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 
 
@@ -26,11 +26,12 @@ function App() {
                     <Route path="/admin/AdminDashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/admin/AdminDashboard/GestionUsers" element={<ProtectedRoute><GestionUsers /></ProtectedRoute>} />
                     <Route path="/admin/AdminDashboard/GestionAbonnement" element={<ProtectedRoute><GestionAbonnements /></ProtectedRoute>} />
-                    <Route path="/admin/AdminDashboard/GestionSeries" element={<ProtectedRoute><GestionSeries /></ProtectedRoute>} />
                     {/* ORTHO */}
                     <Route path="/ortho/OrthoDashboard" element={<ProtectedRoute><OrthoDashboard /></ProtectedRoute>} />
                     <Route path="/ortho/OrthoDashboard/GestionEnfants" element={<ProtectedRoute><GestionEnfants /></ProtectedRoute>} />
                     {/* PARENT */}
+                    {/* SERIES */}
+                    <Route path="/series/GestionSeries" element={<ProtectedRoute><GestionSeries /></ProtectedRoute>} />
                     {/* Redirection par défaut */}
                     <Route path="*" element={<Navigate to="/Welcome" />} /> 
                 </Routes>

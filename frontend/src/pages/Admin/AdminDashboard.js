@@ -43,7 +43,7 @@ const AdminDashboard = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6} md={4} className="d-flex justify-content-center">
-            <Card className="text-center shadow-lg border-0 p-4 hover-card" onClick={() => navigate("/admin/AdminDashboard/GestionSeries")}>
+            <Card className="text-center shadow-lg border-0 p-4 hover-card" onClick={() => navigate("/series/GestionSeries")}>
               <Card.Body>
                 <FaBook size={40} className="mb-2 text-warning" />
                 <h5 className="fw-bold">Gestion des séries</h5>

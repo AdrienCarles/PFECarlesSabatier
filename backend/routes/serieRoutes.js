@@ -8,11 +8,14 @@ const router = express.Router();
 
 // GET /api/ses - Liste complète
 router.get('/', 
+    authenticateToken, 
+    authorizeRoles('admin', 'orthophoniste'),
     serieController.getAllSeries
 );
 
 // GET /api/ses/:sesId - Détail
 router.get('/:sesId', 
+    authenticateToken, 
     serieController.getSerieById
 );
 
@@ -25,12 +28,16 @@ router.post('/',
   );
 
 // PUT /api/ses/:sesId - Mise à jour
-router.put('/:sesId', 
+router.put('/:sesId',
+    authenticateToken,
+    uploadSeriesIcon,
     serieController.updateSerie
 );
 
 // DELETE /api/ses/:sesId - Suppression
 router.delete('/:sesId', 
+    authenticateToken,
+    authorizeRoles('admin'),
     serieController.deleteSerie
 );
 
