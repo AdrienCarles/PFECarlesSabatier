@@ -17,11 +17,13 @@ const EditUser = ({ show, handleClose, updateUser, userId }) => {
   // Charger les données de l'utilisateur lorsque le modal s'ouvre
   useEffect(() => {
     if (show && userId) {
+
       setLoading(true);
       axiosInstance
         .get(`/usr/${userId}`)
         .then((response) => {
           const userData = response.data;
+          console.log("userId:", response);
           setFormData({
             USR_nom: userData.USR_nom || "",
             USR_prenom: userData.USR_prenom || "",
@@ -56,10 +58,8 @@ const EditUser = ({ show, handleClose, updateUser, userId }) => {
       const response = await axiosInstance.put(`/usr/${userId}`, formData);
       const updatedUser = response.data;
       
-      // Appeler la fonction du composant parent pour mettre à jour l'utilisateur
       updateUser(updatedUser);
       
-      // Fermer la modal
       handleClose();
       alert("Utilisateur modifié avec succès !");
     } catch (error) {

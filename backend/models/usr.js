@@ -30,14 +30,13 @@ export default (sequelize, DataTypes) => {
         foreignKey: 'USR_parent_id',
         as: 'enfantsParent'
       });
-
       // Un utilisateur peut être orthophoniste de plusieurs enfants
       USR.hasMany(models.ENFA, {
         foreignKey: 'USR_orthophoniste_id',
         as: 'enfantsOrthophoniste'
       });
       USR.hasMany(models.RefreshToken, {
-        foreignKey: 'user_id',
+        foreignKey: 'USR_id',
         sourceKey: 'USR_id',
         as: 'refreshTokens'
       });

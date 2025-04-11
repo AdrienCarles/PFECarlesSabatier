@@ -15,7 +15,7 @@ const userController = {
 
   getUserById: async (req, res, next) => {
     try {
-      const user = await USR.findByPk(req.params.id, {
+      const user = await USR.findByPk(req.params.usrId, {
         include: [
           { model: ENFA, as: 'enfantsParent' },
           { model: ENFA, as: 'enfantsOrthophoniste' },
@@ -29,7 +29,6 @@ const userController = {
       }
       res.json(user);
     } catch (error) {
-      console.error("User retrieval error details:", error);
       next(new AppError(500, 'Erreur lors de la récupération de l\'utilisateur'));
     }
   },
@@ -44,7 +43,6 @@ const userController = {
       });
       res.status(201).json(user);
     } catch (error) {
-      console.error("User creation error details:", error);
       
       if (error.name === 'SequelizeValidationError') {
         return next(new AppError(400, `Données invalides: ${error.message}`));
@@ -60,7 +58,7 @@ const userController = {
   
   updateUser: async (req, res, next) => {
     try {
-      const user = await USR.findByPk(req.params.id);
+      const user = await USR.findByPk(req.params.usrId);
       if (!user) {
         return next(new AppError(404, 'Utilisateur non trouvé'));
       }

@@ -22,7 +22,12 @@ module.exports = {
       SES_statut: {
         type: Sequelize.STRING(50),
         allowNull: false
-      }
+      },
+      SES_dateCreation: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
+      },
     }, {
       timestamps: false
     });
