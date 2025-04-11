@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Table, Button, Alert } from "react-bootstrap";
-import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
 import CreateUser from "./UserGestion/CreateUser";
 import EditUser from "./UserGestion/EditUser";
 
 const GestionUsers = () => {
-  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -74,13 +72,6 @@ const GestionUsers = () => {
 
   return (
     <Container className="gestion-users">
-      {/* Bouton de déconnexion */}
-      <div className="d-flex justify-content-end my-3">
-        <Button variant="danger" onClick={logout}>
-          Déconnexion
-        </Button>
-      </div>
-
       <h1 className="text-center mb-4">Gestion des utilisateurs</h1>
 
       {/* Message d'erreur */}

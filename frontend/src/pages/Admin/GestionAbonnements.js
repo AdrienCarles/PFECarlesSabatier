@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Table, Button, Modal, Form } from "react-bootstrap";
-import AuthContext from "../../context/AuthContext";
 import axios from "axios";
 
 const GestionAbonnements = () => {
-  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [abonnements, setAbonnements] = useState([]);
   const [showModal, setShowModal] = useState(false); // Gère l'affichage de la modale
@@ -57,11 +55,6 @@ const GestionAbonnements = () => {
 
   return (
     <Container className="gestion-abonnements">
-      {/* Bouton de déconnexion */}
-      <div className="d-flex justify-content-end my-3">
-        <Button variant="danger" onClick={logout}>Déconnexion</Button>
-      </div>
-
       <h1 className="text-center mb-4">Gestion des abonnements</h1>
 
       {/* Boutons d'action */}

@@ -16,12 +16,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard d-flex flex-column justify-content-center align-items-center">
-      <div className="position-absolute top-0 end-0 m-3">
-        <Button variant="danger" size="lg" onClick={handleLogout}>
-          Déconnexion
-        </Button>
-      </div>
-
       <Container className="text-center d-flex flex-column justify-content-center align-items-center">
         <h1 className="mb-4 fw-bold">Bienvenue Administrateur {user?.nom} {user?.prenom}</h1>
 

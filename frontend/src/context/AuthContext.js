@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Fonction pour rafraîchir le token
   const refreshToken = async () => {
     try {
       await axiosInstance.post("/auth/refresh-token");
@@ -34,7 +33,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Liste des chemins qui ne nécessitent pas d'authentification
     const publicPaths = ["/welcome", "/login"];
 
     const isPublicPage = publicPaths.some((path) =>

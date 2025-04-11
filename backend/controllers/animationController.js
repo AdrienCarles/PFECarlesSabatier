@@ -71,7 +71,7 @@ const animationController = {
     }
   },
 
-  getAnimationsBySeries: async (req, res, next) => {
+  getAnimationsBySerie: async (req, res, next) => {
     try {
       const animations = await ANI.findAll({
         where: { SES_id: req.params.serieId },

@@ -6,22 +6,11 @@ import AuthContext from "../../context/AuthContext";
 import "../../css/OrthoDashboard.css"; 
 
 const OrthoDashboard = () => {
-  const { logout, user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/"); // Redirection vers Welcome après la déconnexion
-  };
 
   return (
     <div className="ortho-dashboard">
-      <div className="position-absolute top-0 end-0 m-3">
-        <Button variant="danger" size="lg" onClick={handleLogout}>
-          Déconnexion
-        </Button>
-      </div>
-
       {/* Conteneur centré */}
       <Container className="dashboard-content text-center">
         <h1 className="mb-4 fw-bold">Bienvenue orthophoniste {user?.nom} {user?.prenom}</h1>

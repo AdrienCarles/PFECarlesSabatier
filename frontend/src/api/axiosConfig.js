@@ -2,7 +2,6 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL + "/api",
-  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,18 +13,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // Liste des chemins qui ne nécessitent pas d'authentification
-    const publicPaths = ['/welcome', '/login', '/register', '/about'];
+    const publicPaths = ['/welcome', '/login'];
     
-    // Vérifier si la page actuelle est une page publique
     const isPublicPage = publicPaths.some(path => 
       window.location.pathname.toLowerCase().includes(path.toLowerCase())
     );
     
-    // Ne pas tenter de rafraîchir si:
-    // 1. Nous sommes sur une page publique
-    // 2. La requête concerne l'authentification
-    // 3. Nous avons déjà essayé de rafraîchir
     if (
       error.response?.status === 401 && 
       !originalRequest._retry &&

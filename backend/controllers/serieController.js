@@ -123,6 +123,49 @@ const serieController = {
       next(new AppError(500, 'Erreur lors de la suppression de la série'));
     }
   },
+
+  validerSerie: async (req, res, next) => {
+    try {
+      const { statut } = req.body;
+      const { sesId } = req.params;
+      
+      // Vérification du rôle administrateur
+      if (req.user.role !== 'admin') {
+        return next(new AppError(403, 'Seuls les administrateurs peuvent valider les séries'));
+      }
+      
+      // Vérification du statut valide
+      if (statut !== 'valide' && statut !== 'refuse') {
+        return next(new AppError(400, 'Le statut doit être "valide" ou "refuse"'));
+      }
+      
+      const serie = await SES.findByPk(sesId);
+      if (!serie) {
+        return next(new AppError(404, 'Série non trouvée'));
+      }
+      
+      // Mise à jour du statut
+      const nouveauStatut = statut === 'valide' ? 'actif' : 'inactif';
+      await serie.update({ 
+        SES_statut: nouveauStatut,
+      });
+      
+      // Récupération des données mises à jour
+      const serieUpdated = await SES.findByPk(sesId, {
+        include: [
+          { model: ANI, as: 'animations' },
+          { model: USR, as: 'utilisateurs' },
+        ],
+      });
+      
+      res.json({
+        message: `Série ${nouveauStatut === 'actif' ? 'validée' : 'refusée'} avec succès`,
+        serie: serieUpdated
+      });
+    } catch (error) {
+      next(new AppError(500, `Erreur lors de la validation de la série: ${error.message}`));
+    }
+  }
 };
 
 export default serieController;

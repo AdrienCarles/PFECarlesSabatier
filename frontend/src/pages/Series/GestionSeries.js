@@ -4,23 +4,28 @@ import {
   Container,
   Table,
   Button,
-  Form,
   Image,
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import { FaTrashAlt, FaEdit, FaEye } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
+import { FaTrashAlt, FaEdit, FaCheckCircle } from "react-icons/fa";
+import { HiMiniSquaresPlus } from "react-icons/hi2";
 import axiosInstance from "../../api/axiosConfig";
+import StatusBadge from "../../components/common/StatusBadge";
 import CreateSerie from "./SeriesGestion/CreateSerie";
 import EditSerie from "./SeriesGestion/EditSerie";
+import ValiderSerie from "./SeriesGestion/ValiderSerie";
+import AnimationGestion from "../Animations/AnimationGestion";
 
 const GestionSeries = () => {
-  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [series, setSeries] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showValidModal, setShowValidModal] = useState(false);
+  const [showAnimationModal, setShowAnimationModal] = useState(false);
   const [selectedSerieId, setSelectedSerieId] = useState(null);
   const [error, setError] = useState("");
 
@@ -61,29 +66,42 @@ const GestionSeries = () => {
     setSelectedSerieId(null);
   };
 
+  const handleValidShow = (serieId) => {
+    setSelectedSerieId(serieId);
+    setShowValidModal(true);
+  };
+
+  const handleValidClose = () => {
+    setShowValidModal(false);
+    setSelectedSerieId(null);
+  };
+
+  const handleAnimationShow = (serieId) => {
+    setSelectedSerieId(serieId);
+    setShowAnimationModal(true);
+  };
+
+  const handleAnimationClose = () => {
+    setShowAnimationModal(false);
+    setSelectedSerieId(null);
+  };
+
   // Fonction pour ajouter une nouvelle série à la liste
   const addSerie = (newSerie) => {
     setSeries([...series, newSerie]);
   };
 
-    // Fonction pour mettre à jour la série dans la liste
-    const updateSerie = (updatedSerie) => {
-      setSeries(
-        series.map((serie) =>
-          serie.SES_id === updatedSerie.SES_id ? updatedSerie : serie
-        )
-      );
-    };
+  // Fonction pour mettre à jour la série dans la liste
+  const updateSerie = (updatedSerie) => {
+    setSeries(
+      series.map((serie) =>
+        serie.SES_id === updatedSerie.SES_id ? updatedSerie : serie
+      )
+    );
+  };
 
   return (
     <Container className="gestion-series">
-      {/* Bouton de déconnexion */}
-      <div className="d-flex justify-content-end my-3">
-        <Button variant="danger" onClick={logout}>
-          Déconnexion
-        </Button>
-      </div>
-
       <h1 className="text-center mb-4">Gestion des séries</h1>
 
       {/* Boutons d'action */}
@@ -106,12 +124,14 @@ const GestionSeries = () => {
           <col />
           <col />
           <col />
+          <col />
         </colgroup>
         <thead>
           <tr>
             <th style={{ width: "70px" }}></th>
             <th>Nom</th>
             <th>Descriptions</th>
+            <th>Statut</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -134,6 +154,9 @@ const GestionSeries = () => {
               <td>{serie.SES_titre}</td>
               <td>{serie.SES_description}</td>
               <td className="text-center">
+                <StatusBadge status={serie.SES_statut} />
+              </td>
+              <td className="text-center">
                 <OverlayTrigger
                   placement="top"
                   overlay={
@@ -151,23 +174,63 @@ const GestionSeries = () => {
                     <FaEdit />
                   </Button>
                 </OverlayTrigger>
-
-                <OverlayTrigger
-                  placement="top"
-                  overlay={
-                    <Tooltip id={`tooltip-delete-${serie.SES_id}`}>
-                      Supprimer
-                    </Tooltip>
-                  }
-                >
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => handleDeleteSerie(serie.SES_id)}
+                {user && user.role === "admin" && (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id={`tooltip-validate-${serie.SES_id}`}>
+                        Valider la série
+                      </Tooltip>
+                    }
                   >
-                    <FaTrashAlt />
-                  </Button>
-                </OverlayTrigger>
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      className="me-1"
+                      onClick={() => handleValidShow(serie.SES_id)}
+                    >
+                      <FaCheckCircle />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+                {user &&
+                  (user.role === "admin" || user.role === "orthophoniste") && (
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={
+                        <Tooltip id={`tooltip-animation-${serie.SES_id}`}>
+                          Gestion des animations
+                        </Tooltip>
+                      }
+                    >
+                      <Button
+                        variant="outline-info"
+                        size="sm"
+                        className="me-1"
+                        onClick={() => handleAnimationShow(serie.SES_id)}
+                      >
+                        <HiMiniSquaresPlus />
+                      </Button>
+                    </OverlayTrigger>
+                  )}
+                {user && user.role === "admin" && (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id={`tooltip-delete-${serie.SES_id}`}>
+                        Supprimer
+                      </Tooltip>
+                    }
+                  >
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => handleDeleteSerie(serie.SES_id)}
+                    >
+                      <FaTrashAlt />
+                    </Button>
+                  </OverlayTrigger>
+                )}
               </td>
             </tr>
           ))}
@@ -185,6 +248,19 @@ const GestionSeries = () => {
         show={showEditModal}
         handleClose={handleEditClose}
         updateSerie={updateSerie}
+        serieId={selectedSerieId}
+      />
+      {/* Composant modal de validation de la série */}
+      <ValiderSerie
+        show={showValidModal}
+        handleClose={handleValidClose}
+        updateSerie={updateSerie}
+        serieId={selectedSerieId}
+      />
+      {/* Composant modal de gestion des animations */}
+      <AnimationGestion
+        show={showAnimationModal}
+        handleClose={handleAnimationClose}
         serieId={selectedSerieId}
       />
     </Container>

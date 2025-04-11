@@ -1,15 +1,12 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
-import { Spinner } from "react-bootstrap"; // Assurez-vous d'importer Spinner
+import { Spinner } from "react-bootstrap";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     const { user, loading } = useContext(AuthContext);
 
-    console.log("ProtectedRoute - loading:", loading, "user:", user);
-
     if (loading) {
-        // Afficher un indicateur de chargement pendant la vérification de l'utilisateur
         return (
             <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
                 <Spinner animation="border" role="status">
@@ -19,7 +16,27 @@ const ProtectedRoute = ({ children }) => {
         );
     }
 
-    return user ? children : <Navigate to="/login" />;
+    if (!user) {
+        return <Navigate to="/login" />;
+    }
+    
+    if (!allowedRoles || allowedRoles.length === 0) {
+        return children;
+    }
+    
+    if (allowedRoles.includes(user.role)) {
+        return children;
+    }
+    
+    switch (user.role) {
+        case 'admin':
+            return <Navigate to="/admin/AdminDashboard" />;
+        case 'orthophoniste':
+            return <Navigate to="/ortho/OrthoDashboard" />;
+        case 'parent':
+        default:
+            return <Navigate to="/home" />;
+    }
 };
 
 export default ProtectedRoute;
