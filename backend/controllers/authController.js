@@ -7,7 +7,7 @@ const authController = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      console.log(email, password);
+      console.log("Login attempt with email:", email, password);
   
       const user = await USR.findOne({ where: { USR_email: email } });
       if (!user) {
@@ -19,22 +19,31 @@ const authController = {
         return next(new AppError(401, 'Email ou mot de passe incorrect'));
       }
   
-      const accessToken = jwt.sign({ id: user.USR_id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-      const refreshToken = jwt.sign({ id: user.USR_id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+      const accessToken = jwt.sign(
+        { id: user.USR_id, role: user.USR_role }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: '15m' }
+      );
+      const refreshToken = jwt.sign(
+        { id: user.USR_id, role: user.USR_role }, 
+        process.env.JWT_REFRESH_SECRET, 
+        { expiresIn: '7d' }
+      );
+      
       await RefreshToken.create({ USR_id: user.USR_id, token: refreshToken });      
   
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 15 * 60 * 1000,
-        sameSite: 'Strict',
+        sameSite: 'Lax',
       });
   
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        sameSite: 'Strict',
+        sameSite: 'Lax',
       });
   
       res.json({
@@ -122,27 +131,33 @@ const authController = {
 
   logout: async (req, res, next) => {
     try {
-      const { refreshToken } = req.body;
-  
-      if (!refreshToken) {
-        return next(new AppError(400, 'Token de rafraîchissement manquant'));
+      // Récupérer le refreshToken depuis les cookies
+      const refreshToken = req.cookies.refreshToken;
+      
+      if (refreshToken) {
+        // Supprimer le token de rafraîchissement de la base
+        await RefreshToken.destroy({ where: { token: refreshToken } });
       }
-  
-      // Supprimer le token de rafraîchissement de la base
-      const deleted = await RefreshToken.destroy({ where: { token: refreshToken } });
-  
-      if (!deleted) {
-        return next(new AppError(403, 'Token de rafraîchissement invalide ou déjà révoqué'));
-      }
-
-      res.clearCookie('accessToken', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });
-      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });  
-  
+      
+      // Nettoyer les cookies dans tous les cas
+      res.clearCookie('accessToken', { 
+        httpOnly: true, 
+        sameSite: 'Strict', 
+        secure: process.env.NODE_ENV === 'production' 
+      });
+      
+      res.clearCookie('refreshToken', { 
+        httpOnly: true, 
+        sameSite: 'Strict', 
+        secure: process.env.NODE_ENV === 'production' 
+      });
+      
       res.json({ message: 'Déconnexion réussie' });
     } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
       next(new AppError(500, 'Erreur lors de la déconnexion'));
     }
-  },
+  }
 };
 
 export default authController;

@@ -9,10 +9,8 @@ export const authenticateToken = (req, res, next) => {
     // Si pas dans les cookies, vérifier l'en-tête Authorization
     if (!token) {
       const authHeader = req.headers['authorization'];
-      token = authHeader && authHeader.split(' ')[1]; // Format "Bearer TOKEN"
+      token = authHeader && authHeader.split(' ')[1];
     }
-    
-    console.log('Token reçu:', token ? 'Présent' : 'Absent');
     
     if (!token) {
       return next(new AppError(401, 'Token manquant'));
@@ -26,12 +24,45 @@ export const authenticateToken = (req, res, next) => {
       }
       
       console.log('Token décodé avec succès:', decoded);
-      req.user = decoded; // Stocke les données utilisateur décodées
+      req.user = { 
+        id: decoded.id,
+        role: decoded.role
+      };
       next();
     });
   } catch (error) {
     console.error('Erreur dans le middleware d\'authentification:', error);
     next(new AppError(500, 'Erreur d\'authentification'));
+  }
+};
+
+export const optionalAuthenticateToken = (req, res, next) => {
+  try {
+    let token = req.cookies.accessToken;
+    
+    if (!token && req.headers.authorization) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    // Si aucun token n'est trouvé, continuer sans authentification
+    if (!token) {
+      return next();
+    }
+    
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        // Ne pas bloquer, simplement ne pas définir req.user
+        return next();
+      }
+      
+      req.user = { 
+        id: decoded.id,
+        role: decoded.role 
+      };
+      next();
+    });
+  } catch {
+    next();
   }
 };
 

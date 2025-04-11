@@ -23,7 +23,6 @@ const Login = () => {
       } else if (result.userRole === "orthophoniste") {
         navigate("/ortho/OrthoDashboard");
       } else {
-        // Pour les autres rôles comme "parent"
         navigate("/home");
       }
     } else {

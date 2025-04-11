@@ -35,6 +35,10 @@ const userController = {
 
   createUser: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'orthophoniste' && req.body.USR_role !== 'parent') {
+        return next(new AppError(403, 'Les orthophonistes peuvent uniquement créer des comptes parent'));
+      }
+      
       const hashedPassword = await bcrypt.hash(req.body.USR_pass, 10);
       const user = await USR.create({
         ...req.body,

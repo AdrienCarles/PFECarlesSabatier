@@ -2,21 +2,29 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Table, Button, Form } from "react-bootstrap";
 import AuthContext from "../../context/AuthContext";
-import axios from "axios";
+import axiosInstance from "../../api/axiosConfig";
+// import CreateSerie from "./SeriesGestion/CreateSerie";
 
 const GestionSeries = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [series, setSeries] = useState([]);
+  const [error, setError] = useState("");
+
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/series")
+    axiosInstance
+      .get("/ses")
       .then((response) => setSeries(response.data))
-      .catch((error) => console.error("Erreur lors du chargement des séries", error));
+      .catch((error) => {
+        console.error("Erreur lors du chargement des utilisateurs", error);
+        setError("Impossible de charger les utilisateurs");
+      });
   }, []);
 
   const handleStatusChange = (id, newStatus) => {
-    axios.put(`http://localhost:5000/api/series/${id}`, { status: newStatus })
+    axiosInstance
+    .put(`ses/${id}`, { status: newStatus })
       .then(() => {
         setSeries(series.map(s => s.id === id ? { ...s, status: newStatus } : s));
       })

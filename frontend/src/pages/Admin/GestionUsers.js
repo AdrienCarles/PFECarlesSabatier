@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Container, Table, Button, Alert } from "react-bootstrap";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
-import CreateUser from "./User/CreateUser";
-import EditUser from "./User/EditUser";
+import CreateUser from "./UserGestion/CreateUser";
+import EditUser from "./UserGestion/EditUser";
 
 const GestionUsers = () => {
   const { logout } = useContext(AuthContext);
