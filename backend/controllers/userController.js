@@ -29,6 +29,7 @@ const userController = {
       }
       res.json(user);
     } catch (error) {
+      console.error("User retrieval error details:", error);
       next(new AppError(500, 'Erreur lors de la récupération de l\'utilisateur'));
     }
   },

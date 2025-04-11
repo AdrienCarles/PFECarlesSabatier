@@ -9,7 +9,7 @@ router.get('/',
 );
 
 // GET /api/usr/:usrId - Détail
-router.get('/:usrId', 
+router.get('/:id', 
     userController.getUserById
 );
 
