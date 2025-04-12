@@ -33,18 +33,22 @@ const ValiderSerie = ({ show, handleClose, serieId, updateSerie }) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     axiosInstance
       .put(`/ses/${serieId}/valider`, {
         statut: validation,
       })
       .then((response) => {
-        updateSerie(response.data);
+        if (response.data && response.data.serie) {
+          updateSerie(response.data.serie);
+        }
         handleClose();
-        setLoading(false);
       })
       .catch((err) => {
+        console.error("Erreur lors de la validation:", err);
         setError("Erreur lors de la validation de la série");
+      })
+      .finally(() => {
         setLoading(false);
       });
   };

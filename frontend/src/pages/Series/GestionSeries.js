@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Container,
   Table,
@@ -7,9 +6,18 @@ import {
   Image,
   OverlayTrigger,
   Tooltip,
+  Form,
+  InputGroup,
+  Badge,
 } from "react-bootstrap";
 import AuthContext from "../../context/AuthContext";
-import { FaTrashAlt, FaEdit, FaCheckCircle } from "react-icons/fa";
+import {
+  FaTrashAlt,
+  FaEdit,
+  FaCheckCircle,
+  FaFilter,
+  FaPlus,
+} from "react-icons/fa";
 import { HiMiniSquaresPlus } from "react-icons/hi2";
 import axiosInstance from "../../api/axiosConfig";
 import StatusBadge from "../../components/common/StatusBadge";
@@ -19,7 +27,6 @@ import ValiderSerie from "./SeriesGestion/ValiderSerie";
 import AnimationGestion from "../Animations/AnimationGestion";
 
 const GestionSeries = () => {
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [series, setSeries] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -27,29 +34,40 @@ const GestionSeries = () => {
   const [showValidModal, setShowValidModal] = useState(false);
   const [showAnimationModal, setShowAnimationModal] = useState(false);
   const [selectedSerieId, setSelectedSerieId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("tous");
+  const [filteredSeries, setFilteredSeries] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     axiosInstance
       .get("/ses")
-      .then((response) => setSeries(response.data))
+      .then((response) => {
+        setSeries(response.data);
+        setFilteredSeries(response.data);
+      })
       .catch((error) => {
         setError("Impossible de charger les séries");
       });
   }, []);
 
-  const handleDeleteSerie = (serieId) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette série ?")) {
-      axiosInstance
-        .delete(`/ses/${serieId}`)
-        .then(() => {
-          setSeries(series.filter((serie) => serie.SES_id !== serieId));
-          alert("Série supprimée avec succès");
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la suppression:", error);
-          alert("Une erreur est survenue lors de la suppression");
-        });
+  useEffect(() => {
+    if (statusFilter === "tous") {
+      setFilteredSeries(series);
+    } else {
+      setFilteredSeries(series.filter(serie => serie.SES_statut === statusFilter));
+    }
+  }, [series, statusFilter]);
+
+  const handleFilterChange = (e) => {
+    const selectedStatus = e.target.value;
+    setStatusFilter(selectedStatus);
+
+    if (selectedStatus === "tous") {
+      setFilteredSeries(series);
+    } else {
+      setFilteredSeries(
+        series.filter((serie) => serie.SES_statut === selectedStatus)
+      );
     }
   };
 
@@ -86,34 +104,72 @@ const GestionSeries = () => {
     setSelectedSerieId(null);
   };
 
-  // Fonction pour ajouter une nouvelle série à la liste
   const addSerie = (newSerie) => {
-    setSeries([...series, newSerie]);
+    if (newSerie && newSerie.SES_id) {
+      setSeries(prevSeries => [...prevSeries, newSerie]);
+    } else {
+      console.error("Tentative d'ajout d'une série invalide:", newSerie);
+    }
   };
 
-  // Fonction pour mettre à jour la série dans la liste
   const updateSerie = (updatedSerie) => {
-    setSeries(
-      series.map((serie) =>
+    if (!updatedSerie || !updatedSerie.SES_id) {
+      console.error("Série invalide pour la mise à jour:", updatedSerie);
+      return;
+    }
+    
+    setSeries(prevSeries => 
+      prevSeries.map(serie => 
         serie.SES_id === updatedSerie.SES_id ? updatedSerie : serie
       )
     );
+  };
+
+  const handleDeleteSerie = (serieId) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette série ?")) {
+      axiosInstance
+        .delete(`/ses/${serieId}`)
+        .then(() => {
+          setSeries(prevSeries => prevSeries.filter(serie => serie.SES_id !== serieId));
+          alert("Série supprimée avec succès");
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la suppression:", error);
+          alert("Une erreur est survenue lors de la suppression");
+        });
+    }
   };
 
   return (
     <Container className="gestion-series">
       <h1 className="text-center mb-4">Gestion des séries</h1>
 
-      {/* Boutons d'action */}
-      <div className="d-flex justify-content-between mb-3">
+      {/* Partie d'action */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex align-items-center">
+          <InputGroup style={{ width: "300px" }}>
+            <InputGroup.Text>
+              <FaFilter />
+            </InputGroup.Text>
+            <Form.Select
+              value={statusFilter}
+              onChange={handleFilterChange}
+              aria-label="Filtrer par statut"
+            >
+              <option value="tous">Tous les statuts</option>
+              <option value="actif">Actif</option>
+              <option value="inactif">Inactif</option>
+              <option value="en_attente">En attente</option>
+            </Form.Select>
+          </InputGroup>
+
+          <Badge bg="info" className="ms-2">
+            {filteredSeries.length} série(s)
+          </Badge>
+        </div>
+
         <Button variant="primary" onClick={handleShow}>
-          Ajouter une série
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => navigate("/admin/AdminDashboard")}
-        >
-          Retour au dashboard
+          <FaPlus className="me-1" /> Ajouter une série
         </Button>
       </div>
 
@@ -136,7 +192,7 @@ const GestionSeries = () => {
           </tr>
         </thead>
         <tbody>
-          {series.map((serie) => (
+          {filteredSeries.map((serie) => (
             <tr key={serie.SES_id}>
               <td className="text-center">
                 <Image

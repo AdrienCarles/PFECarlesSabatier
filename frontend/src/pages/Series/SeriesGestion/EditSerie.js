@@ -121,7 +121,6 @@ const EditSerie = ({ show, handleClose, updateSerie, serieId }) => {
                 name="SES_theme"
                 value={formData.SES_theme}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
 
