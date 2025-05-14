@@ -1,0 +1,50 @@
+/* Dans votre fichier CSS global ou dans un fichier AnimationGestion.css */
+.animation-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .animation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .animation-gestion-modal .modal-dialog {
+    max-width: 90%;
+  }
+  
+  .animation-thumbnail {
+    transition: opacity 0.3s;
+  }
+  
+  .animation-card:hover .animation-thumbnail {
+    opacity: 0.9;
+  }
+  
+  /* Style pour l'animation en cours de lecture */
+  .animation-card.playing {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+  }
+  
+  /* Style pour audio controls */
+  .custom-audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .progress-container {
+    flex-grow: 1;
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 3px;
+    transition: width 0.1s;
+  }

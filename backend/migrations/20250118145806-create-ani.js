@@ -19,6 +19,10 @@ module.exports = {
       ANI_type: {
         type: Sequelize.STRING(50)
       },
+      ANI_urlAnimationDessin: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
       ANI_urlAnimation: {
         type: Sequelize.STRING(255),
         allowNull: false

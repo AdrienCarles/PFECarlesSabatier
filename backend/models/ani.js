@@ -38,17 +38,24 @@ export default (sequelize, DataTypes) => {
       ANI_type: {
         type: DataTypes.STRING(50),
       },
+      ANI_urlAnimationDessin: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
       ANI_urlAnimation: {
         type: DataTypes.STRING(255),
         allowNull: false,
         validate: {
-          isUrl: true,
+          notEmpty: true,
         },
       },
       ANI_urlAudio: {
         type: DataTypes.STRING(255),
         validate: {
-          isUrl: true,
+          notEmpty: true,
         },
       },
       ANI_duree: {
