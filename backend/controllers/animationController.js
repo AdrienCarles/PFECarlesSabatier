@@ -1,7 +1,7 @@
-import { ANI, USR, SES } from '../models/index.js';
-import AppError from '../utils/AppError.js';
 import fs from 'fs';
 import path from 'path';
+import AppError from '../utils/AppError.js';
+import { ANI, USR, SES } from '../models/index.js';
 
 const animationController = {
   getAllAnimations: async (req, res, next) => {
@@ -121,7 +121,8 @@ const animationController = {
 
   updateAnimation: async (req, res, next) => {
     try {
-      const animation = await ANI.findByPk(req.params.id);
+      // CORRECTION : Utiliser aniId au lieu de id
+      const animation = await ANI.findByPk(req.params.aniId);
       if (!animation) {
         return next(new AppError(404, 'Animation non trouvée'));
       }
@@ -135,17 +136,68 @@ const animationController = {
       if (ANI_description) updateData.ANI_description = ANI_description;
       if (ANI_type) updateData.ANI_type = ANI_type;
 
+      let totalSize = animation.ANI_taille; // Conserver la taille actuelle
+
       // Si de nouveaux fichiers sont fournis, les traiter
       if (req.files) {
+        const oldFiles = []; // Pour supprimer les anciens fichiers
+
         if (req.files.dessinImage && req.files.dessinImage[0]) {
+          // Sauvegarder l'ancien fichier pour suppression
+          if (animation.ANI_urlAnimationDessin) {
+            oldFiles.push(
+              path.join(
+                process.cwd(),
+                'public',
+                animation.ANI_urlAnimationDessin
+              )
+            );
+          }
+
           updateData.ANI_urlAnimationDessin = `${req.animationRelativePath}/${req.files.dessinImage[0].filename}`;
+          totalSize += req.files.dessinImage[0].size;
         }
+
         if (req.files.imageReelle && req.files.imageReelle[0]) {
+          // Sauvegarder l'ancien fichier pour suppression
+          if (animation.ANI_urlAnimation) {
+            oldFiles.push(
+              path.join(process.cwd(), 'public', animation.ANI_urlAnimation)
+            );
+          }
+
           updateData.ANI_urlAnimation = `${req.animationRelativePath}/${req.files.imageReelle[0].filename}`;
+          totalSize += req.files.imageReelle[0].size;
         }
+
         if (req.files.audioFile && req.files.audioFile[0]) {
+          // Sauvegarder l'ancien fichier pour suppression
+          if (animation.ANI_urlAudio) {
+            oldFiles.push(
+              path.join(process.cwd(), 'public', animation.ANI_urlAudio)
+            );
+          }
+
           updateData.ANI_urlAudio = `${req.animationRelativePath}/${req.files.audioFile[0].filename}`;
+          totalSize += req.files.audioFile[0].size;
         }
+
+        // Mettre à jour la taille totale
+        updateData.ANI_taille = totalSize;
+
+        // Supprimer les anciens fichiers après mise à jour réussie
+        setTimeout(() => {
+          oldFiles.forEach((filePath) => {
+            if (fs.existsSync(filePath)) {
+              try {
+                fs.unlinkSync(filePath);
+                console.log(`Ancien fichier supprimé: ${filePath}`);
+              } catch (err) {
+                console.error(`Erreur suppression fichier ${filePath}:`, err);
+              }
+            }
+          });
+        }, 1000); // Délai pour s'assurer que la réponse est envoyée
       }
 
       // Mettre à jour l'animation
@@ -161,6 +213,19 @@ const animationController = {
 
       res.json(updatedAnimation);
     } catch (error) {
+      // Si une erreur se produit, nettoyage des nouveaux fichiers
+      if (req.animationUploadPath && fs.existsSync(req.animationUploadPath)) {
+        try {
+          const files = fs.readdirSync(req.animationUploadPath);
+          files.forEach((file) => {
+            fs.unlinkSync(path.join(req.animationUploadPath, file));
+          });
+          // Ne pas supprimer le dossier car il peut contenir d'anciens fichiers
+        } catch (cleanupErr) {
+          console.error('Erreur lors du nettoyage des fichiers:', cleanupErr);
+        }
+      }
+
       next(
         new AppError(500, `Erreur lors de la mise à jour: ${error.message}`)
       );
@@ -204,6 +269,55 @@ const animationController = {
       res.json(animations);
     } catch (error) {
       next(new AppError(500, error.message));
+    }
+  },
+
+  validateAnimation: async (req, res, next) => {
+    try {
+      const { aniId } = req.params;
+      const { ANI_valider, ANI_description } = req.body; // Utiliser ANI_description au lieu d'ANI_commentaireValidation
+
+      // Vérifier que l'animation existe
+      const animation = await ANI.findByPk(aniId);
+      if (!animation) {
+        return next(new AppError(404, 'Animation non trouvée'));
+      }
+
+      // Validation des données
+      if (typeof ANI_valider !== 'boolean') {
+        return next(
+          new AppError(400, 'Le statut de validation doit être un booléen')
+        );
+      }
+
+      // Si refusé, un commentaire est obligatoire
+      if (!ANI_valider && (!ANI_description || ANI_description.trim() === '')) {
+        return next(
+          new AppError(
+            400,
+            'Un commentaire est obligatoire pour refuser la validation'
+          )
+        );
+      }
+
+      // Mettre à jour l'animation
+      await animation.update({
+        ANI_valider,
+        ANI_description: ANI_description || animation.ANI_description, // Garder l'ancienne description si vide
+        ANI_dateValidation: new Date(),
+      });
+
+      // Récupérer l'animation mise à jour avec ses relations
+      const updatedAnimation = await ANI.findByPk(aniId, {
+        include: [
+          { model: USR, as: 'createur' },
+          { model: SES, as: 'serie' },
+        ],
+      });
+
+      res.json(updatedAnimation);
+    } catch (error) {
+      next(new AppError(500, `Erreur lors de la validation: ${error.message}`));
     }
   },
 };

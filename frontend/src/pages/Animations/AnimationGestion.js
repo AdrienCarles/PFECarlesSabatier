@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Modal,
   Button,
@@ -10,13 +10,16 @@ import {
   Badge,
 } from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
-import { FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaEye, FaCheck } from "react-icons/fa";
 import CreateAnimation from "./CreateAnimation";
 import PreviewAnimation from "./PreviewAnimation";
 import EditAnimation from "./EditAnimation";
+import ValidateAnimation from "./ValidateAnimation";
+import AuthContext from "../../context/AuthContext";
 import "../../css/Animation.Gestion.css";
 
 const AnimationGestion = ({ show, handleClose, serieId }) => {
+  const { user } = useContext(AuthContext);
   const [animations, setAnimations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +30,8 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
   const [selectedAnimation, setSelectedAnimation] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAnimation, setEditingAnimation] = useState(null);
+  const [showValidateModal, setShowValidateModal] = useState(false);
+  const [validatingAnimation, setValidatingAnimation] = useState(null);
 
   useEffect(() => {
     if (show && serieId) {
@@ -106,6 +111,16 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
   const handleCloseEdit = () => {
     setShowEditModal(false);
     setEditingAnimation(null);
+  };
+
+  const handleValidateAnimation = (animation) => {
+    setValidatingAnimation(animation);
+    setShowValidateModal(true);
+  };
+
+  const handleCloseValidate = () => {
+    setShowValidateModal(false);
+    setValidatingAnimation(null);
   };
 
   const handleDeleteAnimation = (animationId) => {
@@ -293,6 +308,28 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
 
                           {/* Actions de gestion */}
                           <div className="d-flex gap-1">
+                            {/* AJOUT : Bouton de validation pour les admins */}
+                            {user && user.role === "admin" && (
+                              <Button
+                                variant={
+                                  animation.ANI_valider
+                                    ? "outline-success"
+                                    : "outline-warning"
+                                }
+                                size="sm"
+                                title={
+                                  animation.ANI_valider
+                                    ? "Modifier la validation"
+                                    : "Valider l'animation"
+                                }
+                                onClick={() =>
+                                  handleValidateAnimation(animation)
+                                }
+                              >
+                                <FaCheck />
+                              </Button>
+                            )}
+
                             <Button
                               variant="outline-primary"
                               size="sm"
@@ -349,6 +386,15 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
         handleClose={handleCloseEdit}
         animation={editingAnimation}
         updateAnimation={updateAnimation}
+      />
+
+      {/* Modale de validation d'animation */}
+      <ValidateAnimation
+        show={showValidateModal}
+        handleClose={handleCloseValidate}
+        animation={validatingAnimation}
+        updateAnimation={updateAnimation}
+        sesTitre={serie ? serie.SES_titre : ""}
       />
     </>
   );

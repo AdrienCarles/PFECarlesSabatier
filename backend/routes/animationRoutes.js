@@ -48,4 +48,12 @@ router.get(
   animationController.getAnimationsBySerie
 );
 
+// PUT /api/ani/:aniId/validate - Validation par administrateur
+router.put(
+  '/:aniId/validate',
+  authenticateToken,
+  authorizeRoles('admin'), // Seuls les admins peuvent valider
+  animationController.validateAnimation
+);
+
 export default router;

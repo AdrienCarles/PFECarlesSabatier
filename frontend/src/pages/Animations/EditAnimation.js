@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   Button,
@@ -8,10 +8,17 @@ import {
   Row,
   Col,
   Card,
-  Badge,
 } from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
-import { FaSave, FaTimes, FaImage, FaMusic } from "react-icons/fa";
+import AudioSelector from "../../components/common/AudioSelector";
+import {
+  FaSave,
+  FaImage,
+  FaMusic,
+  FaPlay,
+  FaPause,
+  FaStop,
+} from "react-icons/fa";
 
 const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
   const [formData, setFormData] = useState({
@@ -24,9 +31,22 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
     imageReelle: null,
     audioFile: null,
   });
+  const [filePreviews, setFilePreviews] = useState({
+    dessinImage: null,
+    imageReelle: null,
+    audioFile: null,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [previewMode, setPreviewMode] = useState("dessin");
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [newAudioFile, setNewAudioFile] = useState(null);
+  const [newAudioName, setNewAudioName] = useState("");
+  const [audioSelectorKey, setAudioSelectorKey] = useState(0);
+
+  const audioRef = useRef(null);
 
   // Initialiser le formulaire avec les données de l'animation
   useEffect(() => {
@@ -53,10 +73,70 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
         imageReelle: null,
         audioFile: null,
       });
+      setFilePreviews({
+        dessinImage: null,
+        imageReelle: null,
+        audioFile: null,
+      });
+      setNewAudioFile(null);
+      setNewAudioName("");
       setError("");
       setPreviewMode("dessin");
+      stopAudio();
+
+      // SOLUTION : Forcer le re-render de l'AudioSelector
+      setAudioSelectorKey((prev) => prev + 1);
     }
   }, [show]);
+
+  // Fonctions de gestion audio
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsAudioPlaying(false);
+    setAudioCurrentTime(0);
+  };
+
+  const toggleAudio = async () => {
+    if (audioRef.current) {
+      try {
+        if (isAudioPlaying) {
+          audioRef.current.pause();
+          setIsAudioPlaying(false);
+        } else {
+          await audioRef.current.play();
+          setIsAudioPlaying(true);
+        }
+      } catch (error) {
+        console.error("Erreur lecture audio:", error);
+      }
+    }
+  };
+
+  const handleAudioTimeUpdate = () => {
+    if (audioRef.current) {
+      setAudioCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleAudioLoadedMetadata = () => {
+    if (audioRef.current) {
+      setAudioDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsAudioPlaying(false);
+    setAudioCurrentTime(0);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -69,9 +149,80 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
   const handleFileChange = (e) => {
     const { name } = e.target;
     const file = e.target.files[0];
+
     setFiles((prev) => ({
       ...prev,
       [name]: file,
+    }));
+
+    // Créer une prévisualisation
+    if (file) {
+      if (name === "audioFile") {
+        // Pour l'audio, on stocke juste le nom du fichier
+        setFilePreviews((prev) => ({
+          ...prev,
+          [name]: {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          },
+        }));
+      } else {
+        // Pour les images, créer une URL de prévisualisation
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setFilePreviews((prev) => ({
+            ...prev,
+            [name]: event.target.result,
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } else {
+      // Supprimer la prévisualisation si aucun fichier
+      setFilePreviews((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
+    }
+  };
+
+  const removeFilePreview = (fieldName) => {
+    setFiles((prev) => ({
+      ...prev,
+      [fieldName]: null,
+    }));
+    setFilePreviews((prev) => ({
+      ...prev,
+      [fieldName]: null,
+    }));
+
+    // Reset l'input file
+    const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const handleNewAudioChange = (file, fileName) => {
+    setNewAudioFile(file);
+    setNewAudioName(fileName);
+
+    // Mettre à jour aussi l'état files pour l'envoi
+    setFiles((prev) => ({
+      ...prev,
+      audioFile: file,
+    }));
+  };
+
+  const handleNewAudioRemove = () => {
+    setNewAudioFile(null);
+    setNewAudioName("");
+
+    // Nettoyer aussi l'état files
+    setFiles((prev) => ({
+      ...prev,
+      audioFile: null,
     }));
   };
 
@@ -96,12 +247,17 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
     try {
       const updateData = new FormData();
 
-      // Ajouter les données texte
-      Object.keys(formData).forEach((key) => {
-        if (formData[key]) {
-          updateData.append(key, formData[key]);
-        }
-      });
+      // Ajouter les données texte (même si inchangées pour le titre)
+      updateData.append("ANI_titre", formData.ANI_titre);
+      if (formData.ANI_description) {
+        updateData.append("ANI_description", formData.ANI_description);
+      }
+      if (formData.ANI_type) {
+        updateData.append("ANI_type", formData.ANI_type);
+      }
+
+      // Ajouter l'ID de la série pour que le middleware puisse fonctionner
+      updateData.append("SES_id", animation.SES_id);
 
       // Ajouter les nouveaux fichiers s'ils sont présents
       if (files.dessinImage) {
@@ -113,6 +269,14 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
       if (files.audioFile) {
         updateData.append("audioFile", files.audioFile);
       }
+
+      console.log("Données envoyées:", {
+        titre: formData.ANI_titre,
+        description: formData.ANI_description,
+        hasDessin: !!files.dessinImage,
+        hasImageReelle: !!files.imageReelle,
+        hasAudio: !!files.audioFile,
+      });
 
       const response = await axiosInstance.put(
         `/ani/${animation.ANI_id}`,
@@ -169,7 +333,7 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
         <Form onSubmit={handleSubmit}>
           <Row>
             {/* Colonne gauche - Prévisualisation */}
-            <Col md={4}>
+            <Col md={3}>
               <Card className="mb-3">
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <span>Prévisualisation actuelle</span>
@@ -189,31 +353,78 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
                           ? animation.ANI_urlAnimation
                           : animation.ANI_urlAnimationDessin
                       }`}
-                      alt={previewMode === "reel" ? "Image réelle" : "Dessin"}
+                      alt={
+                        previewMode === "reel"
+                          ? "Animation réelle"
+                          : "Dessin de l'animation"
+                      }
                       className="img-fluid w-100"
                       style={{ height: "200px", objectFit: "contain" }}
                     />
-                    <Badge
-                      bg={previewMode === "reel" ? "primary" : "success"}
-                      className="position-absolute top-0 end-0 m-2"
-                    >
-                      {previewMode === "reel" ? "Réel" : "Dessin"}
-                    </Badge>
                   </div>
+
+                  {/* Section audio */}
+                  {animation.ANI_urlAudio && (
+                    <div className="p-3">
+                      {/* Contrôles audio */}
+                      <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
+                        <Button
+                          variant={isAudioPlaying ? "warning" : "success"}
+                          size="sm"
+                          onClick={toggleAudio}
+                          className="rounded-circle"
+                          style={{ width: "40px", height: "40px" }}
+                        >
+                          {isAudioPlaying ? <FaPause /> : <FaPlay />}
+                        </Button>
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={stopAudio}
+                          className="rounded-circle"
+                          style={{ width: "40px", height: "40px" }}
+                        >
+                          <FaStop />
+                        </Button>
+                      </div>
+
+                      {/* Barre de progression */}
+                      <div className="mb-2">
+                        <div className="progress" style={{ height: "6px" }}>
+                          <div
+                            className="progress-bar bg-primary"
+                            role="progressbar"
+                            style={{
+                              width:
+                                audioDuration > 0
+                                  ? `${
+                                      (audioCurrentTime / audioDuration) * 100
+                                    }%`
+                                  : "0%",
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Temps */}
+                      <div className="d-flex justify-content-between text-muted small">
+                        <span>{formatTime(audioCurrentTime)}</span>
+                        <span>{formatTime(audioDuration)}</span>
+                      </div>
+
+                      {/* Element audio caché */}
+                      <audio
+                        ref={audioRef}
+                        src={`${process.env.REACT_APP_API_URL}${animation.ANI_urlAudio}`}
+                        onTimeUpdate={handleAudioTimeUpdate}
+                        onLoadedMetadata={handleAudioLoadedMetadata}
+                        onEnded={handleAudioEnded}
+                        preload="metadata"
+                      />
+                    </div>
+                  )}
                 </Card.Body>
               </Card>
-
-              {/* Indicateur audio */}
-              {animation.ANI_urlAudio && (
-                <Card className="mb-3">
-                  <Card.Body className="py-2">
-                    <div className="d-flex align-items-center text-muted">
-                      <FaMusic className="me-2" />
-                      <small>Audio actuel disponible</small>
-                    </div>
-                  </Card.Body>
-                </Card>
-              )}
             </Col>
 
             {/* Colonne droite - Formulaire */}
@@ -233,22 +444,10 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
                       required
                     />
                   </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      name="ANI_description"
-                      value={formData.ANI_description}
-                      onChange={handleInputChange}
-                      placeholder="Description de l'animation"
-                    />
-                  </Form.Group>
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4}>
+            <Col md={5}>
               {/* Nouveaux fichiers */}
               <Card className="mb-3">
                 <Card.Header>
@@ -256,6 +455,7 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
                   Remplacer les images (optionnel)
                 </Card.Header>
                 <Card.Body>
+                  {/* Nouveau dessin */}
                   <Form.Group className="mb-3">
                     <Form.Label>Nouveau dessin</Form.Label>
                     <Form.Control
@@ -267,8 +467,42 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
                     <Form.Text className="text-muted">
                       Laissez vide pour conserver l'image actuelle
                     </Form.Text>
+
+                    {/* Prévisualisation du nouveau dessin */}
+                    {filePreviews.dessinImage && (
+                      <div className="mt-2">
+                        <div className="position-relative d-inline-block">
+                          <img
+                            src={filePreviews.dessinImage}
+                            alt="Prévisualisation nouveau dessin"
+                            className="img-thumbnail"
+                            style={{ maxHeight: "100px", maxWidth: "150px" }}
+                          />
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="position-absolute top-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                            style={{
+                              transform: "translate(50%, -50%)",
+                              width: "24px",
+                              height: "24px",
+                              padding: "0",
+                              fontSize: "12px",
+                              lineHeight: "1",
+                            }}
+                            onClick={() => removeFilePreview("dessinImage")}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                        <div className="small text-muted mt-1">
+                          Nouveau fichier sélectionné
+                        </div>
+                      </div>
+                    )}
                   </Form.Group>
 
+                  {/* Nouvelle image réelle */}
                   <Form.Group className="mb-3">
                     <Form.Label>Nouvelle image réelle</Form.Label>
                     <Form.Control
@@ -280,30 +514,65 @@ const EditAnimation = ({ show, handleClose, animation, updateAnimation }) => {
                     <Form.Text className="text-muted">
                       Laissez vide pour conserver l'image actuelle
                     </Form.Text>
+
+                    {/* Prévisualisation de la nouvelle image réelle */}
+                    {filePreviews.imageReelle && (
+                      <div className="mt-2">
+                        <div className="position-relative d-inline-block">
+                          <img
+                            src={filePreviews.imageReelle}
+                            alt="Prévisualisation"
+                            className="img-thumbnail"
+                            style={{ maxHeight: "100px", maxWidth: "150px" }}
+                          />
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="position-absolute top-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                            style={{
+                              transform: "translate(50%, -50%)",
+                              width: "24px",
+                              height: "24px",
+                              padding: "0",
+                              fontSize: "12px",
+                              lineHeight: "1",
+                            }}
+                            onClick={() => removeFilePreview("imageReelle")}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                        <div className="small text-muted mt-1">
+                          Nouveau fichier sélectionné
+                        </div>
+                      </div>
+                    )}
                   </Form.Group>
                 </Card.Body>
               </Card>
             </Col>
             <Col md={12}>
-              {/* Nouveaux fichiers */}
+              {/* Section audio avec le sous-composant */}
               <Card className="mb-3">
                 <Card.Header>
-                  <FaImage className="me-2" />
+                  <FaMusic className="me-2" />
                   Remplacer l'audio (optionnel)
                 </Card.Header>
                 <Card.Body>
-                  <Form.Group className="mb-0">
-                    <Form.Label>Nouvel audio</Form.Label>
-                    <Form.Control
-                      type="file"
-                      name="audioFile"
-                      onChange={handleFileChange}
-                      accept="audio/*"
-                    />
-                    <Form.Text className="text-muted">
-                      Laissez vide pour conserver l'audio actuel
-                    </Form.Text>
-                  </Form.Group>
+                  {/* Sélecteur audio */}
+                  <AudioSelector
+                    key={audioSelectorKey}
+                    audioFile={newAudioFile}
+                    audioName={newAudioName}
+                    onFileChange={handleNewAudioChange}
+                    onFileRemove={handleNewAudioRemove}
+                    showHelp={true}
+                    label=""
+                  />
+
+                  <Form.Text className="text-muted">
+                    Laissez vide pour conserver l'audio actuel
+                  </Form.Text>
                 </Card.Body>
               </Card>
             </Col>

@@ -9,7 +9,7 @@ const IMAGE_FORMAT = {
   width: 1000,
   height: 1000,
   format: 'webp',
-  quality: 85, 
+  quality: 85,
 };
 
 /**
@@ -93,7 +93,7 @@ const processImage = async (filePath) => {
           fastShrinkOnLoad: true,
         })
         .sharpen()
-        .toFormat(config.format, { 
+        .toFormat(config.format, {
           quality: config.quality,
           effort: 4,
         })
@@ -200,8 +200,61 @@ const seriesUpload = multer({
 const animationStorage = multer.diskStorage({
   destination: async function (req, file, cb) {
     try {
-      // Récupération des informations nécessaires
-      const { ANI_titre, SES_id } = req.body;
+      let ANI_titre, SES_id;
+
+      // Pour les updates, récupérer les infos de l'animation existante si nécessaire
+      if (req.method === 'PUT' && req.params.aniId) {
+        try {
+          const { ANI } = await import('../models/index.js');
+          const existingAnimation = await ANI.findByPk(req.params.aniId, {
+            include: [
+              {
+                model: await import('../models/index.js').then((m) => m.SES),
+                as: 'serie',
+              },
+            ],
+          });
+
+          if (existingAnimation) {
+            ANI_titre = req.body.ANI_titre || existingAnimation.ANI_titre;
+            SES_id = existingAnimation.SES_id;
+
+            // Utiliser le dossier existant
+            const serieDirName = sanitizeDirectoryName(
+              existingAnimation.serie.SES_titre
+            );
+            const animationDirName = sanitizeDirectoryName(ANI_titre);
+
+            const uploadDir = path.join(
+              process.cwd(),
+              'public',
+              'uploads',
+              'animations',
+              serieDirName,
+              animationDirName
+            );
+
+            // S'assurer que le dossier existe
+            fs.mkdirSync(uploadDir, { recursive: true });
+
+            req.animationUploadPath = uploadDir;
+            req.animationRelativePath = path
+              .join('/uploads', 'animations', serieDirName, animationDirName)
+              .replace(/\\/g, '/');
+
+            return cb(null, uploadDir);
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors de la récupération de l'animation:",
+            error
+          );
+        }
+      }
+
+      // Logique originale pour la création
+      ANI_titre = req.body.ANI_titre;
+      SES_id = req.body.SES_id;
 
       if (!ANI_titre) {
         return cb(new Error("Le titre de l'animation est requis"), null);
@@ -212,6 +265,7 @@ const animationStorage = multer.diskStorage({
       }
 
       // Récupération des données de la série
+      const { SES } = await import('../models/index.js');
       const serie = await SES.findByPk(SES_id);
 
       if (!serie) {
@@ -239,7 +293,7 @@ const animationStorage = multer.diskStorage({
       req.animationUploadPath = uploadDir;
       req.animationRelativePath = path
         .join('/uploads', 'animations', serieDirName, animationDirName)
-        .replace(/\\/g, '/'); // Assurer une notation avec des slashes forward sur tous les OS
+        .replace(/\\/g, '/');
 
       cb(null, uploadDir);
     } catch (error) {
@@ -277,7 +331,6 @@ const processSeriesIcon = async (req, res, next) => {
 
     // Vérifier si c'est une image
     if (req.file.mimetype.startsWith('image/')) {
-
       // Appliquer le traitement d'image
       const processed = await processImage(req.file.path);
 

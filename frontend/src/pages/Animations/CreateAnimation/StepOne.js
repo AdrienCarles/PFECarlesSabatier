@@ -15,17 +15,6 @@ const StepOne = ({ formData, handleChange }) => {
           required
         />
       </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Label>Description</Form.Label>
-        <Form.Control
-          as="textarea"
-          rows={3}
-          name="ANI_description"
-          value={formData.ANI_description}
-          onChange={handleChange}
-        />
-      </Form.Group>
     </>
   );
 };

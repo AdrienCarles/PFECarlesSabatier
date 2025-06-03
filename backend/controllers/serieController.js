@@ -22,7 +22,11 @@ const serieController = {
     try {
       const serie = await SES.findByPk(req.params.sesId, {
         include: [
-          { model: ANI, as: 'animations' },
+          {
+            model: ANI,
+            as: 'animations',
+            include: [{ model: USR, as: 'createur' }],
+          },
           { model: USR, as: 'utilisateurs' },
         ],
       });
