@@ -5,6 +5,8 @@ backend/node_modules
 # dotenv environment variables file
 frontend/.env
 backend/.env
+backend/temp/
+backend/public/
 
 # misc
 .DS_Store
