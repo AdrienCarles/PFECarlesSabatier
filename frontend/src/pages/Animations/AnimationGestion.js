@@ -8,20 +8,13 @@ import {
   Col,
   Card,
   Badge,
-  Form,
 } from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaPlay,
-  FaPause,
-  FaVolumeMute,
-  FaVolumeUp,
-  FaFilter,
-} from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import CreateAnimation from "./CreateAnimation";
+import PreviewAnimation from "./PreviewAnimation";
+import EditAnimation from "./EditAnimation";
+import "../../css/Animation.Gestion.css";
 
 const AnimationGestion = ({ show, handleClose, serieId }) => {
   const [animations, setAnimations] = useState([]);
@@ -29,18 +22,27 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
   const [error, setError] = useState("");
   const [serie, setSerie] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
   const [viewMode, setViewMode] = useState({});
-  const audioRef = React.useRef(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [selectedAnimation, setSelectedAnimation] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAnimation, setEditingAnimation] = useState(null);
 
   useEffect(() => {
     if (show && serieId) {
       loadAnimations();
     }
   }, [show, serieId]);
+
+  useEffect(() => {
+    if (animations.length > 0) {
+      const initialViewMode = {};
+      animations.forEach((animation) => {
+        initialViewMode[animation.ANI_id] = "dessin";
+      });
+      setViewMode(initialViewMode);
+    }
+  }, [animations]);
 
   const loadAnimations = () => {
     setLoading(true);
@@ -78,12 +80,32 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
     setAnimations([...animations, newAnimation]);
   };
 
-  const handleAddAnimation = () => {
+  const handleCreateModal = () => {
     setShowCreateModal(true);
   };
 
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
+  };
+
+  const handlePreviewAnimation = (animation) => {
+    setSelectedAnimation(animation);
+    setShowPreviewModal(true);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreviewModal(false);
+    setSelectedAnimation(null);
+  };
+
+  const handleEditAnimation = (animation) => {
+    setEditingAnimation(animation);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEdit = () => {
+    setShowEditModal(false);
+    setEditingAnimation(null);
   };
 
   const handleDeleteAnimation = (animationId) => {
@@ -96,14 +118,6 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
           setAnimations(
             animations.filter((anim) => anim.ANI_id !== animationId)
           );
-          // Si l'audio en cours de lecture est supprimé, arrêter la lecture
-          if (currentAudio === animationId) {
-            setCurrentAudio(null);
-            setIsPlaying(false);
-            if (audioRef.current) {
-              audioRef.current.pause();
-            }
-          }
           alert("Animation supprimée avec succès");
         })
         .catch((err) => {
@@ -113,59 +127,13 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
     }
   };
 
-  const toggleAudio = (animationId, audioUrl) => {
-    // Si c'est déjà l'audio en cours
-    if (currentAudio === animationId) {
-      if (isPlaying) {
-        // Pause
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        // Play
-        audioRef.current.play();
-        setIsPlaying(true);
-      }
-    } else {
-      // Nouvel audio
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      setCurrentAudio(animationId);
-      setIsPlaying(true);
-
-      // Utiliser un petit délai pour s'assurer que le nouvel audio est chargé
-      setTimeout(() => {
-        if (audioRef.current) {
-          audioRef.current.play().catch((err) => {
-            console.error("Erreur lors de la lecture audio:", err);
-          });
-        }
-      }, 100);
-    }
+  const updateAnimation = (updatedAnimation) => {
+    setAnimations((prev) =>
+      prev.map((anim) =>
+        anim.ANI_id === updatedAnimation.ANI_id ? updatedAnimation : anim
+      )
+    );
   };
-
-  const handleAudioEnded = () => {
-    setIsPlaying(false);
-  };
-
-  // Filtrage des animations
-  const filteredAnimations = animations.filter((animation) => {
-    const matchesSearch =
-      animation.ANI_titre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      animation.ANI_description?.toLowerCase().includes(
-        searchTerm.toLowerCase()
-      );
-
-    const matchesType =
-      filterType === "all" || animation.ANI_type === filterType;
-
-    return matchesSearch && matchesType;
-  });
-
-  // Récupérer les types uniques d'animation pour le filtre
-  const animationTypes = [
-    ...new Set(animations.filter((a) => a.ANI_type).map((a) => a.ANI_type)),
-  ];
 
   return (
     <>
@@ -183,20 +151,6 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="bg-light">
-          {/* Audio Player caché */}
-          <audio
-            ref={audioRef}
-            src={
-              currentAudio
-                ? `${process.env.REACT_APP_API_URL}${
-                    animations.find((a) => a.ANI_id === currentAudio)
-                      ?.ANI_urlAudio
-                  }`
-                : ""
-            }
-            onEnded={handleAudioEnded}
-          />
-
           {loading ? (
             <div className="text-center p-5">
               <Spinner animation="border" role="status">
@@ -207,152 +161,163 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
             <Alert variant="danger">{error}</Alert>
           ) : animations.length === 0 ? (
             <div className="text-center p-5">
-              <p className="mb-4">
-                Aucune animation disponible pour cette série.
-              </p>
-              <Button variant="primary" onClick={handleAddAnimation}>
-                <FaPlus className="me-1" /> Ajouter une animation
-              </Button>
+              <div className="py-4">
+                <h5 className="text-muted mb-3">Aucune animation disponible</h5>
+                <p className="text-muted mb-4">
+                  Commencez par créer votre première animation pour cette série.
+                </p>
+                <Button variant="primary" size="lg" onClick={handleCreateModal}>
+                  <FaPlus className="me-2" /> Créer une animation
+                </Button>
+              </div>
             </div>
           ) : (
             <>
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <Button variant="primary" onClick={handleAddAnimation}>
-                  <FaPlus className="me-1" /> Ajouter une animation
-                </Button>
+              {/* ZONE D'ACTIONS GÉNÉRALES */}
+              <div className="general-actions p-3 mb-4">
+                <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <h6 className="mb-0 text-muted">
+                      {animations.length} animation
+                      {animations.length > 1 ? "s" : ""} trouvée
+                      {animations.length > 1 ? "s" : ""}
+                    </h6>
+                  </div>
+
+                  <div className="d-flex gap-2">
+                    <Button variant="primary" onClick={handleCreateModal}>
+                      <FaPlus className="me-1" /> Ajouter une animation
+                    </Button>
+                  </div>
+                </div>
               </div>
 
-              {/* Affichage en grille avec des cartes */}
-              <Row xs={1} md={2} lg={3} className="g-4">
-                {filteredAnimations.map((animation) => (
+              {/* GRILLE DES ANIMATIONS */}
+              <Row xs={1} sm={2} lg={3} xl={4} className="g-4">
+                {animations.map((animation) => (
                   <Col key={animation.ANI_id}>
                     <Card className="h-100 animation-card">
-                      <div className="position-relative animation-image-container">
+                      {/* ZONE IMAGE AVEC CONTRÔLES OVERLAY */}
+                      <div className="animation-image-container">
                         <Card.Img
-                          variant="top"
                           src={`${process.env.REACT_APP_API_URL}${
                             viewMode[animation.ANI_id] === "reel"
-                              ? animation.ANI_urlAnimation // Image réelle
-                              : animation.ANI_urlAnimationDessin // Dessin par défaut
+                              ? animation.ANI_urlAnimation
+                              : animation.ANI_urlAnimationDessin
                           }`}
                           alt={animation.ANI_titre}
                           className="animation-thumbnail"
-                          style={{ height: "160px", objectFit: "cover" }}
                         />
 
-                        {/* Bouton pour basculer entre dessin/image réelle */}
-                        <Button
-                          variant="light"
-                          size="sm"
-                          className="position-absolute bottom-0 end-0 m-2"
-                          onClick={() => {
-                            setViewMode((prev) => ({
-                              ...prev,
-                              [animation.ANI_id]:
-                                prev[animation.ANI_id] === "reel"
-                                  ? "dessin"
-                                  : "reel",
-                            }));
-                          }}
-                          title={
-                            viewMode[animation.ANI_id] === "reel"
-                              ? "Voir le dessin"
-                              : "Voir l'image réelle"
-                          }
-                        >
-                          {viewMode[animation.ANI_id] === "reel"
-                            ? "Dessin"
-                            : "Réel"}
-                        </Button>
+                        {/* Overlay avec contrôles */}
+                        <div className="position-absolute w-100 h-100 top-0 start-0">
+                          {/* Badge de validation - Top Left */}
+                          <Badge
+                            bg={animation.ANI_valider ? "success" : "warning"}
+                            className="position-absolute top-0 start-0 m-2 status-badge"
+                          >
+                            {animation.ANI_valider ? "Validé" : "En attente"}
+                          </Badge>
 
-                        <Badge
-                          bg={
-                            viewMode[animation.ANI_id] === "reel"
-                              ? "primary"
-                              : "success"
-                          }
-                          className="position-absolute bottom-0 start-0 m-2"
-                        >
-                          {viewMode[animation.ANI_id] === "reel"
-                            ? "Image réelle"
-                            : "Dessin"}
-                        </Badge>
+                          {/* Badge du type d'image - Top Right */}
+                          <Badge
+                            bg={
+                              viewMode[animation.ANI_id] === "reel"
+                                ? "primary"
+                                : "success"
+                            }
+                            className="position-absolute top-0 end-0 m-2 status-badge"
+                          >
+                            {viewMode[animation.ANI_id] === "reel"
+                              ? "Réel"
+                              : "Dessin"}
+                          </Badge>
 
-                        <Badge
-                          bg={animation.ANI_valider ? "success" : "warning"}
-                          className="position-absolute top-0 end-0 m-2"
-                        >
-                          {animation.ANI_valider ? "Validé" : "En attente"}
-                        </Badge>
+                          {/* Bouton de basculement - Bottom Center */}
+                          <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                            <Button
+                              variant="light"
+                              size="sm"
+                              className="view-toggle-btn"
+                              onClick={() => {
+                                setViewMode((prev) => ({
+                                  ...prev,
+                                  [animation.ANI_id]:
+                                    prev[animation.ANI_id] === "reel"
+                                      ? "dessin"
+                                      : "reel",
+                                }));
+                              }}
+                            >
+                              {viewMode[animation.ANI_id] === "reel"
+                                ? "Voir dessin"
+                                : "Voir réel"}
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <Card.Body>
-                        <Card.Title>
+
+                      {/* INFORMATIONS DE L'ANIMATION */}
+                      <Card.Body className="pb-2">
+                        <Card.Title className="h6 mb-2 text-truncate">
                           {animation.ANI_titre || "Sans titre"}
                         </Card.Title>
-                        <Card.Text className="text-muted small">
-                          {animation.ANI_description || "Pas de description"}
-                        </Card.Text>
+                        {animation.ANI_description && (
+                          <Card.Text
+                            className="text-muted small mb-0"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {animation.ANI_description}
+                          </Card.Text>
+                        )}
                       </Card.Body>
-                      <Card.Footer className="d-flex justify-content-between align-items-center bg-white">
-                        <div>
-                          {animation.ANI_urlAudio && (
+
+                      {/* ZONE D'ACTIONS */}
+                      <Card.Footer className="bg-white border-top-0 pt-0">
+                        <div className="d-flex justify-content-between align-items-center">
+                          {/* Bouton de prévisualisation principal */}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handlePreviewAnimation(animation)}
+                            className="flex-grow-1 me-2"
+                          >
+                            <FaEye className="me-1" />
+                            Prévisualiser
+                          </Button>
+
+                          {/* Actions de gestion */}
+                          <div className="d-flex gap-1">
                             <Button
-                              variant={
-                                currentAudio === animation.ANI_id && isPlaying
-                                  ? "success"
-                                  : "outline-success"
-                              }
+                              variant="outline-primary"
                               size="sm"
-                              onClick={() =>
-                                toggleAudio(
-                                  animation.ANI_id,
-                                  animation.ANI_urlAudio
-                                )
-                              }
-                              className="me-1"
+                              title="Modifier l'animation"
+                              onClick={() => handleEditAnimation(animation)} // Fonction ajoutée
                             >
-                              {currentAudio === animation.ANI_id &&
-                              isPlaying ? (
-                                <FaPause />
-                              ) : (
-                                <FaPlay />
-                              )}
+                              <FaEdit />
                             </Button>
-                          )}
-                        </div>
-                        <div>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="me-1"
-                            // onClick={() => handleEditAnimation(animation.ANI_id)}
-                          >
-                            <FaEdit />
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() =>
-                              handleDeleteAnimation(animation.ANI_id)
-                            }
-                          >
-                            <FaTrash />
-                          </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              title="Supprimer l'animation"
+                              onClick={() =>
+                                handleDeleteAnimation(animation.ANI_id)
+                              }
+                            >
+                              <FaTrash />
+                            </Button>
+                          </div>
                         </div>
                       </Card.Footer>
                     </Card>
                   </Col>
                 ))}
               </Row>
-
-              {/* Message si aucun résultat après filtrage */}
-              {filteredAnimations.length === 0 && (
-                <div className="text-center p-4">
-                  <p className="text-muted">
-                    Aucune animation ne correspond à votre recherche
-                  </p>
-                </div>
-              )}
             </>
           )}
         </Modal.Body>
@@ -369,6 +334,21 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
         handleClose={handleCloseCreateModal}
         serieId={serieId}
         addAnimation={addAnimation}
+      />
+
+      {/* Modale de prévisualisation d'animation */}
+      <PreviewAnimation
+        show={showPreviewModal}
+        handleClose={handleClosePreview}
+        animation={selectedAnimation}
+      />
+
+      {/* Modale d'édition d'animation */}
+      <EditAnimation
+        show={showEditModal}
+        handleClose={handleCloseEdit}
+        animation={editingAnimation}
+        updateAnimation={updateAnimation}
       />
     </>
   );

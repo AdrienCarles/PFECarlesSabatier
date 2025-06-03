@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { Modal, Form, Alert, Spinner } from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
 import AuthContext from "../../context/AuthContext";
 
@@ -19,7 +19,7 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
   const [success, setSuccess] = useState(false);
 
   // État du formulaire
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     // Étape 1: Généralités
     ANI_titre: "",
     ANI_description: "",
@@ -28,12 +28,12 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
     // Étape 2: Image dessin
     dessinFile: null,
     dessinPreview: null,
-    dessinType: "dessin", // Explicitement indiquer le type
+    dessinType: "dessin",
 
     // Étape 3: Image réelle
     imageReelleFile: null,
     imageReellePreview: null,
-    imageReelleType: "reel", // Explicitement indiquer le type
+    imageReelleType: "reel",
 
     // Étape 4: Son
     audioFile: null,
@@ -42,19 +42,32 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
     // Champs requis pour l'API
     SES_id: serieId,
     USR_creator_id: user?.id || null,
-  });
+  };
 
-  // Reset le formulaire quand la modale est ouverte/fermée
+  const [formData, setFormData] = useState(initialFormState);
+
+  // Fonction pour réinitialiser le formulaire
+  const resetForm = () => {
+    setFormData({
+      ...initialFormState,
+      SES_id: serieId,
+      USR_creator_id: user?.id || null,
+    });
+    setCurrentStep(1);
+    setError("");
+    setSuccess(false);
+  };
+
+  // Gestion de la fermeture
+  const handleCloseModal = () => {
+    resetForm();
+    handleClose();
+  };
+
+  // Reset le formulaire quand la modale est ouverte
   useEffect(() => {
     if (show) {
-      setFormData({
-        ...formData,
-        SES_id: serieId,
-        USR_creator_id: user?.id || null,
-      });
-      setCurrentStep(1);
-      setError("");
-      setSuccess(false);
+      resetForm();
     }
   }, [show, serieId, user]);
 
@@ -83,7 +96,7 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
           ...formData,
           imageReelleFile: file,
           imageReellePreview: reader.result,
-          imageReelleType: "reel", 
+          imageReelleType: "reel",
         });
       } else if (fileType === "audio") {
         setFormData({
@@ -157,7 +170,16 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
       formDataToSend.append("imageReelle", formData.imageReelleFile);
       formDataToSend.append("imageReelleType", formData.imageReelleType);
       formDataToSend.append("audioFile", formData.audioFile);
-      console.log("FormData:", formDataToSend); // Debugging line
+
+      if (
+        formData.audioTrimmed &&
+        formData.audioStartTime !== undefined &&
+        formData.audioEndTime !== undefined
+      ) {
+        formDataToSend.append("audioStartTime", formData.audioStartTime);
+        formDataToSend.append("audioEndTime", formData.audioEndTime);
+      }
+
       // Appel API pour créer l'animation
       const response = await axiosInstance.post("/ani", formDataToSend, {
         headers: {
@@ -169,18 +191,15 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
       if (addAnimation && typeof addAnimation === "function") {
         addAnimation(response.data);
       }
-
-      setSuccess(true);
-      setTimeout(() => {
-        handleClose();
-      }, 2000);
+      setLoading(false);
+      resetForm();
+      handleClose();
     } catch (err) {
       console.error("Erreur lors de la création de l'animation:", err);
       setError(
         err.response?.data?.message ||
           "Une erreur est survenue lors de la création de l'animation"
       );
-    } finally {
       setLoading(false);
     }
   };
@@ -222,7 +241,7 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
   return (
     <Modal
       show={show}
-      onHide={handleClose}
+      onHide={handleCloseModal}
       size="lg"
       backdrop="static"
       keyboard={false}
@@ -241,9 +260,7 @@ const CreateAnimation = ({ show, handleClose, serieId, addAnimation }) => {
         )}
 
         {success ? (
-          <Alert variant="success">
-            L'animation a été créée avec succès ! Redirection...
-          </Alert>
+          <Alert variant="success">L'animation a été créée avec succès !</Alert>
         ) : (
           <Form onSubmit={(e) => e.preventDefault()}>
             <ProgressSteps currentStep={currentStep} />

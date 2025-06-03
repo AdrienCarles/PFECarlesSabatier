@@ -11,7 +11,7 @@ const ImageUploader = ({
   onFileSelected,
   isRequired = false,
   altText = "Image",
-  validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"],
+  validTypes = ["image/jpeg", "image/png"],
   maxSizeInMB = 5,
   setError
 }) => {

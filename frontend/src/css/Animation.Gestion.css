@@ -1,50 +1,134 @@
-/* Dans votre fichier CSS global ou dans un fichier AnimationGestion.css */
+/* Styles pour les cartes d'animation */
 .animation-card {
-    transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #dee2e6;
+}
+
+.animation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Conteneur d'image avec aspect ratio fixe */
+.animation-image-container {
+  position: relative;
+  height: 280px; /* Hauteur fixe pour uniformité */
+  overflow: hidden;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image responsive qui garde ses proportions */
+.animation-thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Afficher l'image entière */
+  transition: opacity 0.3s ease;
+}
+
+.animation-card:hover .animation-thumbnail {
+  opacity: 0.95;
+}
+
+/* Style pour les boutons de basculement */
+.view-toggle-btn {
+  backdrop-filter: blur(4px);
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Zone des actions spécifiques à l'animation */
+.animation-actions {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+/* Taille des badges */
+.status-badge {
+  font-size: 0.75rem;
+}
+
+/* Modal optimisée */
+.animation-gestion-modal .modal-dialog {
+  max-width: 1400px;
+}
+
+/* Actions générales */
+.general-actions {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.preview-parent-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(3px);
+  z-index: 1055;
+  animation: fadeInOverlay 0.3s ease forwards;
+  pointer-events: auto;
+}
+
+body.preview-active .animation-gestion-modal {
+  visibility: hidden;
+}
+
+body.preview-active {
+  overflow: hidden;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
   }
-  
-  .animation-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  to {
+    opacity: 1;
   }
-  
-  .animation-gestion-modal .modal-dialog {
-    max-width: 90%;
+}
+
+.preview-modal-custom {
+  max-width: fit-content !important;
+  width: auto !important;
+  margin: 1.75rem auto !important;
+}
+
+.preview-modal-custom .modal-content {
+  width: fit-content !important;
+  min-width: 300px !important;
+  max-width: 90vw !important;
+}
+
+/* Animation de pulsation pour l'icône audio */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
   }
-  
-  .animation-thumbnail {
-    transition: opacity 0.3s;
+  50% { 
+    transform: scale(1.1); 
+    opacity: 0.8; 
   }
-  
-  .animation-card:hover .animation-thumbnail {
-    opacity: 0.9;
-  }
-  
-  /* Style pour l'animation en cours de lecture */
-  .animation-card.playing {
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
-  }
-  
-  /* Style pour audio controls */
-  .custom-audio-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .progress-container {
-    flex-grow: 1;
-    height: 6px;
-    background-color: #e9ecef;
-    border-radius: 3px;
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .progress-bar {
-    height: 100%;
-    background-color: #28a745;
-    border-radius: 3px;
-    transition: width 0.1s;
-  }
+}
+
+.pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Effet de survol pour les images cliquables */
+.d-block[style*="pointer"]:hover {
+  transform: scale(1.02) !important;
+  filter: brightness(1.05);
+}
+
+/* Amélioration du bouton au survol */
+.btn-outline-primary.rounded-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}

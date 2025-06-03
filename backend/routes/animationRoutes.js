@@ -4,7 +4,7 @@ import {
   authorizeRoles,
 } from '../middleware/authMiddleware.js';
 import animationController from '../controllers/animationController.js';
-import { uploadAnimationFiles } from '../middleware/uploadAnimation.js';
+import { uploadAnimationFiles } from '../middleware/uploadFormatMiddleware.js';
 
 const router = express.Router();
 
@@ -19,12 +19,18 @@ router.post(
   '/',
   authenticateToken,
   authorizeRoles('admin', 'orthophoniste'),
-  uploadAnimationFiles, // Notre nouveau middleware d'upload
+  uploadAnimationFiles, // Middleware d'upload
   animationController.createAnimation
 );
 
 // PUT /api/ani/:aniId - Mise à jour (avec validation)
-router.put('/:aniId', authenticateToken, animationController.updateAnimation);
+router.put(
+  '/:aniId', 
+  authenticateToken, 
+  authorizeRoles('admin', 'orthophoniste'),
+  uploadAnimationFiles,
+  animationController.updateAnimation
+);
 
 // DELETE /api/ani/:id - Suppression
 router.delete(

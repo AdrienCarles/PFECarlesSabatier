@@ -4,7 +4,7 @@ import {
   authenticateToken,
   authorizeRoles,
 } from '../middleware/authMiddleware.js';
-import { uploadSeriesIcon } from '../middleware/uploadMiddleware.js';
+import { uploadSeriesIcon } from '../middleware/uploadFormatMiddleware.js';
 
 const router = express.Router();
 

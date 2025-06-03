@@ -37,9 +37,15 @@ const serieController = {
 
   createSerie: async (req, res, next) => {
     try {
+      // Ajouter un logging pour déboguer
+      console.log('Fichier reçu:', req.file);
+
       if (req.file) {
+        // S'assurer que le nom de fichier est correct après le traitement
         req.body.SES_icone = `/uploads/series/${req.file.filename}`;
+        console.log("Chemin d'icône enregistré:", req.body.SES_icone);
       }
+
       const serie = await SES.create(req.body);
       res.status(201).json(serie);
     } catch (error) {
@@ -128,28 +134,35 @@ const serieController = {
     try {
       const { statut } = req.body;
       const { sesId } = req.params;
-      
+
       // Vérification du rôle administrateur
       if (req.user.role !== 'admin') {
-        return next(new AppError(403, 'Seuls les administrateurs peuvent valider les séries'));
+        return next(
+          new AppError(
+            403,
+            'Seuls les administrateurs peuvent valider les séries'
+          )
+        );
       }
-      
+
       // Vérification du statut valide
       if (statut !== 'valide' && statut !== 'refuse') {
-        return next(new AppError(400, 'Le statut doit être "valide" ou "refuse"'));
+        return next(
+          new AppError(400, 'Le statut doit être "valide" ou "refuse"')
+        );
       }
-      
+
       const serie = await SES.findByPk(sesId);
       if (!serie) {
         return next(new AppError(404, 'Série non trouvée'));
       }
-      
+
       // Mise à jour du statut
       const nouveauStatut = statut === 'valide' ? 'actif' : 'inactif';
-      await serie.update({ 
+      await serie.update({
         SES_statut: nouveauStatut,
       });
-      
+
       // Récupération des données mises à jour
       const serieUpdated = await SES.findByPk(sesId, {
         include: [
@@ -157,15 +170,20 @@ const serieController = {
           { model: USR, as: 'utilisateurs' },
         ],
       });
-      
+
       res.json({
         message: `Série ${nouveauStatut === 'actif' ? 'validée' : 'refusée'} avec succès`,
-        serie: serieUpdated
+        serie: serieUpdated,
       });
     } catch (error) {
-      next(new AppError(500, `Erreur lors de la validation de la série: ${error.message}`));
+      next(
+        new AppError(
+          500,
+          `Erreur lors de la validation de la série: ${error.message}`
+        )
+      );
     }
-  }
+  },
 };
 
 export default serieController;
