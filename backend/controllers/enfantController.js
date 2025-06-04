@@ -6,10 +6,23 @@ const enfantController = {
     try {
       const enfants = await ENFA.findAll({
         include: [
-          { model: USR, as: 'parent' },
-          { model: USR, as: 'orthophoniste' },
-          { model: STAT, as: 'statistiques' }
-        ]
+          {
+            model: USR,
+            as: 'parent',
+            attributes: [
+              'USR_id',
+              'USR_nom',
+              'USR_prenom',
+              'USR_email',
+              'USR_telephone',
+            ],
+          },
+          {
+            model: USR,
+            as: 'orthophoniste',
+            attributes: ['USR_id', 'USR_nom', 'USR_prenom'],
+          },
+        ],
       });
       res.json(enfants);
     } catch (error) {
@@ -19,12 +32,26 @@ const enfantController = {
 
   getEnfantById: async (req, res, next) => {
     try {
-      const enfant = await ENFA.findByPk(req.params.id, {
+      const enfant = await ENFA.findByPk(req.params.enfaId, {
         include: [
-          { model: USR, as: 'parent' },
-          { model: USR, as: 'orthophoniste' },
-          { model: STAT, as: 'statistiques' }
-        ]
+          {
+            model: USR,
+            as: 'parent',
+            attributes: [
+              'USR_id',
+              'USR_nom',
+              'USR_prenom',
+              'USR_email',
+              'USR_telephone',
+              'USR_statut',
+            ],
+          },
+          {
+            model: USR,
+            as: 'orthophoniste',
+            attributes: ['USR_id', 'USR_nom', 'USR_prenom'],
+          },
+        ],
       });
       if (!enfant) {
         return next(new AppError(404, 'Enfant non trouvé'));
@@ -36,25 +63,57 @@ const enfantController = {
   },
 
   createEnfant: async (req, res, next) => {
-    console.log("📥 Données reçues pour création d'enfant :", req.body); // ← on log ce qu’on reçoit
-  
     try {
       const enfant = await ENFA.create(req.body);
-      res.status(201).json(enfant);
+
+      const enfantWithParent = await ENFA.findByPk(enfant.ENFA_id, {
+        include: [
+          {
+            model: USR,
+            as: 'parent',
+            attributes: [
+              'USR_id',
+              'USR_nom',
+              'USR_prenom',
+              'USR_email',
+              'USR_telephone',
+            ],
+          },
+        ],
+      });
+
+      res.status(201).json(enfantWithParent);
     } catch (error) {
-      console.error("❌ ERREUR SQL :", error); // ← on log l’erreur SQL détaillée
       next(new AppError(500, error?.original?.sqlMessage || error.message));
     }
   },
 
   updateEnfant: async (req, res, next) => {
     try {
-      const enfant = await ENFA.findByPk(req.params.id);
+      const enfant = await ENFA.findByPk(req.params.enfaId);
       if (!enfant) {
         return next(new AppError(404, 'Enfant non trouvé'));
       }
+
       await enfant.update(req.body);
-      res.json(enfant);
+
+      const enfantUpdated = await ENFA.findByPk(req.params.enfaId, {
+        include: [
+          {
+            model: USR,
+            as: 'parent',
+            attributes: [
+              'USR_id',
+              'USR_nom',
+              'USR_prenom',
+              'USR_email',
+              'USR_telephone',
+            ],
+          },
+        ],
+      });
+
+      res.json(enfantUpdated);
     } catch (error) {
       next(new AppError(400, error.message));
     }
@@ -62,7 +121,7 @@ const enfantController = {
 
   deleteEnfant: async (req, res, next) => {
     try {
-      const enfant = await ENFA.findByPk(req.params.id);
+      const enfant = await ENFA.findByPk(req.params.enfaId);
       if (!enfant) {
         return next(new AppError(404, 'Enfant non trouvé'));
       }
@@ -73,35 +132,78 @@ const enfantController = {
     }
   },
 
-  getEnfantsByParent: async (req, res, next) => {
+  getEnfantsByOrthophoniste: async (req, res, next) => {
     try {
       const enfants = await ENFA.findAll({
-        where: { USR_parent_id: req.params.parentId },
+        where: { USR_orthophoniste_id: req.params.orthophonisteId },
         include: [
-          { model: USR, as: 'orthophoniste' },
-          { model: STAT, as: 'statistiques' }
-        ]
+          {
+            model: USR,
+            as: 'parent',
+            attributes: [
+              'USR_id',
+              'USR_nom',
+              'USR_prenom',
+              'USR_email',
+              'USR_telephone',
+              'USR_statut',
+              'USR_dateCreation',
+            ],
+          },
+        ],
+        order: [['ENFA_dateCreation', 'DESC']],
       });
+
       res.json(enfants);
     } catch (error) {
       next(new AppError(500, error.message));
     }
   },
 
-  getEnfantsByOrthophoniste: async (req, res, next) => {
+  getParentsByOrthophoniste: async (req, res, next) => {
     try {
-      const enfants = await ENFA.findAll({
-        where: { USR_orthophoniste_id: req.params.orthophonisteId },
+      const orthophonisteId = req.params.orthophonisteId;
+
+      const parents = await USR.findAll({
+        where: { USR_role: 'parent' },
+        attributes: [
+          'USR_id',
+          'USR_nom',
+          'USR_prenom',
+          'USR_email',
+          'USR_telephone',
+          'USR_statut',
+          'USR_dateCreation',
+        ],
         include: [
-          { model: USR, as: 'parent' },
-          { model: STAT, as: 'statistiques' }
-        ]
+          {
+            model: ENFA,
+            as: 'enfantsParent',
+            where: { USR_orthophoniste_id: orthophonisteId },
+            required: true, // Seulement les parents qui ONT des enfants chez cet orthophoniste
+            attributes: [
+              'ENFA_id',
+              'ENFA_nom',
+              'ENFA_prenom',
+              'ENFA_dateNaissance',
+              'ENFA_niveauAudition',
+              'ENFA_dateDebutSuivi',
+              'ENFA_notesSuivi',
+              'ENFA_dateCreation',
+            ],
+          },
+        ],
+        order: [
+          ['USR_dateCreation', 'DESC'],
+          [{ model: ENFA, as: 'enfantsParent' }, 'ENFA_dateCreation', 'DESC'],
+        ],
       });
-      res.json(enfants);
+
+      res.json(parents);
     } catch (error) {
       next(new AppError(500, error.message));
     }
-  }
+  },
 };
 
 export default enfantController;

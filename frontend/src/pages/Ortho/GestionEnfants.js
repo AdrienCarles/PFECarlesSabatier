@@ -1,272 +1,513 @@
-
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Table, Button, Modal, Form, Alert } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Button,
+  Alert,
+  Badge,
+  OverlayTrigger,
+  Tooltip,
+  Spinner,
+  Nav,
+  Dropdown,
+  Table,
+} from "react-bootstrap";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaBaby,
+  FaUser,
+  FaPhone,
+  FaEnvelope,
+  FaChild,
+  FaUsers,
+  FaUserPlus,
+  FaChevronDown,
+  FaChevronRight,
+} from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
+import CreatePatient from "./CreatePatient";
+import CreatePatientForParent from "./CreatePatientForParent";
 
 const GestionEnfants = () => {
-  const { logout, user } = useContext(AuthContext); // user = orthophoniste connecté
+  const { user } = useContext(AuthContext);
   const [enfants, setEnfants] = useState([]);
   const [parents, setParents] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [createdParent, setCreatedParent] = useState(null);
-
-  console.log("user", user);
-  // Formulaire parent
-  const [parentData, setParentData] = useState({
-    USR_nom: "",
-    USR_prenom: "",
-    USR_email: "",
-    USR_pass: "",
-    USR_telephone: "",
-    USR_role: "parent",
-    USR_statut: "actif"
-  });
-
-  // Formulaire enfant
-  const [childData, setChildData] = useState({
-    ENFA_nom: "",
-    ENFA_prenom: "",
-    ENFA_dateNaissance: "",
-    ENFA_niveauAudition: "leger",
-    ENFA_dateDebutSuivi: "",
-    ENFA_notesSuivi: "",
-  });
-
+  const [loading, setLoading] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateChildModal, setShowCreateChildModal] = useState(false);
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [viewMode, setViewMode] = useState("enfants");
+  const [expandedParents, setExpandedParents] = useState(new Set());
 
   useEffect(() => {
-    if (!user || !user.USR_id) return;
-
-    axiosInstance
-      .get(`/enfa/orthophoniste/${user.USR_id}`)
-      .then((res) => setEnfants(res.data))
-      .catch((err) => {
-        console.error("❌ Erreur chargement enfants :", err);
-        setError("Erreur lors du chargement des enfants.");
-      });
-  
-    axiosInstance
-      .get("/usr?role=parent")
-      .then((res) => setParents(res.data))
-      .catch(() => setError("Erreur lors du chargement des parents."));
+    if (!user || !user.id) return;
+    loadData();
   }, [user]);
-  
-  const handleShow = () => {
-    setShowModal(true);
-    setCreatedParent(null);
-  };
 
-  const handleClose = () => {
-    setShowModal(false);
-    setParentData({
-      USR_nom: "",
-      USR_prenom: "",
-      USR_email: "",
-      USR_pass: "",
-      USR_telephone: "",
-      USR_role: "parent",
-      USR_statut: "actif"
-    });
-    setChildData({
-      ENFA_nom: "",
-      ENFA_prenom: "",
-      ENFA_dateNaissance: "",
-      ENFA_niveauAudition: "leger",
-      ENFA_dateDebutSuivi: "",
-      ENFA_notesSuivi: "",
-    });
-    setError("");
-    setCreatedParent(null);
-  };
+  useEffect(() => {
+    if (viewMode === "enfants") {
+      loadEnfantsData();
+    } else {
+      loadParentsData();
+    }
+  }, [viewMode, enfants]);
 
-  const handleParentChange = (e) =>
-    setParentData({ ...parentData, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (viewMode === "enfants") {
+      setFilteredData(enfants);
+    } else {
+      setFilteredData(parents);
+    }
+  }, [enfants, parents, viewMode]);
 
-  const handleChildChange = (e) =>
-    setChildData({ ...childData, [e.target.name]: e.target.value });
-
-  const handleParentSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  const loadData = async () => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.post("/usr", parentData);
-      const parent = response.data;
-      setCreatedParent(parent);
-      setParents((prev) => [...prev, parent]);
-    } catch (error) {
-      console.error("Erreur création parent", error);
-      setError("Erreur lors de la création du parent.");
+      if (!user?.id) {
+        throw new Error("ID utilisateur manquant");
+      }
+      const response = await axiosInstance.get(`/enfa/enfants/${user.id}`);
+      setEnfants(response.data);
+    } catch (err) {
+      console.error("Erreur chargement données :", err);
+      setError("Erreur lors du chargement des données.");
+    } finally {
+      setLoading(false);
     }
   };
-console.log("👤 Données user utilisées pour l'enfant :", user);
 
-  const handleChildSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  try {
-    const enfantToSend = {
-      ...childData,
-      ENFA_dateCreation: new Date(),
-      USR_parent_id: createdParent.USR_id,
-      USR_orthophoniste_id: user.id, 
-    };
+  const loadEnfantsData = () => {
+    setFilteredData(enfants);
+  };
 
-    await axiosInstance.post("/enfa", enfantToSend);
+  const loadParentsData = async () => {
+    try {
+      const response = await axiosInstance.get(`/enfa/parents/${user.id}`);
+      setParents(response.data);
+      setFilteredData(response.data);
+    } catch (err) {
+      console.error("Erreur chargement parents :", err);
+      setError("Erreur lors du chargement des parents.");
+    }
+  };
 
-    // Recharge les enfants et parents à jour
-    const [childrenRes, parentsRes] = await Promise.all([
-      axiosInstance.get(`/enfa/orthophoniste/${user.id}`),
-      axiosInstance.get("/usr?role=parent")
-    ]);
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    setExpandedParents(new Set());
+  };
 
-    setEnfants(childrenRes.data);
-    setParents(parentsRes.data);
-    handleClose();
-  } catch (error) {
-    console.error("Erreur création enfant", error);
-    setError("Erreur lors de la création de l'enfant.");
-  }
-};
+  const handleShowCreateModal = () => setShowCreateModal(true);
+  const handleCloseCreateModal = () => setShowCreateModal(false);
 
+  const handleShowCreateChildModal = (parent = null) => {
+    setSelectedParent(parent);
+    setShowCreateChildModal(true);
+  };
+
+  const handleCloseCreateChildModal = () => {
+    setShowCreateChildModal(false);
+    setSelectedParent(null);
+  };
+
+  const handlePatientCreated = (newPatient) => {
+    setEnfants((prev) => [...prev, newPatient]);
+    setError("");
+    loadData();
+  };
+
+  const handleChildCreated = (newChild) => {
+    setEnfants((prev) => [...prev, newChild]);
+    setError("");
+    loadData();
+  };
 
   const handleDelete = (id) => {
-    if (window.confirm("Supprimer cet enfant ?")) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce patient ?")) {
       axiosInstance
         .delete(`/enfa/${id}`)
-        .then(() => setEnfants(enfants.filter((e) => e.ENFA_id !== id)))
-        .catch(() => setError("Erreur lors de la suppression."));
+        .then(() => {
+          setEnfants(enfants.filter((e) => e.ENFA_id !== id));
+          setError("");
+          loadData();
+        })
+        .catch((err) => {
+          console.error("Erreur suppression:", err);
+          setError("Erreur lors de la suppression.");
+        });
     }
   };
 
-  return (
-    <Container className="gestion-enfants">
-      <div className="d-flex justify-content-end my-3">
-        <Button variant="danger" onClick={logout}>Déconnexion</Button>
-      </div>
+  const toggleParentExpansion = (parentId) => {
+    const newExpanded = new Set(expandedParents);
+    if (newExpanded.has(parentId)) {
+      newExpanded.delete(parentId);
+    } else {
+      newExpanded.add(parentId);
+    }
+    setExpandedParents(newExpanded);
+  };
 
-      <h2 className="text-center mb-4">Gestion des enfants suivis</h2>
+  const getNiveauBadgeVariant = (niveau) => {
+    switch (niveau) {
+      case "leger": return "success";
+      case "modere": return "warning";
+      case "severe": return "danger";
+      case "profond": return "dark";
+      default: return "secondary";
+    }
+  };
 
-      <div className="d-flex justify-content-between mb-3">
-        <Button variant="primary" onClick={handleShow}>Créer un parent + enfant</Button>
-      </div>
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("fr-FR");
+  };
 
-      {error && <Alert variant="danger">{error}</Alert>}
+  const calculateAge = (dateNaissance) => {
+    const today = new Date();
+    const birthDate = new Date(dateNaissance);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Date de naissance</th>
-            <th>Niveau audition</th>
-            <th>Parent</th>
-            <th>Date début suivi</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {enfants.map((enfant, idx) => {
-            const parent = parents.find(p => p.USR_id === enfant.USR_parent_id);
-            return (
-              <tr key={idx}>
-                <td>{enfant.ENFA_nom}</td>
-                <td>{enfant.ENFA_prenom}</td>
-                <td>{new Date(enfant.ENFA_dateNaissance).toLocaleDateString()}</td>
-                <td>{enfant.ENFA_niveauAudition}</td>
-                <td>{parent ? `${parent.USR_nom} ${parent.USR_prenom}` : "-"}</td>
-                <td>{new Date(enfant.ENFA_dateDebutSuivi).toLocaleDateString()}</td>
-                <td> 
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(enfant.ENFA_id)}>Supprimer</Button>
+  const renderEnfantsView = () => (
+    <Card className="shadow-sm">
+      <Card.Header className="bg-primary text-white py-2">
+        <div className="d-flex justify-content-between align-items-center">
+          <h6 className="mb-0">
+            <FaChild className="me-2" />
+            Liste des Patients ({filteredData.length})
+          </h6>
+        </div>
+      </Card.Header>
+      <Card.Body className="p-0">
+        <Table responsive hover className="mb-0">
+          <thead className="table-light">
+            <tr>
+              <th>Patient</th>
+              <th>Âge</th>
+              <th>Niveau</th>
+              <th>Parent</th>
+              <th>Contact</th>
+              <th>Suivi depuis</th>
+              <th className="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.map((enfant) => (
+              <tr key={enfant.ENFA_id}>
+                <td>
+                  <div className="fw-semibold text-primary">
+                    {enfant.ENFA_prenom} {enfant.ENFA_nom}
+                  </div>
+                  <small className="text-muted">
+                    Né le {formatDate(enfant.ENFA_dateNaissance)}
+                  </small>
+                </td>
+                <td>
+                  <span className="fw-semibold">{calculateAge(enfant.ENFA_dateNaissance)} ans</span>
+                </td>
+                <td>
+                  <Badge
+                    bg={getNiveauBadgeVariant(enfant.ENFA_niveauAudition)}
+                    className="text-capitalize"
+                  >
+                    {enfant.ENFA_niveauAudition}
+                  </Badge>
+                </td>
+                <td>
+                  {enfant.parent ? (
+                    <div>
+                      <div className="fw-semibold">
+                        {enfant.parent.USR_prenom} {enfant.parent.USR_nom}
+                      </div>
+                    </div>
+                  ) : (
+                    <small className="text-muted">Non renseigné</small>
+                  )}
+                </td>
+                <td>
+                  {enfant.parent && (
+                    <div>
+                      {enfant.parent.USR_email && (
+                        <div className="small">
+                          <FaEnvelope className="me-1 text-muted" />
+                          {enfant.parent.USR_email}
+                        </div>
+                      )}
+                      {enfant.parent.USR_telephone && (
+                        <div className="small">
+                          <FaPhone className="me-1 text-muted" />
+                          {enfant.parent.USR_telephone}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </td>
+                <td>
+                  <small>{formatDate(enfant.ENFA_dateDebutSuivi)}</small>
+                </td>
+                <td>
+                  <div className="d-flex gap-1 justify-content-center">
+                    <OverlayTrigger overlay={<Tooltip>Modifier</Tooltip>}>
+                      <Button variant="outline-primary" size="sm">
+                        <FaEdit />
+                      </Button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Supprimer</Tooltip>}>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => handleDelete(enfant.ENFA_id)}
+                      >
+                        <FaTrash />
+                      </Button>
+                    </OverlayTrigger>
+                  </div>
                 </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+            ))}
+          </tbody>
+        </Table>
+        {filteredData.length === 0 && (
+          <div className="text-center py-4 text-muted">
+            <FaBaby size={40} className="mb-3" />
+            <div>Aucun patient trouvé</div>
+          </div>
+        )}
+      </Card.Body>
+    </Card>
+  );
 
-      <Modal show={showModal} onHide={handleClose} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {createdParent ? "Créer un enfant pour le parent" : "Créer un parent"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {error && <Alert variant="danger">{error}</Alert>}
+  const renderParentsView = () => (
+    <div className="space-y-3">
+      {filteredData.map((parent) => (
+        <Card key={parent.USR_id} className="shadow-sm">
+          <Card.Header 
+            className="bg-success text-white py-2 cursor-pointer"
+            onClick={() => toggleParentExpansion(parent.USR_id)}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                {expandedParents.has(parent.USR_id) ? (
+                  <FaChevronDown className="me-2" />
+                ) : (
+                  <FaChevronRight className="me-2" />
+                )}
+                <FaUser className="me-2" />
+                <span className="fw-bold">
+                  {parent.USR_prenom} {parent.USR_nom}
+                </span>
+                <Badge bg="light" text="dark" className="ms-3">
+                  {parent.enfantsParent ? parent.enfantsParent.length : 0} enfant(s)
+                </Badge>
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <div className="small">
+                  {parent.USR_email && (
+                    <div>
+                      <FaEnvelope className="me-1" />
+                      {parent.USR_email}
+                    </div>
+                  )}
+                  {parent.USR_telephone && (
+                    <div>
+                      <FaPhone className="me-1" />
+                      {parent.USR_telephone}
+                    </div>
+                  )}
+                </div>
+                <Dropdown onClick={(e) => e.stopPropagation()}>
+                  <Dropdown.Toggle variant="light" size="sm">
+                    <FaPlus />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => handleShowCreateChildModal(parent)}>
+                      <FaUserPlus className="me-2" />
+                      Ajouter un enfant
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </div>
+          </Card.Header>
 
-          {!createdParent ? (
-            <Form onSubmit={handleParentSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Label>Nom :</Form.Label>
-                <Form.Control type="text" name="USR_nom" value={parentData.USR_nom} onChange={handleParentChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Prénom :</Form.Label>
-                <Form.Control type="text" name="USR_prenom" value={parentData.USR_prenom} onChange={handleParentChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Email :</Form.Label>
-                <Form.Control type="email" name="USR_email" value={parentData.USR_email} onChange={handleParentChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Mot de passe :</Form.Label>
-                <Form.Control type="password" name="USR_pass" value={parentData.USR_pass} onChange={handleParentChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Téléphone :</Form.Label>
-                <Form.Control type="text" name="USR_telephone" value={parentData.USR_telephone} onChange={handleParentChange} />
-              </Form.Group>
-
-              <Button type="submit" variant="primary" className="w-100">Créer le parent</Button>
-            </Form>
-          ) : (
-            <Form onSubmit={handleChildSubmit}>
-              <Alert variant="success">✅ Parent créé : {createdParent.USR_nom} {createdParent.USR_prenom}</Alert>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Nom de l’enfant :</Form.Label>
-                <Form.Control type="text" name="ENFA_nom" value={childData.ENFA_nom} onChange={handleChildChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Prénom :</Form.Label>
-                <Form.Control type="text" name="ENFA_prenom" value={childData.ENFA_prenom} onChange={handleChildChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Date de naissance :</Form.Label>
-                <Form.Control type="date" name="ENFA_dateNaissance" value={childData.ENFA_dateNaissance} onChange={handleChildChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Niveau d’audition :</Form.Label>
-                <Form.Select name="ENFA_niveauAudition" value={childData.ENFA_niveauAudition} onChange={handleChildChange}>
-                  <option value="leger">Léger</option>
-                  <option value="modere">Modéré</option>
-                  <option value="severe">Sévère</option>
-                  <option value="profond">Profond</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Date début de suivi :</Form.Label>
-                <Form.Control type="date" name="ENFA_dateDebutSuivi" value={childData.ENFA_dateDebutSuivi} onChange={handleChildChange} required />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Notes :</Form.Label>
-                <Form.Control as="textarea" name="ENFA_notesSuivi" value={childData.ENFA_notesSuivi} onChange={handleChildChange} />
-              </Form.Group>
-
-              <Button type="submit" variant="success" className="w-100">Créer l’enfant</Button>
-            </Form>
+          {expandedParents.has(parent.USR_id) && (
+            <Card.Body className="p-0">
+              {parent.enfantsParent && parent.enfantsParent.length > 0 ? (
+                <Table responsive className="mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Enfant</th>
+                      <th>Âge</th>
+                      <th>Niveau</th>
+                      <th>Suivi depuis</th>
+                      <th className="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parent.enfantsParent.map((enfant) => (
+                      <tr key={enfant.ENFA_id}>
+                        <td>
+                          <div className="fw-semibold text-primary">
+                            {enfant.ENFA_prenom} {enfant.ENFA_nom}
+                          </div>
+                          <small className="text-muted">
+                            Né le {formatDate(enfant.ENFA_dateNaissance)}
+                          </small>
+                        </td>
+                        <td>
+                          <span className="fw-semibold">
+                            {calculateAge(enfant.ENFA_dateNaissance)} ans
+                          </span>
+                        </td>
+                        <td>
+                          <Badge
+                            bg={getNiveauBadgeVariant(enfant.ENFA_niveauAudition)}
+                            className="text-capitalize"
+                          >
+                            {enfant.ENFA_niveauAudition}
+                          </Badge>
+                        </td>
+                        <td>
+                          <small>{formatDate(enfant.ENFA_dateDebutSuivi)}</small>
+                        </td>
+                        <td>
+                          <div className="d-flex gap-1 justify-content-center">
+                            <Button variant="outline-primary" size="sm" title="Modifier">
+                              <FaEdit />
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              title="Supprimer"
+                              onClick={() => handleDelete(enfant.ENFA_id)}
+                            >
+                              <FaTrash />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <div className="text-center py-3 text-muted">
+                  <FaChild size={30} className="mb-2" />
+                  <div>Aucun enfant en suivi</div>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => handleShowCreateChildModal(parent)}
+                  >
+                    <FaUserPlus className="me-1" />
+                    Ajouter un enfant
+                  </Button>
+                </div>
+              )}
+            </Card.Body>
           )}
-        </Modal.Body>
-      </Modal>
+        </Card>
+      ))}
+      {filteredData.length === 0 && (
+        <Card className="text-center py-5">
+          <Card.Body>
+            <FaUsers size={50} className="text-muted mb-3" />
+            <h5 className="text-muted">Aucun parent trouvé</h5>
+            <p className="text-muted">Aucun parent avec des enfants en suivi</p>
+          </Card.Body>
+        </Card>
+      )}
+    </div>
+  );
+
+  return (
+    <Container fluid className="px-4">
+      {/* Header avec navigation */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 className="mb-1">Gestion des Patients</h2>
+            <p className="text-muted mb-0">
+              Gérez vos patients et leurs parents
+            </p>
+          </div>
+          <Button variant="primary" onClick={handleShowCreateModal}>
+            <FaPlus className="me-2" />
+            Nouveau Patient
+          </Button>
+        </div>
+
+        {/* Navigation entre les vues */}
+        <Nav variant="pills" className="mb-3">
+          <Nav.Item>
+            <Nav.Link
+              active={viewMode === "enfants"}
+              onClick={() => handleViewModeChange("enfants")}
+              className="d-flex align-items-center"
+            >
+              <FaChild className="me-2" />
+              Vue par enfants ({enfants.length})
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              active={viewMode === "parents"}
+              onClick={() => handleViewModeChange("parents")}
+              className="d-flex align-items-center"
+            >
+              <FaUsers className="me-2" />
+              Vue par parents ({parents.length})
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+      </div>
+
+      {/* Messages d'erreur */}
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {error}
+        </Alert>
+      )}
+
+      {/* Contenu principal */}
+      {loading ? (
+        <div className="text-center p-5">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Chargement...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <>
+          {viewMode === "enfants" ? renderEnfantsView() : renderParentsView()}
+        </>
+      )}
+
+      {/* Modales */}
+      <CreatePatient
+        show={showCreateModal}
+        handleClose={handleCloseCreateModal}
+        onPatientCreated={handlePatientCreated}
+        orthophonisteId={user?.id}
+      />
+
+      <CreatePatientForParent
+        show={showCreateChildModal}
+        handleClose={handleCloseCreateChildModal}
+        onChildCreated={handleChildCreated}
+        orthophonisteId={user?.id}
+        selectedParent={selectedParent}
+        parents={parents}
+      />
     </Container>
   );
 };

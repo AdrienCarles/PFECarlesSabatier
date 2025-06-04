@@ -7,7 +7,6 @@ const authController = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      console.log("Login attempt with email:", email, password);
   
       const user = await USR.findOne({ where: { USR_email: email } });
       if (!user) {
@@ -52,14 +51,12 @@ const authController = {
         token: accessToken
       });
     } catch (error) {
-      console.log(error);
       next(new AppError(500, 'Erreur lors de la connexion'));
     }
   },
   
   self: async (req, res, next) => {
     try {
-      // Utilisez le bon nom de colonne
       const user = await USR.findByPk(req.user.id, {
         attributes: ['USR_id', 'USR_email', 'USR_nom', 'USR_prenom', 'USR_role'],
       });
@@ -68,7 +65,6 @@ const authController = {
         return next(new AppError(404, 'Utilisateur non trouvé'));
       }
       
-      // Transformez la réponse pour correspondre à ce que le frontend attend
       res.json({
         id: user.USR_id,
         email: user.USR_email,
@@ -77,7 +73,6 @@ const authController = {
         role: user.USR_role
       });
     } catch (error) {
-      console.error("Erreur détaillée:", error);
       next(new AppError(500, 'Erreur lors de la récupération du profil'));
     }
   },
@@ -131,15 +126,12 @@ const authController = {
 
   logout: async (req, res, next) => {
     try {
-      // Récupérer le refreshToken depuis les cookies
       const refreshToken = req.cookies.refreshToken;
       
       if (refreshToken) {
-        // Supprimer le token de rafraîchissement de la base
         await RefreshToken.destroy({ where: { token: refreshToken } });
       }
       
-      // Nettoyer les cookies dans tous les cas
       res.clearCookie('accessToken', { 
         httpOnly: true, 
         sameSite: 'Strict', 
