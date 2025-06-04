@@ -17,6 +17,7 @@ import GestionAbonnements from "./pages/Admin/GestionAbonnements";
 import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
+import ActivateAccount from "./pages/Parent/ActivateAccount";
 
 function App() {
   return (
@@ -27,7 +28,8 @@ function App() {
           {/* ROUTES NON PROTEGES */}
           <Route path="/login" element={<Login />} />
           <Route path="/Welcome" element={<Welcome />} />
-
+          <Route path="/activate/:token" element={<ActivateAccount />} />
+          
           {/* ROUTES PROTEGES ACCESSIBLES A TOUS LES UTILISATEURS */}
           <Route
             path="/home"
@@ -37,7 +39,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* ADMIN ROUTES */}
           <Route
             path="/admin/AdminDashboard"
@@ -63,7 +64,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* ORTHO ROUTES */}
           <Route
             path="/ortho/OrthoDashboard"
@@ -81,7 +81,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* SERIES - accessible par admin et orthophoniste */}
           <Route
             path="/series/GestionSeries"
@@ -91,7 +90,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* PARENT ROUTE */}
           <Route
             path="/parent/ParentDashboard"
@@ -101,7 +99,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/parent/ParentDashboard"
             element={
@@ -110,7 +107,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Redirection par défaut */}
           <Route path="*" element={<Navigate to="/Welcome" />} />
         </Routes>

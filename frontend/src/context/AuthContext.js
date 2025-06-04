@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const publicPaths = ["/welcome", "/login"];
+    const publicPaths = ["/welcome", "/login", "/activate"];
 
     const isPublicPage = publicPaths.some((path) =>
       window.location.pathname.toLowerCase().includes(path.toLowerCase())

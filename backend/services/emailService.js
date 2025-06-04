@@ -23,18 +23,6 @@ const createTransporter = () => {
   });
 };
 
-export const testEmailConnection = async () => {
-  try {
-    const transporter = createTransporter();
-    await transporter.verify();
-    console.log('✅ Configuration email valide');
-    return true;
-  } catch (error) {
-    console.error('❌ Erreur configuration email:', error);
-    return false;
-  }
-};
-
 export const sendActivationEmail = async ({
   email,
   nom,
@@ -46,8 +34,9 @@ export const sendActivationEmail = async ({
     const transporter = createTransporter();
     await transporter.verify();
 
-    const activationUrl = `${process.env.CLIENT_URL}/activate/${activationToken}`;
+    const activationUrl = `${process.env.FRONTEND_URL}/activate/${activationToken}`;
     const destinataireEmail = process.env.TEST_EMAIL_RECIPIENT;
+
 
     const htmlContent = `
       <!DOCTYPE html>

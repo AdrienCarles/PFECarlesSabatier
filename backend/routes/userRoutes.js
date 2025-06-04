@@ -18,6 +18,9 @@ router.get(
 // GET /api/usr/:usrId - Détail
 router.get('/:usrId', authenticateToken, userController.getUserById);
 
+// GET /api/usr/validate-token/:token - Validation du token d'activation
+router.get('/validate-token/:token', userController.validateActivationToken);
+
 // POST /api/usr - Création
 router.post(
   '/',

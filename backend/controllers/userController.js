@@ -209,6 +209,41 @@ const userController = {
     }
   },
 
+  validateActivationToken: async (req, res, next) => {
+    try {
+      const { token } = req.params;
+
+      const user = await USR.findOne({
+        where: {
+          USR_activationToken: token,
+          USR_role: 'parent',
+          USR_statut: 'inactif',
+        },
+        attributes: ['USR_id', 'USR_nom', 'USR_prenom', 'USR_email', 'USR_tokenExpiry']
+      });
+
+      if (!user) {
+        return next(new AppError(400, "Token d'activation invalide"));
+      }
+
+      // Vérifier si le token n'est pas expiré
+      if (user.USR_tokenExpiry && new Date() > user.USR_tokenExpiry) {
+        return next(new AppError(400, "Token d'activation expiré"));
+      }
+
+      res.json({
+        message: 'Token valide',
+        user: {
+          nom: user.USR_nom,
+          prenom: user.USR_prenom,
+          email: user.USR_email
+        }
+      });
+    } catch (error) {
+      next(new AppError(500, "Erreur lors de la validation du token"));
+    }
+  },
+
   activateParentAccount: async (req, res, next) => {
     try {
       const { token } = req.params;
@@ -253,8 +288,7 @@ const userController = {
       });
 
       res.json({
-        message:
-          'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
+        message: 'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
       });
     } catch (error) {
       next(new AppError(500, "Erreur lors de l'activation du compte"));

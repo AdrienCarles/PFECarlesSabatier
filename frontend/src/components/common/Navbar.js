@@ -116,7 +116,7 @@ const AppNavbar = ({ brandText = "Tikets", showLogout = true }) => {
   function getHomeByRole() {
     if (!user) return '/';
     
-    switch (user.USR_role) {
+    switch (user.role) {
       case 'admin': return '/admin/AdminDashboard';
       case 'orthophoniste': return '/ortho/OrthoDashboard';
       default: return '/home';

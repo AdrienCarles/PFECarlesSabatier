@@ -456,7 +456,7 @@ const GestionEnfants = () => {
               className="d-flex align-items-center"
             >
               <FaChild className="me-2" />
-              Vue par enfants ({enfants.length})
+              Vue par enfants
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
@@ -466,7 +466,7 @@ const GestionEnfants = () => {
               className="d-flex align-items-center"
             >
               <FaUsers className="me-2" />
-              Vue par parents ({parents.length})
+              Vue par parents
             </Nav.Link>
           </Nav.Item>
         </Nav>
