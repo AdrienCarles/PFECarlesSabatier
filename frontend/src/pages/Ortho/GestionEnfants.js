@@ -99,25 +99,36 @@ const GestionEnfants = () => {
       setError("Erreur lors de la création du parent.");
     }
   };
+console.log("👤 Données user utilisées pour l'enfant :", user);
 
   const handleChildSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const enfantToSend = {
-        ...childData,
-        ENFA_dateCreation: new Date(),
-        USR_parent_id: createdParent.USR_id,
-        USR_orthophoniste_id: user.id,
-      };
-      const response = await axiosInstance.post("/enfa", enfantToSend);
-      setEnfants((prev) => [...prev, response.data]);
-      handleClose();
-    } catch (error) {
-      console.error("Erreur création enfant", error);
-      setError("Erreur lors de la création de l'enfant.");
-    }
-  };
+  e.preventDefault();
+  setError("");
+  try {
+    const enfantToSend = {
+      ...childData,
+      ENFA_dateCreation: new Date(),
+      USR_parent_id: createdParent.USR_id,
+      USR_orthophoniste_id: user.id, 
+    };
+
+    await axiosInstance.post("/enfa", enfantToSend);
+
+    // Recharge les enfants et parents à jour
+    const [childrenRes, parentsRes] = await Promise.all([
+      axiosInstance.get(`/enfa/orthophoniste/${user.id}`),
+      axiosInstance.get("/usr?role=parent")
+    ]);
+
+    setEnfants(childrenRes.data);
+    setParents(parentsRes.data);
+    handleClose();
+  } catch (error) {
+    console.error("Erreur création enfant", error);
+    setError("Erreur lors de la création de l'enfant.");
+  }
+};
+
 
   const handleDelete = (id) => {
     if (window.confirm("Supprimer cet enfant ?")) {

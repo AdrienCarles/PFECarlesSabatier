@@ -16,6 +16,7 @@ import GestionUsers from "./pages/Admin/GestionUsers";
 import GestionAbonnements from "./pages/Admin/GestionAbonnements";
 import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
+import ParentDashboard from "./pages/Parent/ParentDashboard";
 
 function App() {
   return (
@@ -87,6 +88,25 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["admin", "orthophoniste"]}>
                 <GestionSeries />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* PARENT ROUTE */}
+          <Route
+            path="/parent/ParentDashboard"
+            element={
+              <ProtectedRoute allowedRoles={["parent"]}>
+                <ParentDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/parent/ParentDashboard"
+            element={
+              <ProtectedRoute allowedRoles={["parent"]}>
+                <ParentDashboard />
               </ProtectedRoute>
             }
           />
