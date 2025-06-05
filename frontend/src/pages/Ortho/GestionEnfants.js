@@ -30,6 +30,7 @@ import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
 import CreatePatient from "./CreatePatient";
 import CreatePatientForParent from "./CreatePatientForParent";
+import CreateOrEditParentModal from "./CreateOrEditParentModal";
 
 const GestionEnfants = () => {
   const { user } = useContext(AuthContext);
@@ -45,6 +46,9 @@ const GestionEnfants = () => {
   const [expandedParents, setExpandedParents] = useState(new Set());
   const [editMode, setEditMode] = useState(false);
   const [patientToEdit, setPatientToEdit] = useState(null);
+  const [showParentModal, setShowParentModal] = useState(false);
+  const [editParentMode, setEditParentMode] = useState(false);
+  const [parentToEdit, setParentToEdit] = useState(null);
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -143,6 +147,25 @@ const GestionEnfants = () => {
         });
     }
   };
+
+  const handleShowCreateParentModal = () => {
+    setEditParentMode(false);
+    setParentToEdit(null);
+    setShowParentModal(true);
+  };
+
+  const handleShowEditParentModal = (parent) => {
+    setEditParentMode(true);
+    setParentToEdit(parent);
+    setShowParentModal(true);
+  };
+
+  const handleCloseParentModal = () => {
+    setShowParentModal(false);
+    setEditParentMode(false);
+    setParentToEdit(null);
+  };
+
 
   const toggleParentExpansion = (parentId) => {
     const newExpanded = new Set(expandedParents);
@@ -332,6 +355,18 @@ const GestionEnfants = () => {
                     </div>
                   )}
                 </div>
+                <Dropdown onClick={(e) => e.stopPropagation()}>
+                  <Dropdown.Toggle variant="light" size="sm">
+                    <FaEdit />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => handleShowEditParentModal(parent)}>
+                      <FaUser className="me-2" />
+                      Modifier le parent
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+
                 <Dropdown onClick={(e) => e.stopPropagation()}>
                   <Dropdown.Toggle variant="light" size="sm">
                     <FaPlus />
@@ -530,6 +565,16 @@ const GestionEnfants = () => {
         editMode={editMode}
         patientToEdit={patientToEdit}
       />
+
+      <CreateOrEditParentModal
+        show={showParentModal}
+        handleClose={handleCloseParentModal}
+        onParentSaved={loadParentsData}
+        editMode={editParentMode}
+        parentToEdit={parentToEdit}
+      />
+
+
     </Container>
   );
 
