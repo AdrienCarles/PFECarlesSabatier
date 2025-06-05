@@ -67,19 +67,19 @@ const CreatePatientForParent = ({
     }
   }, [editMode, patientToEdit, selectedParent]);
 
-useEffect(() => {
-  if (show && !editMode) {
-    setChildData({
-      ENFA_nom: "",
-      ENFA_prenom: "",
-      ENFA_dateNaissance: "",
-      ENFA_niveauAudition: "leger",
-      ENFA_dateDebutSuivi: "",
-      ENFA_notesSuivi: "",
-      USR_parent_id: selectedParent?.USR_id || "",
-    });
-  }
-}, [show, editMode, selectedParent]);
+  useEffect(() => {
+    if (show && !editMode) {
+      setChildData({
+        ENFA_nom: "",
+        ENFA_prenom: "",
+        ENFA_dateNaissance: "",
+        ENFA_niveauAudition: "leger",
+        ENFA_dateDebutSuivi: "",
+        ENFA_notesSuivi: "",
+        USR_parent_id: selectedParent?.USR_id || "",
+      });
+    }
+  }, [show, editMode, selectedParent]);
 
   const loadParents = async () => {
     try {
@@ -122,7 +122,7 @@ useEffect(() => {
       !childData.ENFA_prenom ||
       !childData.ENFA_dateNaissance ||
       !childData.ENFA_dateDebutSuivi ||
-      !childData.USR_parent_id
+      (!editMode && !childData.USR_parent_id)  // Ne vérifie que si pas en édition
     ) {
       setError("Veuillez remplir tous les champs obligatoires.");
       return false;
@@ -130,6 +130,7 @@ useEffect(() => {
 
     return true;
   };
+
 
   // Soumission du formulaire
   const handleSubmit = async (e) => {
@@ -147,6 +148,7 @@ useEffect(() => {
       const enfantToSend = {
         ...childData,
         USR_orthophoniste_id: orthophonisteId,
+        USR_parent_id: childData.USR_parent_id || selectedParent?.USR_id
       };
 
       if (editMode && patientToEdit?.ENFA_id) {
@@ -199,11 +201,9 @@ useEffect(() => {
 
         <Form onSubmit={handleSubmit}>
           {/* Sélection du parent (si pas pré-sélectionné) */}
-          {!selectedParent && (
+          {!editMode && !selectedParent && (
             <div className="mb-4">
-              <h6 className="text-primary mb-3">
-                👤 Sélection du parent
-              </h6>
+              <h6 className="text-primary mb-3">👤 Sélection du parent</h6>
               <Form.Group className="mb-3">
                 <Form.Label>Parent responsable *</Form.Label>
                 <Form.Select

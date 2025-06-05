@@ -148,6 +148,24 @@ const GestionEnfants = () => {
     }
   };
 
+  const handleDeleteParent = async (parent) => {
+    if (window.confirm(`Supprimer ${parent.USR_prenom} ${parent.USR_nom} ?\nTous ses enfants seront aussi supprimés.`)) {
+      try {
+        const response = await axiosInstance.delete(`/usr/${parent.USR_id}`); // Adapté à ton API
+        console.log("Parent supprimé :", response.data);
+
+        // Supprimer côté frontend
+        setParents(prev => prev.filter(p => p.USR_id !== parent.USR_id));
+        setEnfants(prev => prev.filter(e => e.parent?.USR_id !== parent.USR_id));
+        setError("");
+      } catch (err) {
+        console.error("Erreur suppression parent :", err.response?.data || err.message);
+        setError("Erreur lors de la suppression du parent.");
+      }
+    }
+  };
+
+
   const handleShowCreateParentModal = () => {
     setEditParentMode(false);
     setParentToEdit(null);
@@ -360,12 +378,19 @@ const GestionEnfants = () => {
                     <FaEdit />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleShowEditParentModal(parent)}>
+                    <Dropdown.Item key={`edit-${parent.USR_id}`} onClick={() => handleShowEditParentModal(parent)}>
                       <FaUser className="me-2" />
                       Modifier le parent
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
+                {/* Supprimer parent - bouton séparé avec icône poubelle */}
+                <OverlayTrigger overlay={<Tooltip>Supprimer le parent</Tooltip>} key={`trash-${parent.USR_id}`}>
+                  <Button variant="light" size="sm" onClick={() => handleDeleteParent(parent)}>
+                    <FaTrash className="text-danger" />
+                  </Button>
+                </OverlayTrigger>
+
 
                 <Dropdown onClick={(e) => e.stopPropagation()}>
                   <Dropdown.Toggle variant="light" size="sm">
@@ -431,9 +456,15 @@ const GestionEnfants = () => {
                         </td>
                         <td>
                           <div className="d-flex gap-1 justify-content-center">
-                            <Button variant="outline-primary" size="sm" title="Modifier">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              title="Modifier"
+                              onClick={() => handleShowEditChildModal(enfant)}
+                            >
                               <FaEdit />
                             </Button>
+
                             <Button
                               variant="outline-danger"
                               size="sm"
