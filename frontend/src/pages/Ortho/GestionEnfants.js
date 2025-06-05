@@ -43,6 +43,8 @@ const GestionEnfants = () => {
   const [selectedParent, setSelectedParent] = useState(null);
   const [viewMode, setViewMode] = useState("enfants");
   const [expandedParents, setExpandedParents] = useState(new Set());
+  const [editMode, setEditMode] = useState(false);
+  const [patientToEdit, setPatientToEdit] = useState(null);
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -257,10 +259,15 @@ const GestionEnfants = () => {
                 <td>
                   <div className="d-flex gap-1 justify-content-center">
                     <OverlayTrigger overlay={<Tooltip>Modifier</Tooltip>}>
-                      <Button variant="outline-primary" size="sm">
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => handleShowEditChildModal(enfant)}
+                      >
                         <FaEdit />
                       </Button>
                     </OverlayTrigger>
+
                     <OverlayTrigger overlay={<Tooltip>Supprimer</Tooltip>}>
                       <Button
                         variant="outline-danger"
@@ -290,7 +297,7 @@ const GestionEnfants = () => {
     <div className="space-y-3">
       {filteredData.map((parent) => (
         <Card key={parent.USR_id} className="shadow-sm">
-          <Card.Header 
+          <Card.Header
             className="bg-success text-white py-2 cursor-pointer"
             onClick={() => toggleParentExpansion(parent.USR_id)}
             style={{ cursor: 'pointer' }}
@@ -330,7 +337,14 @@ const GestionEnfants = () => {
                     <FaPlus />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleShowCreateChildModal(parent)}>
+                    <Dropdown.Item
+                      onClick={() => {
+                        setSelectedParent(parent);
+                        setEditMode(false);       // Important !
+                        setPatientToEdit(null);   // Important !
+                        setShowCreateChildModal(true);
+                      }}
+                    >
                       <FaUserPlus className="me-2" />
                       Ajouter un enfant
                     </Dropdown.Item>
@@ -429,6 +443,12 @@ const GestionEnfants = () => {
       )}
     </div>
   );
+  const handleShowEditChildModal = (enfant) => {
+    setSelectedParent(enfant.parent);
+    setPatientToEdit(enfant);
+    setEditMode(true);
+    setShowCreateChildModal(true);
+  };
 
   return (
     <Container fluid className="px-4">
@@ -507,9 +527,12 @@ const GestionEnfants = () => {
         orthophonisteId={user?.id}
         selectedParent={selectedParent}
         parents={parents}
+        editMode={editMode}
+        patientToEdit={patientToEdit}
       />
     </Container>
   );
+
 };
 
 export default GestionEnfants;

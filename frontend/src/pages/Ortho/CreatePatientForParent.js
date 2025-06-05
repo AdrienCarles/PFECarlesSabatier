@@ -10,6 +10,8 @@ const CreatePatientForParent = ({
   orthophonisteId,
   selectedParent,
   parents,
+  editMode = false,
+  patientToEdit = null
 }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,6 +27,14 @@ const CreatePatientForParent = ({
     ENFA_notesSuivi: "",
     USR_parent_id: selectedParent?.USR_id || "",
   });
+
+  // Utilitaire pour convertir une date en yyyy-MM-dd (format pour les champs <input type="date">)
+  const formatDateInput = (dateString) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    return d.toISOString().split("T")[0];
+  };
+
 
   // Charger la liste des parents si pas fournie
   useEffect(() => {
@@ -42,6 +52,34 @@ const CreatePatientForParent = ({
       }));
     }
   }, [selectedParent]);
+
+  useEffect(() => {
+    if (editMode && patientToEdit) {
+      setChildData({
+        ENFA_nom: patientToEdit.ENFA_nom || "",
+        ENFA_prenom: patientToEdit.ENFA_prenom || "",
+        ENFA_dateNaissance: formatDateInput(patientToEdit.ENFA_dateNaissance),
+        ENFA_niveauAudition: patientToEdit.ENFA_niveauAudition || "leger",
+        ENFA_dateDebutSuivi: formatDateInput(patientToEdit.ENFA_dateDebutSuivi),
+        ENFA_notesSuivi: patientToEdit.ENFA_notesSuivi || "",
+        USR_parent_id: patientToEdit.USR_parent_id || selectedParent?.id || ""
+      });
+    }
+  }, [editMode, patientToEdit, selectedParent]);
+
+useEffect(() => {
+  if (show && !editMode) {
+    setChildData({
+      ENFA_nom: "",
+      ENFA_prenom: "",
+      ENFA_dateNaissance: "",
+      ENFA_niveauAudition: "leger",
+      ENFA_dateDebutSuivi: "",
+      ENFA_notesSuivi: "",
+      USR_parent_id: selectedParent?.USR_id || "",
+    });
+  }
+}, [show, editMode, selectedParent]);
 
   const loadParents = async () => {
     try {
@@ -105,13 +143,20 @@ const CreatePatientForParent = ({
     setError("");
 
     try {
+      let response; // ✅ déclaration ici
       const enfantToSend = {
         ...childData,
-        ENFA_dateCreation: new Date(),
         USR_orthophoniste_id: orthophonisteId,
       };
 
-      const response = await axiosInstance.post("/enfa", enfantToSend);
+      if (editMode && patientToEdit?.ENFA_id) {
+        // 🔁 Mise à jour d’un enfant existant
+        response = await axiosInstance.put(`/enfa/${patientToEdit.ENFA_id}`, enfantToSend);
+      } else {
+        // ➕ Création d’un nouvel enfant
+        enfantToSend.ENFA_dateCreation = new Date();
+        response = await axiosInstance.post("/enfa", enfantToSend);
+      }
 
       if (onChildCreated) {
         onChildCreated(response.data);
@@ -122,7 +167,7 @@ const CreatePatientForParent = ({
       console.error("Erreur création enfant:", error);
       setError(
         error.response?.data?.message ||
-          "Erreur lors de la création de l'enfant."
+        "Erreur lors de la création de l'enfant."
       );
     } finally {
       setLoading(false);
@@ -142,7 +187,10 @@ const CreatePatientForParent = ({
       <Modal.Header closeButton className="bg-light">
         <Modal.Title>
           <FaUserPlus className="me-2" />
-          Ajouter un enfant {selectedParent && `à ${selectedParent.USR_prenom} ${selectedParent.USR_nom}`}
+          {editMode
+            ? "Modifier les informations de l'enfant"
+            : `Ajouter un enfant${selectedParent ? ` à ${selectedParent.USR_prenom} ${selectedParent.USR_nom}` : ""}`
+          }
         </Modal.Title>
       </Modal.Header>
 
@@ -289,14 +337,15 @@ const CreatePatientForParent = ({
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" />
-                  Création en cours...
+                  {editMode ? "Mise à jour en cours..." : "Création en cours..."}
                 </>
               ) : (
                 <>
                   <FaBaby className="me-2" />
-                  Créer l'Enfant
+                  {editMode ? "Mettre à jour" : "Créer l'Enfant"}
                 </>
               )}
+
             </Button>
           </div>
         </Form>
@@ -304,5 +353,6 @@ const CreatePatientForParent = ({
     </Modal>
   );
 };
+
 
 export default CreatePatientForParent;
