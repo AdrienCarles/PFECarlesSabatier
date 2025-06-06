@@ -13,15 +13,17 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     const result = await login(email, password);
-    
+
     if (result.success) {
       // Redirection basée sur le rôle
       if (result.userRole === "admin") {
         navigate("/admin/AdminDashboard");
       } else if (result.userRole === "orthophoniste") {
         navigate("/ortho/OrthoDashboard");
+      } else if (result.userRole === "parent") {
+        navigate("/parent/ParentDashboard");
       } else {
         navigate("/home");
       }

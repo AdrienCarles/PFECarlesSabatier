@@ -99,14 +99,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/parent/ParentDashboard"
-            element={
-              <ProtectedRoute allowedRoles={["parent"]}>
-                <ParentDashboard />
-              </ProtectedRoute>
-            }
-          />
           {/* Redirection par défaut */}
           <Route path="*" element={<Navigate to="/Welcome" />} />
         </Routes>
