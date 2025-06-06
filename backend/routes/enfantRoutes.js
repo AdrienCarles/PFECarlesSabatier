@@ -55,4 +55,11 @@ router.delete('/:enfaId',
     enfantController.deleteEnfant
 );
 
+// Routes pour la gestion des séries
+router.post('/:enfaId/series', authenticateToken, enfantController.assignSeries);
+
+router.delete('/:enfaId/series/:serieId', authenticateToken, enfantController.removeSerie);
+
+router.get('/:enfaId/series', authenticateToken, enfantController.getEnfantSeries);
+
 export default router;

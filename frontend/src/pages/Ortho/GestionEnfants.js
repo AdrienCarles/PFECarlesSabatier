@@ -26,6 +26,8 @@ import {
   FaUserPlus,
   FaChevronDown,
   FaChevronRight,
+  FaBookOpen,
+  FaUserCircle,
 } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
@@ -33,6 +35,7 @@ import CreatePatient from "./CreatePatient";
 import CreatePatientForParent from "./CreatePatientForParent";
 import CreateOrEditParentModal from "./CreateOrEditParentModal";
 import { FaSearch } from "react-icons/fa";
+import GestionSeriesEnfant from './GestionSeriesEnfant';
 
 
 const GestionEnfants = () => {
@@ -53,6 +56,8 @@ const GestionEnfants = () => {
   const [editParentMode, setEditParentMode] = useState(false);
   const [parentToEdit, setParentToEdit] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showSeriesModal, setShowSeriesModal] = useState(false);
+  const [selectedEnfant, setSelectedEnfant] = useState(null);
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -137,51 +142,48 @@ const GestionEnfants = () => {
     loadData();
   };
 
-  const handleChildCreated = (newChild) => {
-    // Mise à jour de la liste des enfants
-    setEnfants(prev => {
-      const filtered = prev.filter(e => e.ENFA_id !== newChild.ENFA_id);
-      return [...filtered, newChild];
-    });
+  const updateChildInState = (updatedChild) => {
+    // Mise à jour dans la liste des enfants
+    setEnfants(prev =>
+      prev.map(enfant =>
+        enfant.ENFA_id === updatedChild.ENFA_id ? updatedChild : enfant
+      )
+    );
 
-    // Mise à jour de la liste des parents
-    setParents(prev => {
-      return prev.map(parent => {
-        if (parent.USR_id === newChild.USR_parent_id) {
+    // Mise à jour dans la liste des parents
+    setParents(prev =>
+      prev.map(parent => {
+        if (parent.enfantsParent?.some(e => e.ENFA_id === updatedChild.ENFA_id)) {
           return {
             ...parent,
             enfantsParent: parent.enfantsParent.map(enfant =>
-              enfant.ENFA_id === newChild.ENFA_id ? newChild : enfant
+              enfant.ENFA_id === updatedChild.ENFA_id ? {
+                ...enfant,
+                ...updatedChild,
+                ENFA_dateFinSuivi: updatedChild.ENFA_dateFinSuivi
+              } : enfant
             )
           };
         }
         return parent;
-      });
-    });
+      })
+    );
 
+    // Mettre à jour également filteredData
+    setFilteredData(prev =>
+      prev.map(item =>
+        item.ENFA_id === updatedChild.ENFA_id ? updatedChild : item
+      )
+    );
+  };
+
+  const handleChildCreated = (newChild) => {
+    // Utiliser updateChildInState au lieu de la logique directe
+    updateChildInState(newChild);
     setError("");
-    loadData(); // Recharge toutes les données pour s'assurer de la cohérence
+    // Pas besoin de loadData() car updateChildInState met déjà à jour l'état
   };
 
-  const updateChildInState = (updatedChild) => {
-    // Mise à jour dans la liste des enfants
-    setEnfants(prev => prev.map(enfant =>
-      enfant.ENFA_id === updatedChild.ENFA_id ? updatedChild : enfant
-    ));
-
-    // Mise à jour dans la liste des parents
-    setParents(prev => prev.map(parent => {
-      if (parent.enfantsParent?.some(e => e.ENFA_id === updatedChild.ENFA_id)) {
-        return {
-          ...parent,
-          enfantsParent: parent.enfantsParent.map(enfant =>
-            enfant.ENFA_id === updatedChild.ENFA_id ? updatedChild : enfant
-          )
-        };
-      }
-      return parent;
-    }));
-  };
 
   const filterEnfants = (searchTerm) => {
     if (!searchTerm) return enfants;
@@ -250,6 +252,15 @@ const GestionEnfants = () => {
     setParentToEdit(null);
   };
 
+  const handleShowSeriesModal = (enfant) => {
+    setSelectedEnfant(enfant);
+    setShowSeriesModal(true);
+  };
+
+  const handleCloseSeriesModal = () => {
+    setShowSeriesModal(false);
+    setSelectedEnfant(null);
+  };
 
   const toggleParentExpansion = (parentId) => {
     const newExpanded = new Set(expandedParents);
@@ -405,6 +416,16 @@ const GestionEnfants = () => {
                         onClick={() => handleShowEditChildModal(enfant)}
                       >
                         <FaEdit />
+                      </Button>
+                    </OverlayTrigger>
+
+                    <OverlayTrigger overlay={<Tooltip>Gérer les séries</Tooltip>}>
+                      <Button
+                        variant="outline-success"
+                        size="sm"
+                        onClick={() => handleShowSeriesModal(enfant)}
+                      >
+                        <FaBookOpen />
                       </Button>
                     </OverlayTrigger>
 
@@ -714,7 +735,11 @@ const GestionEnfants = () => {
         parentToEdit={parentToEdit}
       />
 
-
+      <GestionSeriesEnfant
+        show={showSeriesModal}
+        handleClose={handleCloseSeriesModal}
+        enfant={selectedEnfant}
+      />
     </Container>
   );
 

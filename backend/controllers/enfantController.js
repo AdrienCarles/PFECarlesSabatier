@@ -205,8 +205,6 @@ const enfantController = {
     }
   },
 
-  // ...existing code...
-
   getMesEnfants: async (req, res, next) => {
     try {
       const parentId = req.params.parentId;
@@ -236,6 +234,60 @@ const enfantController = {
       next(new AppError(500, "Erreur lors de la récupération des enfants"));
     }
   },
+
+  getEnfantSeries: async (req, res) => {
+    try {
+      const { enfaId } = req.params;
+      const enfant = await ENFA.findByPk(enfaId, {
+        include: [{
+          model: SES,
+          through: ACCES,
+          as: 'series'
+        }]
+      });
+
+      if (!enfant) {
+        return res.status(404).json({ message: 'Enfant non trouvé' });
+      }
+
+      res.json(enfant.series);
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des séries' });
+    }
+  },
+
+  assignSeries: async (req, res) => {
+    try {
+      const { enfaId } = req.params;
+      const { serieId } = req.body;
+
+      await ACCES.create({
+        ENFA_id: enfaId,
+        SES_id: serieId
+      });
+
+      res.status(201).json({ message: 'Série assignée avec succès' });
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de l\'assignation de la série' });
+    }
+  },
+
+  removeSerie: async (req, res) => {
+    try {
+      const { enfaId, serieId } = req.params;
+
+      await ACCES.destroy({
+        where: {
+          ENFA_id: enfaId,
+          SES_id: serieId
+        }
+      });
+
+      res.json({ message: 'Série retirée avec succès' });
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors du retrait de la série' });
+    }
+  }
 
 };
 
