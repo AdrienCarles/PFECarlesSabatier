@@ -11,6 +11,7 @@ import {
   Nav,
   Dropdown,
   Table,
+  Form,
 } from "react-bootstrap";
 import {
   FaPlus,
@@ -31,6 +32,8 @@ import axiosInstance from "../../api/axiosConfig";
 import CreatePatient from "./CreatePatient";
 import CreatePatientForParent from "./CreatePatientForParent";
 import CreateOrEditParentModal from "./CreateOrEditParentModal";
+import { FaSearch } from "react-icons/fa";
+
 
 const GestionEnfants = () => {
   const { user } = useContext(AuthContext);
@@ -49,6 +52,7 @@ const GestionEnfants = () => {
   const [showParentModal, setShowParentModal] = useState(false);
   const [editParentMode, setEditParentMode] = useState(false);
   const [parentToEdit, setParentToEdit] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -74,11 +78,13 @@ const GestionEnfants = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      if (!user?.id) {
-        throw new Error("ID utilisateur manquant");
-      }
-      const response = await axiosInstance.get(`/enfa/enfants/${user.id}`);
-      setEnfants(response.data);
+      const [enfantsRes, parentsRes] = await Promise.all([
+        axiosInstance.get(`/enfa/enfants/${user.id}`),
+        axiosInstance.get(`/enfa/parents/${user.id}`)
+      ]);
+      setEnfants(enfantsRes.data);
+      setParents(parentsRes.data);
+      setFilteredData(viewMode === "enfants" ? enfantsRes.data : parentsRes.data);
     } catch (err) {
       console.error("Erreur chargement données :", err);
       setError("Erreur lors du chargement des données.");
@@ -86,6 +92,7 @@ const GestionEnfants = () => {
       setLoading(false);
     }
   };
+
 
   const loadEnfantsData = () => {
     setFilteredData(enfants);
@@ -115,9 +122,13 @@ const GestionEnfants = () => {
     setShowCreateChildModal(true);
   };
 
+  // Après une modification réussie
   const handleCloseCreateChildModal = () => {
     setShowCreateChildModal(false);
     setSelectedParent(null);
+    setEditMode(false);
+    setPatientToEdit(null);
+    loadData(); // Recharge les données pour s'assurer de la cohérence
   };
 
   const handlePatientCreated = (newPatient) => {
@@ -127,9 +138,64 @@ const GestionEnfants = () => {
   };
 
   const handleChildCreated = (newChild) => {
-    setEnfants((prev) => [...prev, newChild]);
+    // Mise à jour de la liste des enfants
+    setEnfants(prev => {
+      const filtered = prev.filter(e => e.ENFA_id !== newChild.ENFA_id);
+      return [...filtered, newChild];
+    });
+
+    // Mise à jour de la liste des parents
+    setParents(prev => {
+      return prev.map(parent => {
+        if (parent.USR_id === newChild.USR_parent_id) {
+          return {
+            ...parent,
+            enfantsParent: parent.enfantsParent.map(enfant =>
+              enfant.ENFA_id === newChild.ENFA_id ? newChild : enfant
+            )
+          };
+        }
+        return parent;
+      });
+    });
+
     setError("");
-    loadData();
+    loadData(); // Recharge toutes les données pour s'assurer de la cohérence
+  };
+
+  const updateChildInState = (updatedChild) => {
+    // Mise à jour dans la liste des enfants
+    setEnfants(prev => prev.map(enfant =>
+      enfant.ENFA_id === updatedChild.ENFA_id ? updatedChild : enfant
+    ));
+
+    // Mise à jour dans la liste des parents
+    setParents(prev => prev.map(parent => {
+      if (parent.enfantsParent?.some(e => e.ENFA_id === updatedChild.ENFA_id)) {
+        return {
+          ...parent,
+          enfantsParent: parent.enfantsParent.map(enfant =>
+            enfant.ENFA_id === updatedChild.ENFA_id ? updatedChild : enfant
+          )
+        };
+      }
+      return parent;
+    }));
+  };
+
+  const filterEnfants = (searchTerm) => {
+    if (!searchTerm) return enfants;
+
+    return enfants.filter(enfant => {
+      const searchStr = searchTerm.toLowerCase();
+      return (
+        enfant.ENFA_nom.toLowerCase().includes(searchStr) ||
+        enfant.ENFA_prenom.toLowerCase().includes(searchStr) ||
+        enfant.parent?.USR_nom.toLowerCase().includes(searchStr) ||
+        enfant.parent?.USR_prenom.toLowerCase().includes(searchStr) ||
+        enfant.ENFA_niveauAudition.toLowerCase().includes(searchStr)
+      );
+    });
   };
 
   const handleDelete = (id) => {
@@ -220,6 +286,11 @@ const GestionEnfants = () => {
     return age;
   };
 
+  const getDateFinSuiviStyle = (dateFinSuivi) => {
+    if (!dateFinSuivi) return "text-muted";
+    return new Date(dateFinSuivi) < new Date() ? "text-danger" : "text-success";
+  };
+
   const renderEnfantsView = () => (
     <Card className="shadow-sm">
       <Card.Header className="bg-primary text-white py-2">
@@ -229,6 +300,24 @@ const GestionEnfants = () => {
             Liste des Patients ({filteredData.length})
           </h6>
         </div>
+        <div className="mt-2">
+          <div className="input-group">
+            <span className="input-group-text bg-white">
+              <FaSearch />
+            </span>
+            <Form.Control
+              type="search"
+              placeholder="Rechercher un patient..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setFilteredData(filterEnfants(e.target.value));
+              }}
+              className="border-start-0"
+            />
+          </div>
+        </div>
+
       </Card.Header>
       <Card.Body className="p-0">
         <Table responsive hover className="mb-0">
@@ -240,6 +329,7 @@ const GestionEnfants = () => {
               <th>Parent</th>
               <th>Contact</th>
               <th>Suivi depuis</th>
+              <th>Fin de suivi</th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -296,6 +386,15 @@ const GestionEnfants = () => {
                 </td>
                 <td>
                   <small>{formatDate(enfant.ENFA_dateDebutSuivi)}</small>
+                </td>
+                <td>
+                  {enfant.ENFA_dateFinSuivi ? (
+                    <small className={getDateFinSuiviStyle(enfant.ENFA_dateFinSuivi)}>
+                      {formatDate(enfant.ENFA_dateFinSuivi)}
+                    </small>
+                  ) : (
+                    <small className="text-muted">En cours</small>
+                  )}
                 </td>
                 <td>
                   <div className="d-flex gap-1 justify-content-center">
@@ -424,6 +523,7 @@ const GestionEnfants = () => {
                       <th>Âge</th>
                       <th>Niveau</th>
                       <th>Suivi depuis</th>
+                      <th>Fin de suivi</th>
                       <th className="text-center">Actions</th>
                     </tr>
                   </thead>
@@ -453,6 +553,15 @@ const GestionEnfants = () => {
                         </td>
                         <td>
                           <small>{formatDate(enfant.ENFA_dateDebutSuivi)}</small>
+                        </td>
+                        <td>
+                          {enfant.ENFA_dateFinSuivi ? (
+                            <small className={`${new Date(enfant.ENFA_dateFinSuivi) < new Date() ? 'text-danger' : 'text-success'}`}>
+                              {formatDate(enfant.ENFA_dateFinSuivi)}
+                            </small>
+                          ) : (
+                            <small className="text-muted">En cours</small>
+                          )}
                         </td>
                         <td>
                           <div className="d-flex gap-1 justify-content-center">

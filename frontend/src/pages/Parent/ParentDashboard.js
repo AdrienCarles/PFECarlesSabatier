@@ -50,11 +50,11 @@ const ParentDashboard = () => {
                     <p>Aucun enfant trouvé.</p>
                 </div>
             ) : (
-                <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+                <Row xs={1} sm={2} md={2} lg={3} xl={4} className="g-3">
                     {enfants.map((enfant) => (
                         <Col key={enfant.ENFA_id}>
                             <Card
-                                className="h-100 text-center shadow-sm hover-effect"
+                                className="h-100 text-center shadow-sm hover-effect w-100"
                                 onClick={() => handleEnfantClick(enfant)}
                                 style={{
                                     cursor: "pointer",

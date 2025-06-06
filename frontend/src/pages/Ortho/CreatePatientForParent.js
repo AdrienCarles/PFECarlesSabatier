@@ -24,6 +24,7 @@ const CreatePatientForParent = ({
     ENFA_dateNaissance: "",
     ENFA_niveauAudition: "leger",
     ENFA_dateDebutSuivi: "",
+    ENFA_dateFinSuivi: "",
     ENFA_notesSuivi: "",
     USR_parent_id: selectedParent?.USR_id || "",
   });
@@ -61,6 +62,7 @@ const CreatePatientForParent = ({
         ENFA_dateNaissance: formatDateInput(patientToEdit.ENFA_dateNaissance),
         ENFA_niveauAudition: patientToEdit.ENFA_niveauAudition || "leger",
         ENFA_dateDebutSuivi: formatDateInput(patientToEdit.ENFA_dateDebutSuivi),
+        ENFA_dateFinSuivi: formatDateInput(patientToEdit.ENFA_dateFinSuivi), // Ajoutez cette ligne
         ENFA_notesSuivi: patientToEdit.ENFA_notesSuivi || "",
         USR_parent_id: patientToEdit.USR_parent_id || selectedParent?.id || ""
       });
@@ -127,7 +129,10 @@ const CreatePatientForParent = ({
       setError("Veuillez remplir tous les champs obligatoires.");
       return false;
     }
-
+    if (childData.ENFA_dateFinSuivi && new Date(childData.ENFA_dateFinSuivi) < new Date(childData.ENFA_dateDebutSuivi)) {
+      setError("La date de fin de suivi doit être postérieure à la date de début.");
+      return false;
+    }
     return true;
   };
 
@@ -135,41 +140,30 @@ const CreatePatientForParent = ({
   // Soumission du formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
-    setError("");
-
     try {
-      let response; // ✅ déclaration ici
-      const enfantToSend = {
-        ...childData,
-        USR_orthophoniste_id: orthophonisteId,
-        USR_parent_id: childData.USR_parent_id || selectedParent?.USR_id
-      };
-
-      if (editMode && patientToEdit?.ENFA_id) {
-        // 🔁 Mise à jour d’un enfant existant
-        response = await axiosInstance.put(`/enfa/${patientToEdit.ENFA_id}`, enfantToSend);
+      let response;
+      if (editMode) {
+        response = await axiosInstance.put(
+          `/enfa/${patientToEdit.ENFA_id}`,
+          childData
+        );
       } else {
-        // ➕ Création d’un nouvel enfant
-        enfantToSend.ENFA_dateCreation = new Date();
-        response = await axiosInstance.post("/enfa", enfantToSend);
+        response = await axiosInstance.post('/enfa', {
+          ...childData,
+          USR_orthophoniste_id: orthophonisteId
+        });
       }
 
-      if (onChildCreated) {
-        onChildCreated(response.data);
-      }
-
+      onChildCreated(response.data);
       handleModalClose();
     } catch (error) {
-      console.error("Erreur création enfant:", error);
+      console.error("Erreur création/modification enfant:", error);
       setError(
         error.response?.data?.message ||
-        "Erreur lors de la création de l'enfant."
+        "Erreur lors de la création/modification de l'enfant."
       );
     } finally {
       setLoading(false);
@@ -177,6 +171,7 @@ const CreatePatientForParent = ({
   };
 
   const parentsList = parents || availableParents;
+
 
   return (
     <Modal
@@ -300,6 +295,20 @@ const CreatePatientForParent = ({
               required
               max={new Date().toISOString().split("T")[0]}
             />
+
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Date de fin de suivi</Form.Label>
+            <Form.Control
+              type="date"
+              name="ENFA_dateFinSuivi"
+              value={childData.ENFA_dateFinSuivi || ''}
+              onChange={handleChildChange}
+              min={childData.ENFA_dateDebutSuivi} // Ne peut pas être avant la date de début
+            />
+            <Form.Text className="text-muted">
+              Laissez vide si le suivi est toujours en cours
+            </Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-4">
