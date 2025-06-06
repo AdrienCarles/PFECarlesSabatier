@@ -30,6 +30,12 @@ router.get('/:enfaId',
     enfantController.getEnfantById
 );
 
+// GET /api/enfa/mes-enfants/:parentId
+router.get('/mes-enfants/:parentId', 
+    authenticateToken,
+    enfantController.getMesEnfants
+);
+
 // POST /api/enfa - Création d'un enfant seul (pour parent existant)
 router.post('/', 
     authenticateToken,

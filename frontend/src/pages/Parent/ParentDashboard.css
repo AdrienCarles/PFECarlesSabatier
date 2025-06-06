@@ -1,0 +1,10 @@
+.hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.card {
+  border-radius: 12px;
+  border: none;
+  background-color: #ffffff;
+}

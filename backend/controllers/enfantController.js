@@ -204,6 +204,39 @@ const enfantController = {
       next(new AppError(500, error.message));
     }
   },
+
+  // ...existing code...
+
+  getMesEnfants: async (req, res, next) => {
+    try {
+      const parentId = req.params.parentId;
+      const enfants = await ENFA.findAll({
+        where: {
+          USR_parent_id: parentId
+        },
+        attributes: [
+          'ENFA_id',
+          'ENFA_prenom',
+          'ENFA_nom',
+          'ENFA_dateNaissance',
+          'ENFA_niveauAudition',
+          'ENFA_dateDebutSuivi'
+        ],
+        include: [
+          {
+            model: USR,
+            as: 'orthophoniste',
+            attributes: ['USR_nom', 'USR_prenom']
+          }
+        ],
+        order: [['ENFA_dateCreation', 'DESC']]
+      });
+      res.json(enfants);
+    } catch (error) {
+      next(new AppError(500, "Erreur lors de la récupération des enfants"));
+    }
+  },
+
 };
 
 export default enfantController;
