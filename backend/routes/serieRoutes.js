@@ -16,8 +16,24 @@ router.get(
   serieController.getAllSeries
 );
 
+// GET /api/ses/actives - Séries actives
+router.get(
+  '/actives',
+  authenticateToken,
+  authorizeRoles('admin', 'orthophoniste'),
+  serieController.getActivesSeries
+);
+
 // GET /api/ses/:sesId - Détail
 router.get('/:sesId', authenticateToken, serieController.getSerieById);
+
+// GET /api/ses/enfant/:enfantId - Séries pour un enfant
+router.get(
+  '/enfant/:enfantId',
+  authenticateToken,
+  authorizeRoles('orthophoniste', 'admin'),
+  serieController.getEnfantSeries
+);
 
 // POST /api/ses - Création
 router.post(
@@ -34,6 +50,14 @@ router.put(
   authenticateToken,
   uploadSeriesIcon,
   serieController.updateSerie
+);
+
+// PUT /api/ses/enfant/:enfantId - Mise à jour des séries assignées à un enfant
+router.put(
+  '/enfant/:enfantId',
+  authenticateToken,
+  authorizeRoles('orthophoniste', 'admin'),
+  serieController.updateEnfantSeries
 );
 
 // DELETE /api/ses/:sesId - Suppression

@@ -18,6 +18,26 @@ const serieController = {
     }
   },
 
+  getActivesSeries: async (req, res, next) => {
+    try {
+      const series = await SES.findAll({
+        where: {
+          SES_statut: 'actif',
+        },
+        include: [
+          { model: ANI, as: 'animations' },
+          { model: USR, as: 'utilisateurs' },
+        ],
+        order: [['SES_titre', 'ASC']],
+      });
+      res.json(series);
+    } catch (error) {
+      next(
+        new AppError(500, 'Erreur lors de la récupération des séries actives')
+      );
+    }
+  },
+
   getSerieById: async (req, res, next) => {
     try {
       const serie = await SES.findByPk(req.params.sesId, {
@@ -36,6 +56,34 @@ const serieController = {
       res.json(serie);
     } catch (error) {
       next(new AppError(500, 'Erreur lors de la récupération de la série'));
+    }
+  },
+
+  // Récupérer les séries assignées à un enfant
+  getEnfantSeries: async (req, res, next) => {
+    try {
+      const { enfantId } = req.params;
+
+      const series = await SES.findAll({
+        include: [
+          {
+            model: ACCES,
+            as: 'acces',
+            where: { ENFA_id: enfantId },
+            required: true,
+          },
+        ],
+        where: { SES_statut: 'actif' },
+      });
+
+      res.json(series);
+    } catch (error) {
+      next(
+        new AppError(
+          500,
+          "Erreur lors de la récupération des séries de l'enfant"
+        )
+      );
     }
   },
 
@@ -103,6 +151,37 @@ const serieController = {
         return next(new AppError(400, 'Données de mise à jour invalides'));
       }
       next(new AppError(500, 'Erreur lors de la mise à jour de la série'));
+    }
+  },
+
+  // Mettre à jour les séries assignées à un enfant
+  updateEnfantSeries: async (req, res, next) => {
+    try {
+      const { enfantId } = req.params;
+      const { seriesIds, parentId } = req.body; // parentId nécessaire pour la table ACCES
+
+      // Supprimer tous les accès existants pour cet enfant
+      await ACCES.destroy({
+        where: { ENFA_id: enfantId },
+      });
+
+      // Créer les nouveaux accès
+      if (seriesIds && seriesIds.length > 0) {
+        const newAccess = seriesIds.map((serieId) => ({
+          USR_id: parentId,
+          SES_id: serieId,
+          ENFA_id: enfantId,
+        }));
+
+        await ACCES.bulkCreate(newAccess);
+      }
+
+      res.json({
+        message: 'Séries mises à jour avec succès',
+        assignedSeries: seriesIds?.length || 0,
+      });
+    } catch (error) {
+      next(new AppError(500, 'Erreur lors de la mise à jour des séries'));
     }
   },
 

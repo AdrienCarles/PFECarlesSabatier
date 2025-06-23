@@ -24,6 +24,17 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
+      },
+      ENFA_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        references: {
+          model: 'ENFA',
+          key: 'ENFA_id'
+        },
+        onUpdate: 'NO ACTION',
+        onDelete: 'NO ACTION'
       }
     }, {
       timestamps: false
