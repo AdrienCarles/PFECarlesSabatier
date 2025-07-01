@@ -1,4 +1,4 @@
-import { ENFA, USR, STAT } from '../models/index.js';
+import { ENFA, USR, STAT, SES, ANI, ACCES } from '../models/index.js';
 import AppError from '../utils/AppError.js';
 
 const enfantController = {
@@ -287,7 +287,39 @@ const enfantController = {
     } catch (error) {
       res.status(500).json({ message: 'Erreur lors du retrait de la série' });
     }
-  }
+  },
+
+  getEnfantAnimations: async (req, res) => {
+    try {
+      const { enfaId } = req.params;
+
+      // 1. Récupérer les accès (ACCES) pour cet enfant
+      const accesList = await ACCES.findAll({
+        where: { ENFA_id: enfaId },
+        attributes: ['SES_id']
+      });
+
+      const seriesIds = accesList.map(acces => acces.SES_id);
+
+      if (!seriesIds.length) {
+        return res.json([]); // Aucun accès, donc aucune animation
+      }
+
+      // 2. Récupérer toutes les animations des séries trouvées
+      const animations = await ANI.findAll({
+        where: { SES_id: seriesIds },
+        include: [{
+          model: SES,
+          as: 'serie',
+          attributes: ['SES_icone', 'SES_titre']
+        }]
+      });
+      res.json(animations);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des animations :", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des animations" });
+    }
+  },
 
 };
 

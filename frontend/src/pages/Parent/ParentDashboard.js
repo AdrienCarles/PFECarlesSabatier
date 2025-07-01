@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Container, Row, Col, Card, Button, Spinner, Alert } from "react-bootstrap";
+import { Container, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { FaChild } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
+import { useNavigate } from "react-router-dom";
 import './ParentDashboard.css';
 
 const ParentDashboard = () => {
@@ -10,6 +11,7 @@ const ParentDashboard = () => {
     const [enfants, setEnfants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchEnfants = async () => {
@@ -30,8 +32,8 @@ const ParentDashboard = () => {
     }, [user]);
 
     const handleEnfantClick = (enfant) => {
-        // Rediriger vers la page de l'enfant ou effectuer une action
-        console.log("Enfant sélectionné :", enfant);
+        // Redirige vers la page des animations de l'enfant
+        navigate(`/parent/enfant/${enfant.ENFA_id}/animations`);
     };
 
     return (
@@ -47,7 +49,7 @@ const ParentDashboard = () => {
             ) : enfants.length === 0 ? (
                 <div className="text-center text-muted">
                     <FaChild size={40} className="mb-3" />
-                    <p>Aucun enfant trouvé.</p>
+                    <span>Aucun enfant trouvé.</span>
                 </div>
             ) : (
                 <Row xs={1} sm={2} md={2} lg={3} xl={4} className="g-3">
@@ -71,12 +73,13 @@ const ParentDashboard = () => {
                                     <Card.Text className="text-muted">
                                         <small>
                                             {enfant.ENFA_dateNaissance && (
-                                                <div>
+                                                <span>
                                                     Né(e) le : {new Date(enfant.ENFA_dateNaissance).toLocaleDateString('fr-FR')}
-                                                </div>
+                                                    <br />
+                                                </span>
                                             )}
                                             {enfant.ENFA_classe && (
-                                                <div>Classe : {enfant.ENFA_classe}</div>
+                                                <span>Classe : {enfant.ENFA_classe}</span>
                                             )}
                                         </small>
                                     </Card.Text>

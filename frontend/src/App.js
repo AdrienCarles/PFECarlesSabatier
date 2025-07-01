@@ -18,6 +18,7 @@ import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import ActivateAccount from "./pages/Parent/ActivateAccount";
+import EnfantAnimations from "./pages/Parent/EnfantAnimations";
 
 function App() {
   return (
@@ -97,6 +98,14 @@ function App() {
               <ProtectedRoute allowedRoles={["parent"]}>
                 <ParentDashboard />
               </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/parent/enfant/:enfantId/animations" 
+            element={
+            <ProtectedRoute allowedRoles={["parent"]}>
+            <EnfantAnimations />
+            </ProtectedRoute>
             }
           />
           {/* Redirection par défaut */}

@@ -62,4 +62,7 @@ router.delete('/:enfaId/series/:serieId', authenticateToken, enfantController.re
 
 router.get('/:enfaId/series', authenticateToken, enfantController.getEnfantSeries);
 
+router.get('/:enfaId/animations', enfantController.getEnfantAnimations);
+
+
 export default router;
