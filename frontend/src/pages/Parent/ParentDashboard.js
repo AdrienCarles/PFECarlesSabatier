@@ -32,8 +32,8 @@ const ParentDashboard = () => {
     }, [user]);
 
     const handleEnfantClick = (enfant) => {
-        // Redirige vers la page des animations de l'enfant
-        navigate(`/parent/enfant/${enfant.ENFA_id}/animations`);
+        // Redirige vers la page des series de l'enfant
+        navigate(`/parent/enfant/${enfant.ENFA_id}/series`);
     };
 
     return (

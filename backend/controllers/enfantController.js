@@ -238,21 +238,28 @@ const enfantController = {
   getEnfantSeries: async (req, res) => {
     try {
       const { enfaId } = req.params;
-      const enfant = await ENFA.findByPk(enfaId, {
-        include: [{
-          model: SES,
-          through: ACCES,
-          as: 'series'
-        }]
+
+      // 1. Récupérer les accès (ACCES) pour cet enfant
+      const accesList = await ACCES.findAll({
+        where: { ENFA_id: enfaId },
+        attributes: ['SES_id']
       });
 
-      if (!enfant) {
-        return res.status(404).json({ message: 'Enfant non trouvé' });
+      const seriesIds = accesList.map(acces => acces.SES_id);
+
+      if (!seriesIds.length) {
+        return res.json([]); // Aucun accès, donc aucune série
       }
 
-      res.json(enfant.series);
+      // 2. Récupérer toutes les séries trouvées
+      const series = await SES.findAll({
+        where: { SES_id: seriesIds }
+      });
+
+      res.json(series);
     } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des séries' });
+      console.error("Erreur lors de la récupération des séries :", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des séries" });
     }
   },
 

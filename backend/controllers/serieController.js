@@ -267,6 +267,18 @@ const serieController = {
       );
     }
   },
+
+  getSerieAnimations: async (req, res, next) => {
+    try {
+      const { sesId } = req.params;
+      const animations = await ANI.findAll({
+        where: { SES_id: sesId }
+      });
+      res.json(animations);
+    } catch (error) {
+      next(new AppError(500, "Erreur lors de la récupération des animations de la série"));
+    }
+  },
 };
 
 export default serieController;

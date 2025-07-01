@@ -76,4 +76,9 @@ router.put(
   serieController.validerSerie
 );
 
+router.get(
+  '/:sesId/animations', 
+  serieController.getSerieAnimations
+);
+
 export default router;

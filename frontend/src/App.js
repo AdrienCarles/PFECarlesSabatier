@@ -18,7 +18,7 @@ import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import ActivateAccount from "./pages/Parent/ActivateAccount";
-import EnfantAnimations from "./pages/Parent/EnfantAnimations";
+import EnfantSeries from "./pages/Parent/EnfantSeries";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/Welcome" element={<Welcome />} />
           <Route path="/activate/:token" element={<ActivateAccount />} />
-          
+
           {/* ROUTES PROTEGES ACCESSIBLES A TOUS LES UTILISATEURS */}
           <Route
             path="/home"
@@ -100,14 +100,16 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
-            path="/parent/enfant/:enfantId/animations" 
+
+          <Route
+            path="/parent/enfant/:enfantId/series"
             element={
-            <ProtectedRoute allowedRoles={["parent"]}>
-            <EnfantAnimations />
-            </ProtectedRoute>
+              <ProtectedRoute>
+                <EnfantSeries />
+              </ProtectedRoute>
             }
           />
+
           {/* Redirection par défaut */}
           <Route path="*" element={<Navigate to="/Welcome" />} />
         </Routes>
