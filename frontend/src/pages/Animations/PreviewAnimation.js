@@ -1,15 +1,27 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "react-bootstrap";
-import { FaVolumeUp, FaImage, FaPaintBrush, FaTimes } from "react-icons/fa";
+import { Button, Row, Col, Modal } from "react-bootstrap";
+import { FaVolumeUp, FaImage, FaPaintBrush, FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const PreviewAnimation = ({ animation, onClose, setParentAudioPlaying }) => {
+const PreviewAnimation = ({
+  animation,
+  onClose,
+  setParentAudioPlaying,
+  onPrev,
+  onNext,
+  canPrev,
+  canNext,
+  isAudioPlaying,
+  currentIndex,
+  totalCount,
+}) => {
   const [currentView, setCurrentView] = useState("dessin");
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [localAudioPlaying, setLocalAudioPlaying] = useState(false);
   const audioRef = useRef(null);
 
+  // Synchronise l'état audio local et parent
   useEffect(() => {
     setCurrentView("dessin");
-    setIsAudioPlaying(false);
+    setLocalAudioPlaying(false);
     if (setParentAudioPlaying) setParentAudioPlaying(false);
     return () => {
       stopAudio();
@@ -18,29 +30,28 @@ const PreviewAnimation = ({ animation, onClose, setParentAudioPlaying }) => {
   }, [animation]);
 
   useEffect(() => {
-    if (setParentAudioPlaying) setParentAudioPlaying(isAudioPlaying);
+    if (setParentAudioPlaying) setParentAudioPlaying(localAudioPlaying);
     // eslint-disable-next-line
-  }, [isAudioPlaying]);
+  }, [localAudioPlaying]);
 
   const stopAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-    setIsAudioPlaying(false);
+    setLocalAudioPlaying(false);
     if (setParentAudioPlaying) setParentAudioPlaying(false);
   };
 
   const handleImageClick = async () => {
     if (animation?.ANI_urlAudio && audioRef.current) {
       try {
-        if (!isAudioPlaying) {
+        if (!localAudioPlaying) {
           audioRef.current.currentTime = 0;
           await audioRef.current.play();
-          setIsAudioPlaying(true);
+          setLocalAudioPlaying(true);
           if (setParentAudioPlaying) setParentAudioPlaying(true);
         }
-        // Si déjà en train de jouer, ne rien faire !
       } catch (error) {
         // ignore
       }
@@ -48,16 +59,27 @@ const PreviewAnimation = ({ animation, onClose, setParentAudioPlaying }) => {
   };
 
   const handleAudioEnded = () => {
-    setIsAudioPlaying(false);
+    setLocalAudioPlaying(false);
     if (setParentAudioPlaying) setParentAudioPlaying(false);
   };
 
   if (!animation) return null;
 
+  // Utilise l'état audio global si fourni, sinon local
+  const audioPlaying = typeof isAudioPlaying === "boolean" ? isAudioPlaying : localAudioPlaying;
+
   return (
-    <div className="bg-white rounded-4 shadow position-relative p-0" style={{ overflow: "hidden" }}>
-      {/* Bouton croix */}
-      {onClose && (
+    <Modal
+      show
+      onHide={onClose}
+      centered
+      backdrop="static"
+      contentClassName="bg-white rounded-4 shadow p-0"
+      dialogClassName="modal-dialog-centered"
+      style={{ zIndex: 2100 }}
+    >
+      <Modal.Body className="p-0">
+        {/* Bouton croix */}
         <Button
           variant="outline-danger"
           size="sm"
@@ -65,111 +87,154 @@ const PreviewAnimation = ({ animation, onClose, setParentAudioPlaying }) => {
           style={{ top: 10, right: 10, width: 36, height: 36, zIndex: 3 }}
           onClick={onClose}
           aria-label="Fermer"
+          disabled={audioPlaying}
+          title={audioPlaying ? "Attendez la fin du son" : "Fermer"}
         >
           <FaTimes />
         </Button>
-      )}
 
-      {/* Image + audio */}
-      <div
-        className="position-relative d-flex justify-content-center align-items-center mb-4"
-        onClick={handleImageClick}
-        style={{
-          background: "linear-gradient(135deg, #f8fafc 60%, #e3f0ff 100%)",
-          borderRadius: 24,
-          padding: 16,
-          minHeight: 250,
-          boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-          cursor: animation?.ANI_urlAudio ? 'pointer' : 'default',
-          overflow: 'hidden'
-        }}
-      >
-        <img
-          src={`${process.env.REACT_APP_API_URL}${currentView === "reel"
-            ? animation.ANI_urlAnimation
-            : animation.ANI_urlAnimationDessin
-            }`}
-          alt={currentView === "reel" ? "Image réelle" : "Dessin"}
-          className="img-fluid preview-img-anim"
-          style={{
-            maxWidth: '85vw',
-            maxHeight: '60vh',
-            borderRadius: 16,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-            transition: 'opacity 0.4s, transform 0.4s'
-          }}
-        />
-      </div>
-
-      {/* Audio caché */}
-      {animation.ANI_urlAudio && (
-        <audio
-          ref={audioRef}
-          src={`${process.env.REACT_APP_API_URL}${animation.ANI_urlAudio}`}
-          onEnded={handleAudioEnded}
-        />
-      )}
-
-      {/* Contrôles visuels */}
-      <div className="d-flex justify-content-center gap-3 my-3">
-        <Button
-          variant={currentView === "reel" ? "primary" : "outline-primary"}
-          size="lg"
-          className={`rounded-circle shadow ${currentView === "reel" ? "scale-btn" : ""}`}
-          style={{ width: 70, height: 70, fontSize: 28, transition: "transform 0.2s" }}
-          onClick={() => setCurrentView("reel")}
-          aria-label="Voir la photo réelle"
-        >
-          <FaImage />
-        </Button>
-        <Button
-          variant={currentView === "dessin" ? "success" : "outline-success"}
-          size="lg"
-          className={`rounded-circle shadow ${currentView === "dessin" ? "scale-btn" : ""}`}
-          style={{ width: 70, height: 70, fontSize: 28, transition: "transform 0.2s" }}
-          onClick={() => setCurrentView("dessin")}
-          aria-label="Voir le dessin"
-        >
-          <FaPaintBrush />
-        </Button>
-        {animation.ANI_urlAudio && (
+        {/* Flèches + contenu central */}
+        <div className="d-flex align-items-center justify-content-center" style={{ minHeight: 320 }}>
           <Button
-            variant={isAudioPlaying ? "warning" : "info"}
-            size="lg"
-            className="rounded-circle shadow"
-            style={{ width: 70, height: 70, fontSize: 28, transition: "transform 0.2s" }}
-            onClick={handleImageClick}
-            aria-label="Écouter le son"
-            disabled={isAudioPlaying}
+            variant="primary"
+            onClick={onPrev}
+            disabled={!canPrev || audioPlaying}
+            className="rounded-circle d-flex align-items-center justify-content-center me-4"
+            style={{ width: 56, height: 56, fontSize: 28, marginLeft: 16 }} // marge à gauche de la modale
+            aria-label="Précédent"
           >
-            <FaVolumeUp className={isAudioPlaying ? "pulse" : ""} />
+            <FaChevronLeft />
           </Button>
-        )}
-      </div>
-      <div className="text-center mt-2 mb-2">
-        <span className={`badge rounded-pill px-3 py-2 ${currentView === "reel" ? "bg-primary" : "bg-success"}`}>
-          {currentView === "reel" ? "Photo réelle" : "Dessin"}
-        </span>
-      </div>
-      {animation.ANI_description && (
-        <div className="mt-2 px-3">
-          <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
-            {animation.ANI_description}
-          </p>
+
+          {/* Contenu central */}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            {/* Image + audio */}
+            <div
+              className="position-relative d-flex justify-content-center align-items-center mb-4 w-100"
+              onClick={handleImageClick}
+              style={{
+                background: "linear-gradient(135deg, #f8fafc 60%, #e3f0ff 100%)",
+                borderRadius: 24,
+                padding: 16,
+                minHeight: 200,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                cursor: animation?.ANI_urlAudio ? 'pointer' : 'default',
+                overflow: 'hidden'
+              }}
+            >
+              <img
+                src={`${process.env.REACT_APP_API_URL}${currentView === "reel"
+                  ? animation.ANI_urlAnimation
+                  : animation.ANI_urlAnimationDessin
+                  }`}
+                alt={currentView === "reel" ? "Image réelle" : "Dessin"}
+                className="img-fluid preview-img-anim"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '45vh',
+                  borderRadius: 16,
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  transition: 'opacity 0.4s, transform 0.4s'
+                }}
+              />
+            </div>
+
+            {/* Audio caché */}
+            {animation.ANI_urlAudio && (
+              <audio
+                ref={audioRef}
+                src={`${process.env.REACT_APP_API_URL}${animation.ANI_urlAudio}`}
+                onEnded={handleAudioEnded}
+              />
+            )}
+
+            {/* Contrôles visuels */}
+            <Row className="justify-content-center my-3">
+              <Col xs="auto">
+                <Button
+                  variant={currentView === "reel" ? "primary" : "outline-primary"}
+                  size="lg"
+                  className={`rounded-circle shadow ${currentView === "reel" ? "scale-btn" : ""}`}
+                  style={{ width: 60, height: 60, fontSize: 24, transition: "transform 0.2s" }}
+                  onClick={() => setCurrentView("reel")}
+                  aria-label="Voir la photo réelle"
+                >
+                  <FaImage />
+                </Button>
+              </Col>
+              <Col xs="auto">
+                <Button
+                  variant={currentView === "dessin" ? "success" : "outline-success"}
+                  size="lg"
+                  className={`rounded-circle shadow ${currentView === "dessin" ? "scale-btn" : ""}`}
+                  style={{ width: 60, height: 60, fontSize: 24, transition: "transform 0.2s" }}
+                  onClick={() => setCurrentView("dessin")}
+                  aria-label="Voir le dessin"
+                >
+                  <FaPaintBrush />
+                </Button>
+              </Col>
+              {animation.ANI_urlAudio && (
+                <Col xs="auto">
+                  <Button
+                    variant={audioPlaying ? "warning" : "info"}
+                    size="lg"
+                    className="rounded-circle shadow"
+                    style={{ width: 60, height: 60, fontSize: 24, transition: "transform 0.2s" }}
+                    onClick={handleImageClick}
+                    aria-label="Écouter le son"
+                    disabled={audioPlaying}
+                  >
+                    <FaVolumeUp className={audioPlaying ? "pulse" : ""} />
+                  </Button>
+                </Col>
+              )}
+            </Row>
+            <div className="text-center text-secondary mb-2" style={{ fontWeight: 500 }}>
+              {typeof currentIndex === "number" && typeof totalCount === "number" && (
+                <span>
+                  {currentIndex + 1} / {totalCount}
+                </span>
+              )}
+            </div>
+            <div className="text-center mt-2 mb-2">
+              <span className={`badge rounded-pill px-3 py-2 ${currentView === "reel" ? "bg-primary" : "bg-success"}`}>
+                {currentView === "reel" ? "Photo réelle" : "Dessin"}
+              </span>
+            </div>
+            {animation.ANI_description && (
+              <div className="mt-2 px-3">
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  {animation.ANI_description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={onNext}
+            disabled={!canNext || audioPlaying}
+            className="rounded-circle d-flex align-items-center justify-content-center ms-4"
+            style={{ width: 56, height: 56, fontSize: 28, marginRight: 16 }} // marge à droite de la modale
+            aria-label="Suivant"
+          >
+            <FaChevronRight />
+          </Button>
         </div>
-      )}
-      <style>
-        {`
-        .scale-btn {
-          transform: scale(1.15);
-          box-shadow: 0 0 0 4px #ffe066;
-        }
-        .preview-img-anim {
-          transition: opacity 0.4s, transform 0.4s;
-        }
-        `}
-      </style>
-    </div>
+        <style>
+          {`
+          .scale-btn {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 4px #ffe066;
+          }
+          .preview-img-anim {
+            transition: opacity 0.4s, transform 0.4s;
+          }
+          `}
+        </style>
+      </Modal.Body>
+    </Modal>
   );
 };
 

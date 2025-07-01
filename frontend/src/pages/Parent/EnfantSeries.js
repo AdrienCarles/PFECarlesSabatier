@@ -111,7 +111,6 @@ const EnfantSeries = () => {
           {/* Affichage de la prévisualisation des animations de la série sélectionnée */}
           {currentSerie && (
             <>
-              {/* Overlay sombre */}
               <div
                 className="custom-backdrop"
                 style={{
@@ -122,59 +121,18 @@ const EnfantSeries = () => {
                 }}
                 onClick={() => setCurrentSerie(null)}
               />
-
-              {/* Pop-up centrée */}
-              <div
-                className="position-fixed top-50 start-50 translate-middle"
-                style={{ zIndex: 1050, minWidth: 320, maxWidth: 600, width: "90vw" }}
-              >
-                <div className="d-flex align-items-center justify-content-center">
-                  {/* Flèche gauche */}
-                  <Button
-                    variant="primary"
-                    onClick={goToPrevAnimation}
-                    disabled={currentAnimationIndex === 0 || isAudioPlaying}
-                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                    style={{ width: 60, height: 60, fontSize: 32 }}
-                    aria-label="Précédent"
-                  >
-                    <FaChevronLeft />
-                  </Button>
-                  {/* Preview + croix */}
-                  <div className="position-relative flex-grow-1" style={{ maxWidth: 500 }}>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      className="rounded-circle position-absolute"
-                      style={{ top: 10, right: 10, width: 36, height: 36, zIndex: 3 }}
-                      onClick={() => setCurrentSerie(null)}
-                      aria-label="Fermer"
-                    >
-                      ×
-                    </Button>
-                    <PreviewAnimation
-                      animation={animations[currentAnimationIndex]}
-                      onClose={() => setCurrentSerie(null)}
-                      setParentAudioPlaying={setIsAudioPlaying}
-                    />
-                  </div>
-
-                  {/* Flèche droite */}
-                  <Button
-                    variant="primary"
-                    onClick={goToNextAnimation}
-                    disabled={currentAnimationIndex === animations.length - 1 || isAudioPlaying}
-                    className="rounded-circle d-flex align-items-center justify-content-center ms-3"
-                    style={{ width: 60, height: 60, fontSize: 32 }}
-                    aria-label="Suivant"
-                  >
-                    <FaChevronRight />
-                  </Button>
-                </div>
-                <div className="text-center text-white mt-3">
-                  {currentAnimationIndex + 1} / {animations.length}
-                </div>
-              </div>
+              <PreviewAnimation
+                animation={animations[currentAnimationIndex]}
+                onClose={() => setCurrentSerie(null)}
+                setParentAudioPlaying={setIsAudioPlaying}
+                onPrev={goToPrevAnimation}
+                onNext={goToNextAnimation}
+                canPrev={currentAnimationIndex > 0}
+                canNext={currentAnimationIndex < animations.length - 1}
+                isAudioPlaying={isAudioPlaying}
+                currentIndex={currentAnimationIndex}
+                totalCount={animations.length}
+              />
             </>
           )}
         </>
