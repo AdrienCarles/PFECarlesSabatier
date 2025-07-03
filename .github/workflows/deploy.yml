@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "frontend/build/*"
+          source: "frontend/build"
           target: "/home/ubuntu/projetCarte"
 
       - name: Deploy backend
@@ -28,7 +28,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "backend/*"
+          source: "backend"
           target: "/home/ubuntu/projetCarte"
 
       - name: Start backend & frontend on VPS
@@ -46,7 +46,7 @@ jobs:
             pm2 start server.js --name backend
 
             # Frontend setup
-            cd /home/ubuntu/projetCarte/frontend
+            cd /home/ubuntu/projetCarte/build
             sudo npm install -g serve || true
             pm2 delete frontend || true
             pm2 start npx --name frontend -- serve -s . -l 3000
