@@ -18,12 +18,12 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Change directory to /backend and install dependencies
-        working-directory: backend
+      - name: Install frontend dependencies
+        working-directory: frontend
         run: npm install
 
-      - name: Build the React app
-        working-directory: backend
+      - name: Build frontend app
+        working-directory: frontend
         run: npm run build
 
       - name: Deploy to VPS
@@ -32,5 +32,5 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "backend/build/*"
+          source: "frontend/build/*"
           target: ${{ secrets.SERVER_PATH }}
