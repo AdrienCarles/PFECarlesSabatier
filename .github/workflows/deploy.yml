@@ -19,8 +19,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "build/*"
-          target: "/home/ubuntu/projetCarte/frontend"
+          source: "frontend/build/*"
+          target: "/home/ubuntu/projetCarte"
 
       - name: Deploy backend
         uses: appleboy/scp-action@v0.1.4
@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "backend/*"
-          target: "/home/ubuntu/projetCarte/backend"
+          target: "/home/ubuntu/projetCarte"
 
       - name: Start backend & frontend on VPS
         uses: appleboy/ssh-action@v0.1.10
