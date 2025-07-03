@@ -40,7 +40,8 @@
     "nodemailer": "^7.0.3",
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
-    "sharp": "^0.34.2"
+    "sharp": "^0.34.2",
+    "stripe": "^18.2.1"
   },
   "devDependencies": {
     "better-docs": "^2.7.3",

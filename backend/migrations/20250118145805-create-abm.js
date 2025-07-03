@@ -25,15 +25,6 @@ module.exports = {
         type: Sequelize.STRING(50),
         allowNull: false
       },
-      PAI_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'PAI',
-          key: 'PAI_id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT'
-      },
       USR_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

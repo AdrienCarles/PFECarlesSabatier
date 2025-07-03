@@ -1,93 +1,193 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Container, Row, Col, Card, Button, Spinner, Alert } from "react-bootstrap";
-import { FaChild } from "react-icons/fa";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
+import {
+  FaChild,
+  FaCreditCard,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
-import './ParentDashboard.css';
+import EnfantCard from "../Parent/EnfantCard";
+import PaymentSummaryModal from "../Parent/PaymentSummaryModal";
+import "./ParentDashboard.css";
 
 const ParentDashboard = () => {
-    const { user } = useContext(AuthContext);
-    const [enfants, setEnfants] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [enfants, setEnfants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        const fetchEnfants = async () => {
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedEnfant, setSelectedEnfant] = useState(null);
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    const fetchEnfants = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/enfa/mes-enfants/${user.id}`
+        );
+
+        const enfantsWithStatus = await Promise.all(
+          response.data.map(async (enfant) => {
             try {
-                const response = await axiosInstance.get(`/enfa/mes-enfants/${user.id}`);
-                setEnfants(response.data);
-            } catch (err) {
-                console.error("Erreur lors du chargement des enfants :", err);
-                setError("Impossible de charger les enfants.");
-            } finally {
-                setLoading(false);
+              const statusRes = await axiosInstance.get(
+                `/abm/check-status/${enfant.ENFA_id}`
+              );
+              return { ...enfant, subscriptionStatus: statusRes.data };
+            } catch (error) {
+              console.error(`Erreur statut enfant ${enfant.ENFA_id}:`, error);
+              return {
+                ...enfant,
+                subscriptionStatus: { hasActiveSubscription: false },
+              };
             }
-        };
+          })
+        );
 
-        if (user?.id) {
-            fetchEnfants();
-        }
-    }, [user]);
-
-    const handleEnfantClick = (enfant) => {
-        // Rediriger vers la page de l'enfant ou effectuer une action
-        console.log("Enfant sélectionné :", enfant);
+        setEnfants(enfantsWithStatus);
+      } catch (err) {
+        console.error("Erreur lors du chargement des enfants :", err);
+        setError("Impossible de charger les enfants.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return (
-        <Container fluid className="py-4">
-            <h2 className="mb-4">👨‍👩‍👧‍👦 Mes Enfants</h2>
+    if (user?.id) {
+      fetchEnfants();
+    }
+  }, [user]);
 
-            {loading ? (
-                <div className="text-center py-5">
-                    <Spinner animation="border" role="status" />
-                </div>
-            ) : error ? (
-                <Alert variant="danger">{error}</Alert>
-            ) : enfants.length === 0 ? (
-                <div className="text-center text-muted">
-                    <FaChild size={40} className="mb-3" />
-                    <p>Aucun enfant trouvé.</p>
-                </div>
-            ) : (
-                <Row xs={1} sm={2} md={2} lg={3} xl={4} className="g-3">
-                    {enfants.map((enfant) => (
-                        <Col key={enfant.ENFA_id}>
-                            <Card
-                                className="h-100 text-center shadow-sm hover-effect w-100"
-                                onClick={() => handleEnfantClick(enfant)}
-                                style={{
-                                    cursor: "pointer",
-                                    transition: "transform 0.2s ease-in-out"
-                                }}
-                            >
-                                <Card.Body>
-                                    <div className="mb-3">
-                                        <FaChild size={50} className="text-primary" />
-                                    </div>
-                                    <Card.Title className="mb-2">
-                                        {enfant.ENFA_prenom} {enfant.ENFA_nom}
-                                    </Card.Title>
-                                    <Card.Text className="text-muted">
-                                        <small>
-                                            {enfant.ENFA_dateNaissance && (
-                                                <div>
-                                                    Né(e) le : {new Date(enfant.ENFA_dateNaissance).toLocaleDateString('fr-FR')}
-                                                </div>
-                                            )}
-                                            {enfant.ENFA_classe && (
-                                                <div>Classe : {enfant.ENFA_classe}</div>
-                                            )}
-                                        </small>
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            )}
-        </Container>
-    );
+  const handleEnfantClick = async (enfant) => {
+    console.log("Enfant sélectionné :", enfant);
+
+    if (enfant.subscriptionStatus?.hasActiveSubscription) {
+      console.log("Accès autorisé - redirection vers les exercices");
+      // TODO: Implémenter la redirection vers les exercices
+      return;
+    }
+
+    try {
+      setSelectedEnfant(enfant);
+      setShowPaymentModal(true);
+
+      const paymentInfoRes = await axiosInstance.get(
+        `/abm/check-payment-required/${enfant.ENFA_id}`
+      );
+      setPaymentInfo(paymentInfoRes.data);
+    } catch (error) {
+      console.error("Erreur vérification paiement:", error);
+      setError("Erreur lors de la vérification des informations de paiement");
+      setShowPaymentModal(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    if (!selectedEnfant) return;
+
+    setProcessingPayment(true);
+    setError("");
+
+    try {
+      const response = await axiosInstance.post("/abm/create-subscription", {
+        enfantId: selectedEnfant.ENFA_id,
+      });
+
+      if (response.data.success) {
+        if (response.data.paymentRequired) {
+          if (response.data.simulated) {
+            setShowPaymentModal(false);
+            setError("");
+            window.location.reload();
+          } else if (response.data.sessionUrl) {
+            window.location.href = response.data.sessionUrl;
+            return;
+          }
+        } else {
+          setShowPaymentModal(false);
+          setError("");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error("Erreur souscription:", error);
+      setError(
+        error.response?.data?.message ||
+          "Erreur lors de la souscription à l'abonnement"
+      );
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setSelectedEnfant(null);
+    setPaymentInfo(null);
+  };
+
+  return (
+    <Container fluid className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>👨‍👩‍👧‍👦 Mes Enfants</h2>
+        <Button
+          variant="outline-primary"
+          onClick={() => navigate("/parent/abonnements")}
+        >
+          <FaCreditCard className="me-2" />
+          Gérer mes abonnements
+        </Button>
+      </div>
+
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {error}
+        </Alert>
+      )}
+
+      {loading ? (
+        <div className="text-center py-5">
+          <Spinner animation="border" role="status" />
+        </div>
+      ) : enfants.length === 0 ? (
+        <div className="text-center text-muted">
+          <FaChild size={40} className="mb-3" />
+          <p>Aucun enfant trouvé.</p>
+        </div>
+      ) : (
+        <Row xs={1} sm={2} md={2} lg={3} xl={4} className="g-3">
+          {enfants.map((enfant) => (
+            <Col key={enfant.ENFA_id}>
+              <EnfantCard
+                enfant={enfant}
+                onClick={() => handleEnfantClick(enfant)}
+              />
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      {/* Modal récapitulative de paiement */}
+      <PaymentSummaryModal
+        show={showPaymentModal}
+        onHide={closePaymentModal}
+        enfant={selectedEnfant}
+        paymentInfo={paymentInfo}
+        onSubscribe={handleSubscribe}
+        processing={processingPayment}
+      />
+    </Container>
+  );
 };
 
 export default ParentDashboard;

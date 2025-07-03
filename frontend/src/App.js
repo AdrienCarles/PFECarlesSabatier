@@ -18,6 +18,7 @@ import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import ActivateAccount from "./pages/Parent/ActivateAccount";
+import OrthophonisteConfig from "./pages/Admin/OrthophonisteConfig";
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/Welcome" element={<Welcome />} />
           <Route path="/activate/:token" element={<ActivateAccount />} />
-          
+
           {/* ROUTES PROTEGES ACCESSIBLES A TOUS LES UTILISATEURS */}
           <Route
             path="/home"
@@ -61,6 +62,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <GestionAbonnements />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/AdminDashboard/OrthophonisteConfig"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <OrthophonisteConfig />
               </ProtectedRoute>
             }
           />
