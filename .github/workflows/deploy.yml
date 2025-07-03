@@ -42,4 +42,4 @@ jobs:
             npm install
             npm run migrate
             pm2 delete backend || true
-            pm2 restart server.js --name backend
+            pm2 start server.js --name backend
