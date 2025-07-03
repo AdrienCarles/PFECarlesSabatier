@@ -1,4 +1,4 @@
-name: Build & Deploy Front + Backend
+name: Deploy Static Frontend + Backend
 
 on:
   push:
@@ -10,13 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      #####################
-      # FRONTEND (déjà buildé)
-      #####################
-      - name: Deploy frontend build
+      - name: Deploy frontend
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -25,10 +22,7 @@ jobs:
           source: "frontend/build/*"
           target: "/home/ubuntu/projetCarte/frontend"
 
-      #####################
-      # BACKEND
-      #####################
-      - name: Deploy backend source
+      - name: Deploy backend
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -37,7 +31,7 @@ jobs:
           source: "backend/*"
           target: "/home/ubuntu/projetCarte/backend"
 
-      - name: Install backend & start with pm2
+      - name: Start backend on VPS
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -47,4 +41,5 @@ jobs:
             cd /home/ubuntu/projetCarte/backend
             npm install
             npm run migrate
-            pm2 startOrRestart server.js --name backend || pm2 start server.js --name backend
+            pm2 delete backend || true
+            pm2 start server.js --name backend
