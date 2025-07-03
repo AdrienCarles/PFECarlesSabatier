@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import AppError from '../utils/AppError.js';
-import { USR, ENFA, ABM, ANI, SES, RefreshToken } from '../models/index.js';
+import { USR, ENFA, ABM, ANI, SES, OrthophonisteConfig, RefreshToken } from '../models/index.js';
 import { sendActivationEmail } from '../services/emailService.js';
 
 const userController = {
@@ -308,6 +308,58 @@ const userController = {
         return next(new AppError(400, 'Données de mise à jour invalides'));
       }
       next(new AppError(500, "Erreur lors de la mise à jour de l'utilisateur"));
+    }
+  },
+
+  updateOrthophonisteConfig: async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const { CONFIG_paiement_obligatoire, CONFIG_prix_par_enfant } = req.body;
+
+      console.log(`Mise à jour config pour orthophoniste ${userId}:`, {
+        CONFIG_paiement_obligatoire,
+        CONFIG_prix_par_enfant
+      });
+
+      const orthophoniste = await USR.findOne({
+        where: { 
+          USR_id: userId,
+          USR_role: 'orthophoniste'
+        }
+      });
+
+      if (!orthophoniste) {
+        return next(new AppError(404, 'Orthophoniste non trouvé'));
+      }
+
+      let config = await OrthophonisteConfig.findOne({
+        where: { USR_orthophoniste_id: userId }
+      });
+
+      if (!config) {
+        config = await OrthophonisteConfig.create({
+          USR_orthophoniste_id: userId,
+          CONFIG_paiement_obligatoire,
+          CONFIG_prix_par_enfant
+        });
+        console.log('Configuration créée:', config.toJSON());
+      } else {
+        await config.update({
+          CONFIG_paiement_obligatoire,
+          CONFIG_prix_par_enfant
+        });
+        console.log('Configuration mise à jour:', config.toJSON());
+      }
+
+      res.json({ 
+        success: true, 
+        config: config.toJSON(),
+        message: 'Configuration mise à jour avec succès'
+      });
+
+    } catch (error) {
+      console.error('Erreur mise à jour config:', error);
+      next(new AppError(500, error.message));
     }
   },
 

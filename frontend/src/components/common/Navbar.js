@@ -38,7 +38,7 @@ const AppNavbar = ({ brandText = "Tikets", showLogout = true }) => {
         break;
       case 'parent':
         links.push(
-          { to: '/home', label: 'Accueil' }
+          { to: 'null', label: '' }
         );
         break;
       default:
@@ -119,6 +119,7 @@ const AppNavbar = ({ brandText = "Tikets", showLogout = true }) => {
     switch (user.role) {
       case 'admin': return '/admin/AdminDashboard';
       case 'orthophoniste': return '/ortho/OrthoDashboard';
+      case 'parent' : return '/parent/ParentDashboard';
       default: return '/home';
     }
   }

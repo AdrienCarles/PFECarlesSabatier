@@ -43,6 +43,12 @@ router.post('/activate/:token', userController.activateParentAccount);
 // PUT /api/usr/:usrId - Mise à jour
 router.put('/:usrId', authenticateToken, userController.updateUser);
 
+router.put('/:userId/config',
+  authenticateToken,
+  authorizeRoles('admin'),
+  userController.updateOrthophonisteConfig
+);
+
 // DELETE /api/usr/:usrId - Suppression
 router.delete(
   '/:usrId',

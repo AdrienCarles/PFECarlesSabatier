@@ -18,7 +18,10 @@ import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import ActivateAccount from "./pages/Parent/ActivateAccount";
+import OrthophonisteConfig from "./pages/Admin/OrthophonisteConfig";
 import EnfantSeries from "./pages/Parent/EnfantSeries";
+import PaymentSuccess from "./pages/Parent/PaymentSuccess";
+import PaymentCancel from "./pages/Parent/PaymentCancel";
 
 function App() {
   return (
@@ -65,6 +68,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/AdminDashboard/OrthophonisteConfig"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <OrthophonisteConfig />
+              </ProtectedRoute>
+            }
+          />
           {/* ORTHO ROUTES */}
           <Route
             path="/ortho/OrthoDashboard"
@@ -100,7 +111,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/parent/abonnement/success"
+            element={
+              <ProtectedRoute allowedRoles={["parent"]}>
+                <PaymentSuccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent/abonnement/cancel"
+            element={
+              <ProtectedRoute allowedRoles={["parent"]}>
+                <PaymentCancel />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/parent/enfant/:enfantId/series"
             element={

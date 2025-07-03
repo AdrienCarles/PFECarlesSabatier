@@ -40,6 +40,10 @@ export default (sequelize, DataTypes) => {
         sourceKey: 'USR_id',
         as: 'refreshTokens',
       });
+      USR.hasOne(models.OrthophonisteConfig, {
+        foreignKey: 'USR_orthophoniste_id',
+        as: 'config',
+      });
     }
   }
   USR.init(
@@ -102,13 +106,25 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      USR_stripe_customer_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true,
+      },
     },
     {
       sequelize,
       modelName: 'USR',
       tableName: 'USR',
       timestamps: false,
+      indexes: [
+        {
+          fields: ['USR_stripe_customer_id'],
+          unique: true,
+        },
+      ],
     }
   );
   return USR;
 };
+

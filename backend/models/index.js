@@ -5,7 +5,6 @@ import process from 'process';
 import { Sequelize, DataTypes } from 'sequelize';
 import configFile from '../config/config.js';
 
-// En ESM, __filename et __dirname n'existent pas, nous devons les créer
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const basename = path.basename(__filename);
@@ -21,7 +20,6 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
-// Utilisez Promise.all pour gérer les imports asynchrones
 const files = fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -33,7 +31,6 @@ const files = fs
     );
   });
 
-// Chargement dynamique des modèles en utilisant import() dynamique
 for (const file of files) {
   const modelPath = pathToFileURL(path.join(__dirname, file)).href;
   const modelModule = await import(modelPath);
@@ -51,4 +48,4 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 export default db;
-export const { ABM, ACCES, ANI, ENFA, PAI, SES, STAT, USR, RefreshToken } = db;
+export const { ABM, ACCES, ANI, ENFA, PAI, SES, STAT, USR, RefreshToken, OrthophonisteConfig } = db;
