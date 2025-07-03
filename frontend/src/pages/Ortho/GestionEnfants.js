@@ -12,6 +12,8 @@ import {
   Dropdown,
   Table,
   Form,
+  Row,
+  Col
 } from "react-bootstrap";
 import {
   FaPlus,
@@ -28,6 +30,7 @@ import {
   FaChevronRight,
   FaBookOpen,
   FaUserCircle,
+  FaChevronLeft
 } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
@@ -36,7 +39,7 @@ import CreatePatientForParent from "./CreatePatientForParent";
 import CreateOrEditParentModal from "./CreateOrEditParentModal";
 import { FaSearch } from "react-icons/fa";
 import GestionSeriesEnfant from './GestionSeriesEnfant';
-
+import { useNavigate } from "react-router-dom";
 
 const GestionEnfants = () => {
   const { user } = useContext(AuthContext);
@@ -58,6 +61,8 @@ const GestionEnfants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showSeriesModal, setShowSeriesModal] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -97,7 +102,6 @@ const GestionEnfants = () => {
       setLoading(false);
     }
   };
-
 
   const loadEnfantsData = () => {
     setFilteredData(enfants);
@@ -178,12 +182,9 @@ const GestionEnfants = () => {
   };
 
   const handleChildCreated = (newChild) => {
-    // Utiliser updateChildInState au lieu de la logique directe
     updateChildInState(newChild);
     setError("");
-    // Pas besoin de loadData() car updateChildInState met déjà à jour l'état
   };
-
 
   const filterEnfants = (searchTerm) => {
     if (!searchTerm) return enfants;
@@ -219,10 +220,7 @@ const GestionEnfants = () => {
   const handleDeleteParent = async (parent) => {
     if (window.confirm(`Supprimer ${parent.USR_prenom} ${parent.USR_nom} ?\nTous ses enfants seront aussi supprimés.`)) {
       try {
-        const response = await axiosInstance.delete(`/usr/${parent.USR_id}`); // Adapté à ton API
-        console.log("Parent supprimé :", response.data);
-
-        // Supprimer côté frontend
+        const response = await axiosInstance.delete(`/usr/${parent.USR_id}`);
         setParents(prev => prev.filter(p => p.USR_id !== parent.USR_id));
         setEnfants(prev => prev.filter(e => e.parent?.USR_id !== parent.USR_id));
         setError("");
@@ -232,7 +230,6 @@ const GestionEnfants = () => {
       }
     }
   };
-
 
   const handleShowCreateParentModal = () => {
     setEditParentMode(false);
@@ -328,7 +325,6 @@ const GestionEnfants = () => {
             />
           </div>
         </div>
-
       </Card.Header>
       <Card.Body className="p-0">
         <Table responsive hover className="mb-0">
@@ -511,7 +507,6 @@ const GestionEnfants = () => {
                   </Button>
                 </OverlayTrigger>
 
-
                 <Dropdown onClick={(e) => e.stopPropagation()}>
                   <Dropdown.Toggle variant="light" size="sm">
                     <FaPlus />
@@ -520,8 +515,8 @@ const GestionEnfants = () => {
                     <Dropdown.Item
                       onClick={() => {
                         setSelectedParent(parent);
-                        setEditMode(false);       // Important !
-                        setPatientToEdit(null);   // Important !
+                        setEditMode(false);
+                        setPatientToEdit(null);
                         setShowCreateChildModal(true);
                       }}
                     >
@@ -648,6 +643,20 @@ const GestionEnfants = () => {
 
   return (
     <Container fluid className="px-4">
+      {/* Bouton retour au dashboard */}
+      <Row className="align-items-center mb-3">
+        <Col xs="12" md="auto" className="mb-2 mb-md-0">
+          <Button
+            variant="outline-secondary"
+            onClick={() => navigate("/ortho/OrthoDashboard")}
+            className="d-flex align-items-center"
+          >
+            <FaChevronLeft className="me-2" />
+            Retour au dashboard
+          </Button>
+        </Col>
+      </Row>
+
       {/* Header avec navigation */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -742,7 +751,6 @@ const GestionEnfants = () => {
       />
     </Container>
   );
-
 };
 
 export default GestionEnfants;

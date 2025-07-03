@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Spinner, Alert } from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
-import { FaArrowLeft, FaChevronLeft, FaChevronRight, FaPlay } from "react-icons/fa";
+import { FaArrowLeft, FaPlay } from "react-icons/fa";
 import PreviewAnimation from "../Animations/PreviewAnimation";
 
 const EnfantSeries = () => {
