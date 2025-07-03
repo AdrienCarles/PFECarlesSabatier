@@ -25,7 +25,6 @@ const AppNavbar = ({ brandText = "Tikets", showLogout = true }) => {
         links.push(
           { to: '/admin/AdminDashboard', label: 'Dashboard' },
           { to: '/admin/AdminDashboard/GestionUsers', label: 'Utilisateurs' },
-          { to: '/admin/AdminDashboard/GestionAbonnement', label: 'Abonnements' },
           { to: '/series/GestionSeries', label: 'Séries' }
         );
         break;
