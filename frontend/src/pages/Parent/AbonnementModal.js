@@ -10,7 +10,7 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import { FaCreditCard, FaCalendar, FaEuroSign, FaTimes } from "react-icons/fa";
+import { FaCreditCard, FaCalendar, FaEuroSign } from "react-icons/fa";
 import axiosInstance from "../../api/axiosConfig";
 
 const AbonnementModal = ({ show, onHide, parentId }) => {
@@ -28,52 +28,18 @@ const AbonnementModal = ({ show, onHide, parentId }) => {
     setLoading(true);
     setError("");
     try {
-      console.log(`Chargement des enfants pour parent ${parentId}`);
-      const response = await axiosInstance.get(`/enfa/mes-enfants/${parentId}`);
 
-      const enfantsWithAbonnements = await Promise.all(
-        response.data.map(async (enfant) => {
-          try {
-            // Récupérer le statut d'abonnement qui contient déjà l'objet abonnement
-            const statusRes = await axiosInstance.get(
-              `/abm/check-status/${enfant.ENFA_id}`
-            );
-
-            // Extraire les détails directement de la réponse statusRes
-            let abonnementDetails = null;
-            if (
-              statusRes.data.hasActiveSubscription &&
-              statusRes.data.abonnement
-            ) {
-              abonnementDetails = statusRes.data.abonnement;
-            }
-
-            return {
-              ...enfant,
-              subscriptionStatus: statusRes.data,
-              abonnementDetails,
-            };
-          } catch (error) {
-            console.error(`Erreur statut enfant ${enfant.ENFA_id}:`, error);
-            return {
-              ...enfant,
-              subscriptionStatus: { hasActiveSubscription: false },
-              abonnementDetails: null,
-            };
-          }
-        })
+      const response = await axiosInstance.get(
+        `/enfa/mes-enfants/${parentId}`
       );
 
-      console.log("Enfants avec abonnements:", enfantsWithAbonnements);
-      setEnfants(enfantsWithAbonnements);
+      setEnfants(response.data);
     } catch (err) {
-      console.error("Erreur lors du chargement des abonnements:", err);
       setError("Impossible de charger les informations d'abonnements.");
     } finally {
       setLoading(false);
     }
   };
-
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("fr-FR");
