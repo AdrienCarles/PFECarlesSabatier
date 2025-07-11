@@ -10,7 +10,7 @@
     "test": "jest",
     "start": "NODE_ENV=production node server.js",
     "dev": "nodemon server.js",
-    "migrate": "node migrations/migrate.js",
+    "migrate": "node db/migrate.js",
     "sequelize:init": "sequelize init",
     "lint": "eslint .",
     "lint:report": "eslint . --format=html --output-file=eslint-report.html",

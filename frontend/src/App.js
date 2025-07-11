@@ -13,7 +13,6 @@ import Welcome from "./pages/Welcome";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import OrthoDashboard from "./pages/Ortho/OrthoDashboard";
 import GestionUsers from "./pages/Admin/GestionUsers";
-import GestionAbonnements from "./pages/Admin/GestionAbonnements";
 import GestionSeries from "./pages/Series/GestionSeries";
 import GestionEnfants from "./pages/Ortho/GestionEnfants";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
@@ -57,14 +56,6 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <GestionUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/AdminDashboard/GestionAbonnement"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <GestionAbonnements />
               </ProtectedRoute>
             }
           />

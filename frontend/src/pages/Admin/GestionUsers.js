@@ -1,65 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Container, Table, Button, Alert, Badge } from "react-bootstrap";
-import { FaCog, FaEuroSign } from "react-icons/fa";
+import { Container, Alert, Badge } from "react-bootstrap";
+import { FaUsers } from "react-icons/fa";
 import axiosInstance from "../../api/axiosConfig";
 import CreateUser from "./UserGestion/CreateUser";
 import EditUser from "./UserGestion/EditUser";
 import ConfigurePayment from "./ConfigurePayment";
+import ReturnButton from "../../components/button/ReturnButton";
+import AddButton from "../../components/button/AddButton";
+import GenericTable from "../../components/common/GenericTable";
+import { useTableActions } from "../../hooks/useTableActions";
 
 const GestionUsers = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [error, setError] = useState("");
-  
+
   // États pour la configuration des paiements
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [selectedOrtho, setSelectedOrtho] = useState(null);
+
+  const { createEditAction, createDeleteAction, createConfigAction } =
+    useTableActions();
 
   useEffect(() => {
     loadUsers();
   }, []);
 
   const loadUsers = () => {
+    console.log("Chargement des utilisateurs...");
     axiosInstance
       .get("/usr")
       .then((response) => {
-        // Charger les configurations pour les orthophonistes
-        loadOrthophonistesConfigs(response.data);
+        console.log("Utilisateurs reçus avec configs:", response.data);
+
+        // Fonction de tri par rôle
+        const sortUsersByRole = (users) => {
+          const roleOrder = {
+            admin: 1,
+            orthophoniste: 2,
+            parent: 3,
+          };
+
+          return users.sort((a, b) => {
+            const orderA = roleOrder[a.USR_role] || 4;
+            const orderB = roleOrder[b.USR_role] || 4;
+            // Tri principal par rôle
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+            // Tri secondaire par nom si même rôle
+            return `${a.USR_nom} ${a.USR_prenom}`.localeCompare(
+              `${b.USR_nom} ${b.USR_prenom}`
+            );
+          });
+        };
+
+        const sortedUsers = sortUsersByRole(response.data);
+        setUsers(sortedUsers);
       })
       .catch((error) => {
         console.error("Erreur lors du chargement des utilisateurs", error);
         setError("Impossible de charger les utilisateurs");
       });
-  };
-
-  const loadOrthophonistesConfigs = async (usersData) => {
-    // Charger la config pour chaque orthophoniste
-    const usersWithConfigs = await Promise.all(
-      usersData.map(async (user) => {
-        if (user.USR_role === 'orthophoniste') {
-          try {
-            const configRes = await axiosInstance.get(`/usr/${user.USR_id}/config`);
-            return { ...user, config: configRes.data };
-          } catch (error) {
-            // Pas de config trouvée, utiliser les valeurs par défaut
-            return { 
-              ...user, 
-              config: { 
-                CONFIG_paiement_obligatoire: false, 
-                CONFIG_prix_par_enfant: 9.99 
-              } 
-            };
-          }
-        }
-        return user;
-      })
-    );
-    
-    setUsers(usersWithConfigs);
   };
 
   const handleDelete = (id) => {
@@ -105,14 +109,8 @@ const GestionUsers = () => {
   };
 
   const handleConfigSaved = (orthophonisteId, newConfigData) => {
-    // Mettre à jour l'état local
-    setUsers(users.map(user => 
-      user.USR_id === orthophonisteId 
-        ? { ...user, config: newConfigData }
-        : user
-    ));
-    
-    setError(""); // Effacer les erreurs précédentes
+    loadUsers();
+    setError("");
   };
 
   const handleConfigError = (errorMessage) => {
@@ -133,6 +131,77 @@ const GestionUsers = () => {
     );
   };
 
+  // Configuration des colonnes pour le tableau
+  const columns = [
+    {
+      header: "Utilisateur",
+      render: (user) => `${user.USR_nom} ${user.USR_prenom}`,
+    },
+    {
+      header: "Email",
+      field: "USR_email",
+    },
+    {
+      header: "Rôle",
+      render: (user) => (
+        <Badge
+          bg={
+            user.USR_role === "admin"
+              ? "danger"
+              : user.USR_role === "orthophoniste"
+              ? "warning"
+              : "primary"
+          }
+        >
+          {user.USR_role}
+        </Badge>
+      ),
+    },
+    {
+      header: "Numéro de tel",
+      field: "USR_telephone",
+    },
+    {
+      header: "Configuration Paiement",
+      render: (user) => {
+        if (user.USR_role === "orthophoniste") {
+          const isPayant = user.config?.CONFIG_paiement_obligatoire;
+          const prix = user.config?.CONFIG_prix_par_enfant || 9.99;
+
+          return (
+            <div className="d-flex align-items-center gap-2">
+              <Badge
+                bg={isPayant ? "success" : "secondary"}
+                className="d-flex align-items-center gap-1"
+              >
+                {isPayant ? (
+                  <>
+                    Payant
+                    <span className="ms-1">{prix}€</span>
+                  </>
+                ) : (
+                  "Gratuit"
+                )}
+              </Badge>
+            </div>
+          );
+        }
+        return <span className="text-muted">-</span>;
+      },
+    },
+  ];
+
+  // Configuration des actions
+  const actions = [
+    createEditAction((user) => handleEditShow(user.USR_id), "Modifier"),
+    createConfigAction(
+      (user) => handleConfigShow(user),
+      "Configurer les paiements",
+      (user) => user.USR_role === "orthophoniste"
+    ),
+    createDeleteAction((user) => handleDelete(user.USR_id), "Supprimer"),
+  ];
+
   return (
     <Container className="gestion-users">
       <h1 className="text-center mb-4">Gestion des utilisateurs</h1>
@@ -146,99 +215,21 @@ const GestionUsers = () => {
 
       {/* Boutons d'action */}
       <div className="d-flex justify-content-between mb-3">
-        <Button variant="primary" onClick={handleShow}>
-          Ajouter un utilisateur
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => navigate("/admin/AdminDashboard")}
-        >
-          Retour au dashboard
-        </Button>
+        <AddButton onClick={handleShow} label="Ajouter un utilisateur" />
+        <ReturnButton to="/admin/AdminDashboard" label="Retour au dashboard" />
       </div>
 
-      {/* Tableau des utilisateurs */}
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Utilisateur</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Numéro de tel</th>
-            <th>Configuration Paiement</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user, index) => (
-            <tr key={index}>
-              <td>
-                {user.USR_nom} {user.USR_prenom}
-              </td>
-              <td>{user.USR_email}</td>
-              <td>
-                <Badge 
-                  bg={user.USR_role === 'admin' ? 'danger' : 
-                      user.USR_role === 'orthophoniste' ? 'warning' : 'primary'}
-                >
-                  {user.USR_role}
-                </Badge>
-              </td>
-              <td>{user.USR_telephone}</td>
-              <td>
-                {user.USR_role === 'orthophoniste' ? (
-                  <div>
-                    <Badge 
-                      bg={user.config?.CONFIG_paiement_obligatoire ? 'success' : 'secondary'}
-                      className="mb-1"
-                    >
-                      {user.config?.CONFIG_paiement_obligatoire ? 'Payant' : 'Gratuit'}
-                    </Badge>
-                    {user.config?.CONFIG_paiement_obligatoire && (
-                      <div className="small text-muted">
-                        <FaEuroSign className="me-1" />
-                        {user.config?.CONFIG_prix_par_enfant || 9.99}€/enfant
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-muted">-</span>
-                )}
-              </td>
-              <td>
-                <div className="d-flex gap-1 flex-wrap">
-                  <Button
-                    variant="warning"
-                    size="sm"
-                    onClick={() => handleEditShow(user.USR_id)}
-                  >
-                    Modifier
-                  </Button>
-                  
-                  {user.USR_role === 'orthophoniste' && (
-                    <Button
-                      variant="info"
-                      size="sm"
-                      onClick={() => handleConfigShow(user)}
-                      title="Configurer les paiements"
-                    >
-                      <FaCog />
-                    </Button>
-                  )}
-                  
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(user.USR_id)}
-                  >
-                    Supprimer
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      {/* Tableau générique */}
+      <GenericTable
+        title="Liste des utilisateurs"
+        icon={FaUsers}
+        data={users}
+        columns={columns}
+        actions={actions}
+        emptyMessage="Aucun utilisateur trouvé"
+        emptyIcon={FaUsers}
+        keyField="USR_id"
+      />
 
       {/* Composants modaux */}
       <CreateUser
@@ -246,14 +237,14 @@ const GestionUsers = () => {
         handleClose={handleClose}
         addUser={addUser}
       />
-      
+
       <EditUser
         show={showEditModal}
         handleClose={handleEditClose}
         updateUser={updateUser}
         userId={selectedUserId}
       />
-      
+
       {/* Modal de configuration des paiements */}
       <ConfigurePayment
         show={showConfigModal}

@@ -375,9 +375,13 @@ const AnimationGestion = ({ show, handleClose, serieId }) => {
 
       {/* Modale de prévisualisation d'animation */}
       <PreviewAnimation
-        show={showPreviewModal}
-        handleClose={handleClosePreview}
         animation={selectedAnimation}
+        show={showPreviewModal}
+        onClose={handleClosePreview}
+        showNavigation={false}
+        showCounter={false}
+        modalSize="lg"
+        zIndex={1060}
       />
 
       {/* Modale d'édition d'animation */}

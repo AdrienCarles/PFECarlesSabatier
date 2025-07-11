@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 tentatives max
+    max: 10, // 10 tentatives max
     message: {
       error: 'Vous avez dépassé la limite de tentatives. Veuillez réessayer dans 15 minutes.',
     },

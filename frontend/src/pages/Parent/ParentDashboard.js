@@ -6,8 +6,9 @@ import AuthContext from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosConfig";
 import EnfantCard from "../Parent/EnfantCard";
 import PaymentSummaryModal from "../Parent/PaymentSummaryModal";
+import AbonnementModal from "./AbonnementModal";
 import stripePromise from "../../config/stripe";
-import "./ParentDashboard.css";
+import "../../css/ParentDashboard.css";
 
 const ParentDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -17,9 +18,11 @@ const ParentDashboard = () => {
   const [error, setError] = useState("");
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAbonnementModal, setShowAbonnementModal] = useState(false);
   const [selectedEnfant, setSelectedEnfant] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+
 
   useEffect(() => {
     const fetchEnfants = async () => {
@@ -64,7 +67,6 @@ const ParentDashboard = () => {
 
     if (enfant.subscriptionStatus?.hasActiveSubscription) {
       console.log("Accès autorisé - redirection vers les exercices");
-      // Redirection vers les séries d'exercices (fonctionnalité collaborateur)
       navigate(`/parent/enfant/${enfant.ENFA_id}/series`);
       return;
     }
@@ -150,10 +152,10 @@ const ParentDashboard = () => {
   return (
     <Container fluid className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>👨‍👩‍👧‍👦 Mes Enfants</h2>
+        <h2>  Mes Enfants</h2>
         <Button
           variant="outline-primary"
-          onClick={() => navigate("/parent/abonnements")}
+          onClick={() => setShowAbonnementModal(true)}
         >
           <FaCreditCard className="me-2" />
           Gérer mes abonnements
@@ -196,6 +198,13 @@ const ParentDashboard = () => {
         paymentInfo={paymentInfo}
         onSubscribe={handleSubscribe}
         processing={processingPayment}
+      />
+      
+      {/* Modale de gestion des abonnements */}
+      <AbonnementModal
+        show={showAbonnementModal}
+        onHide={() => setShowAbonnementModal(false)}
+        parentId={user?.id}
       />
     </Container>
   );

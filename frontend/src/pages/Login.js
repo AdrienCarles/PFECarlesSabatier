@@ -36,7 +36,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Connexion</h2>
+        <h2>Connexion V2</h2>
         <form onSubmit={handleSubmit}>
           <label>Email :</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Entrez votre email" />

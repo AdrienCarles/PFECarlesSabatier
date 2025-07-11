@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Spinner, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 import axiosInstance from "../../api/axiosConfig";
-import { FaArrowLeft, FaPlay } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
 import PreviewAnimation from "../Animations/PreviewAnimation";
+import ReturnButton from "../../components/button/ReturnButton";
 
 const EnfantSeries = () => {
   const { enfantId } = useParams();
@@ -40,11 +49,17 @@ const EnfantSeries = () => {
   const handleSerieClick = async (serie) => {
     setCurrentSerie(serie);
     setCurrentAnimationIndex(0);
+    setLoading(true);
+    
     try {
       const res = await axiosInstance.get(`/ses/${serie.SES_id}/animations`);
       setAnimations(res.data);
+      setError("");
     } catch (err) {
       setAnimations([]);
+      setError('Erreur lors du chargement des animations');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,17 +68,23 @@ const EnfantSeries = () => {
     setCurrentAnimationIndex((prev) => (prev > 0 ? prev - 1 : prev));
   };
   const goToNextAnimation = () => {
-    setCurrentAnimationIndex((prev) => (prev < animations.length - 1 ? prev + 1 : prev));
+    setCurrentAnimationIndex((prev) =>
+      prev < animations.length - 1 ? prev + 1 : prev
+    );
   };
 
   return (
     <Container className="py-4">
-      <Button variant="link" onClick={() => navigate(-1)} className="mb-3">
-        <FaArrowLeft /> Retour
-      </Button>
-      <h2>
-        Séries de {enfant ? `${enfant.ENFA_prenom} ${enfant.ENFA_nom}` : "l'enfant"}
-      </h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2 className="mb-0">
+          Séries de{" "}
+          {enfant ? `${enfant.ENFA_prenom} ${enfant.ENFA_nom}` : "l'enfant"}
+        </h2>
+        <ReturnButton
+          to="/parent/dashboard"
+          label="Retour au dashboard"
+        />
+      </div>
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" />
@@ -80,16 +101,28 @@ const EnfantSeries = () => {
             {series.map((serie) => (
               <Col key={serie.SES_id}>
                 <Card
-                  className={`h-100 shadow-sm hover-effect ${currentSerie && currentSerie.SES_id === serie.SES_id ? "border-primary" : ""}`}
+                  className={`h-100 shadow-sm hover-effect ${
+                    currentSerie && currentSerie.SES_id === serie.SES_id
+                      ? "border-primary"
+                      : ""
+                  }`}
                   style={{ cursor: "pointer" }}
                   onClick={() => handleSerieClick(serie)}
                 >
                   {serie.SES_icone && (
-                    <div className="d-flex justify-content-center align-items-center" style={{ height: 180 }}>
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ height: 180 }}
+                    >
                       <img
                         src={`${process.env.REACT_APP_API_URL}${serie.SES_icone}`}
                         alt={serie.SES_titre}
-                        style={{ maxHeight: 160, maxWidth: "90%", objectFit: "cover", borderRadius: 12 }}
+                        style={{
+                          maxHeight: 160,
+                          maxWidth: "90%",
+                          objectFit: "cover",
+                          borderRadius: 12,
+                        }}
                       />
                     </div>
                   )}
@@ -97,7 +130,11 @@ const EnfantSeries = () => {
                     <Card.Title>{serie.SES_titre}</Card.Title>
                     <Card.Text>{serie.SES_description}</Card.Text>
                     <Button
-                      variant={currentSerie && currentSerie.SES_id === serie.SES_id ? "primary" : "outline-primary"}
+                      variant={
+                        currentSerie && currentSerie.SES_id === serie.SES_id
+                          ? "primary"
+                          : "outline-primary"
+                      }
                       className="mt-auto"
                     >
                       <FaPlay className="me-2" /> Voir les animations
@@ -108,37 +145,28 @@ const EnfantSeries = () => {
             ))}
           </Row>
 
-          {/* Affichage de la prévisualisation des animations de la série sélectionnée */}
           {currentSerie && (
-            <>
-              <div
-                className="custom-backdrop"
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, width: "100vw", height: "100vh",
-                  background: "rgba(0,0,0,0.85)",
-                  zIndex: 1040
-                }}
-                onClick={() => setCurrentSerie(null)}
-              />
-              <PreviewAnimation
-                animation={animations[currentAnimationIndex]}
-                onClose={() => setCurrentSerie(null)}
-                setParentAudioPlaying={setIsAudioPlaying}
-                onPrev={goToPrevAnimation}
-                onNext={goToNextAnimation}
-                canPrev={currentAnimationIndex > 0}
-                canNext={currentAnimationIndex < animations.length - 1}
-                isAudioPlaying={isAudioPlaying}
-                currentIndex={currentAnimationIndex}
-                totalCount={animations.length}
-              />
-            </>
+            <PreviewAnimation
+              animation={animations[currentAnimationIndex]}
+              show={!!currentSerie}
+              onClose={() => setCurrentSerie(null)}
+              showNavigation={true}
+              onPrev={goToPrevAnimation}
+              onNext={goToNextAnimation}
+              canPrev={currentAnimationIndex > 0}
+              canNext={currentAnimationIndex < animations.length - 1}
+              currentIndex={currentAnimationIndex}
+              totalCount={animations.length}
+              setParentAudioPlaying={setIsAudioPlaying}
+              isAudioPlaying={isAudioPlaying}
+              redirectOnClose={null} // Pas de redirection, juste fermer
+              backdrop="static"
+              zIndex={1050}
+            />
           )}
         </>
-      )
-      }
-    </Container >
+      )}
+    </Container>
   );
 };
 

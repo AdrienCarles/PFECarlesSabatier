@@ -35,6 +35,14 @@ router.get(
   serieController.getEnfantSeries
 );
 
+// GET /api/ses/:sesId/animations - Récupérer les animations d'une série
+router.get(
+  '/:sesId/animations',
+  authenticateToken,
+  authorizeRoles('admin', 'orthophoniste', 'parent'),
+  serieController.getSerieAnimations
+);
+
 // POST /api/ses - Création
 router.post(
   '/',
@@ -74,11 +82,6 @@ router.put(
   authenticateToken,
   authorizeRoles('admin'),
   serieController.validerSerie
-);
-
-router.get(
-  '/:sesId/animations', 
-  serieController.getSerieAnimations
 );
 
 export default router;

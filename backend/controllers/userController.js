@@ -1,7 +1,15 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import AppError from '../utils/AppError.js';
-import { USR, ENFA, ABM, ANI, SES, OrthophonisteConfig, RefreshToken } from '../models/index.js';
+import {
+  USR,
+  ENFA,
+  ABM,
+  ANI,
+  SES,
+  OrthophonisteConfig,
+  RefreshToken,
+} from '../models/index.js';
 import { sendActivationEmail } from '../services/emailService.js';
 
 const userController = {
@@ -13,10 +21,22 @@ const userController = {
       const users = await USR.findAll({
         where: whereClause,
         attributes: { exclude: ['USR_pass', 'USR_activationToken'] },
+        include: [
+          {
+            model: OrthophonisteConfig,
+            as: 'config',
+            required: false,
+            attributes: [
+              'CONFIG_paiement_obligatoire',
+              'CONFIG_prix_par_enfant',
+            ],
+          },
+        ],
       });
 
       res.json(users);
     } catch (error) {
+      console.error('Erreur getAllUsers:', error);
       next(
         new AppError(500, 'Erreur lors de la récupération des utilisateurs')
       );
@@ -42,6 +62,39 @@ const userController = {
       next(
         new AppError(500, "Erreur lors de la récupération de l'utilisateur")
       );
+    }
+  },
+
+  getOrthophonisteConfig: async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+
+      const orthophoniste = await USR.findOne({
+        where: {
+          USR_id: userId,
+          USR_role: 'orthophoniste',
+        },
+      });
+
+      if (!orthophoniste) {
+        return next(new AppError(404, 'Orthophoniste non trouvé'));
+      }
+
+      const config = await OrthophonisteConfig.findOne({
+        where: { USR_orthophoniste_id: userId },
+      });
+
+      if (!config) {
+        return res.json({
+          CONFIG_paiement_obligatoire: false,
+          CONFIG_prix_par_enfant: 9.99,
+        });
+      }
+
+      res.json(config.toJSON());
+    } catch (error) {
+      console.error('Erreur récupération config:', error);
+      next(new AppError(500, error.message));
     }
   },
 
@@ -219,7 +272,13 @@ const userController = {
           USR_role: 'parent',
           USR_statut: 'inactif',
         },
-        attributes: ['USR_id', 'USR_nom', 'USR_prenom', 'USR_email', 'USR_tokenExpiry']
+        attributes: [
+          'USR_id',
+          'USR_nom',
+          'USR_prenom',
+          'USR_email',
+          'USR_tokenExpiry',
+        ],
       });
 
       if (!user) {
@@ -236,11 +295,11 @@ const userController = {
         user: {
           nom: user.USR_nom,
           prenom: user.USR_prenom,
-          email: user.USR_email
-        }
+          email: user.USR_email,
+        },
       });
     } catch (error) {
-      next(new AppError(500, "Erreur lors de la validation du token"));
+      next(new AppError(500, 'Erreur lors de la validation du token'));
     }
   },
 
@@ -288,7 +347,8 @@ const userController = {
       });
 
       res.json({
-        message: 'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
+        message:
+          'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
       });
     } catch (error) {
       next(new AppError(500, "Erreur lors de l'activation du compte"));
@@ -318,14 +378,14 @@ const userController = {
 
       console.log(`Mise à jour config pour orthophoniste ${userId}:`, {
         CONFIG_paiement_obligatoire,
-        CONFIG_prix_par_enfant
+        CONFIG_prix_par_enfant,
       });
 
       const orthophoniste = await USR.findOne({
-        where: { 
+        where: {
           USR_id: userId,
-          USR_role: 'orthophoniste'
-        }
+          USR_role: 'orthophoniste',
+        },
       });
 
       if (!orthophoniste) {
@@ -333,30 +393,29 @@ const userController = {
       }
 
       let config = await OrthophonisteConfig.findOne({
-        where: { USR_orthophoniste_id: userId }
+        where: { USR_orthophoniste_id: userId },
       });
 
       if (!config) {
         config = await OrthophonisteConfig.create({
           USR_orthophoniste_id: userId,
           CONFIG_paiement_obligatoire,
-          CONFIG_prix_par_enfant
+          CONFIG_prix_par_enfant,
         });
         console.log('Configuration créée:', config.toJSON());
       } else {
         await config.update({
           CONFIG_paiement_obligatoire,
-          CONFIG_prix_par_enfant
+          CONFIG_prix_par_enfant,
         });
         console.log('Configuration mise à jour:', config.toJSON());
       }
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         config: config.toJSON(),
-        message: 'Configuration mise à jour avec succès'
+        message: 'Configuration mise à jour avec succès',
       });
-
     } catch (error) {
       console.error('Erreur mise à jour config:', error);
       next(new AppError(500, error.message));

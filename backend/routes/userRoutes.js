@@ -18,6 +18,14 @@ router.get(
 // GET /api/usr/:usrId - Détail
 router.get('/:usrId', authenticateToken, userController.getUserById);
 
+// GET /api/usr/:userId/config - Récupérer la configuration d'un orthophoniste
+router.get(
+  '/:userId/config',
+  authenticateToken,
+  authorizeRoles('admin', 'orthophoniste'),
+  userController.getOrthophonisteConfig
+);
+
 // GET /api/usr/validate-token/:token - Validation du token d'activation
 router.get('/validate-token/:token', userController.validateActivationToken);
 
@@ -43,7 +51,9 @@ router.post('/activate/:token', userController.activateParentAccount);
 // PUT /api/usr/:usrId - Mise à jour
 router.put('/:usrId', authenticateToken, userController.updateUser);
 
-router.put('/:userId/config',
+// PUT /api/usr/:userId/config - Mise à jour de la configuration d'un orthophoniste
+router.put(
+  '/:userId/config',
   authenticateToken,
   authorizeRoles('admin'),
   userController.updateOrthophonisteConfig

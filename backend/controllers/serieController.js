@@ -87,15 +87,62 @@ const serieController = {
     }
   },
 
+  getSerieAnimations: async (req, res, next) => {
+    try {
+      const { sesId } = req.params;
+
+      // Vérifier que la série existe
+      const serie = await SES.findByPk(sesId);
+      if (!serie) {
+        return next(new AppError(404, 'Série non trouvée'));
+      }
+
+      // Si c'est un parent, vérifier qu'il a accès à cette série
+      if (req.user.role === 'parent') {
+        const hasAccess = await ACCES.findOne({
+          where: {
+            USR_id: req.user.id,
+            SES_id: sesId,
+          },
+        });
+
+        if (!hasAccess) {
+          return next(new AppError(403, 'Accès non autorisé à cette série'));
+        }
+      }
+
+      // Récupérer les animations de la série
+      const animations = await ANI.findAll({
+        where: {
+          SES_id: sesId,
+          ANI_valider: true,
+        },
+        include: [
+          {
+            model: USR,
+            as: 'createur',
+            attributes: ['USR_id', 'USR_nom', 'USR_prenom'],
+          },
+        ],
+        order: [['ANI_date_creation', 'ASC']],
+      });
+
+      res.json(animations);
+    } catch (error) {
+      console.error('Erreur récupération animations de la série:', error);
+      next(
+        new AppError(
+          500,
+          'Erreur lors de la récupération des animations de la série'
+        )
+      );
+    }
+  },
+
   createSerie: async (req, res, next) => {
     try {
-      // Ajouter un logging pour déboguer
-      console.log('Fichier reçu:', req.file);
-
       if (req.file) {
-        // S'assurer que le nom de fichier est correct après le traitement
         req.body.SES_icone = `/uploads/series/${req.file.filename}`;
-        console.log("Chemin d'icône enregistré:", req.body.SES_icone);
       }
 
       const serie = await SES.create(req.body);
@@ -265,18 +312,6 @@ const serieController = {
           `Erreur lors de la validation de la série: ${error.message}`
         )
       );
-    }
-  },
-
-  getSerieAnimations: async (req, res, next) => {
-    try {
-      const { sesId } = req.params;
-      const animations = await ANI.findAll({
-        where: { SES_id: sesId }
-      });
-      res.json(animations);
-    } catch (error) {
-      next(new AppError(500, "Erreur lors de la récupération des animations de la série"));
     }
   },
 };
