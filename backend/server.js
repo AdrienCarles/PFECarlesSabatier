@@ -4,9 +4,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import https from 'https';
-import http from 'http';
-import fs from 'fs';
 
 import { globalLimiter } from './middleware/rateLimiter.js';
 import initCronJobs from './cron/index.js';
@@ -27,17 +24,12 @@ dotenv.config();
 
 const app = express();
 
-app.use(globalLimiter);
-
+// Configuration pour reverse proxy (très important)
 if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.header('x-forwarded-proto') !== 'https') {
-      res.redirect(`https://${req.header('host')}${req.url}`);
-    } else {
-      next();
-    }
-  });
+  app.set('trust proxy', 1); // Faire confiance au premier proxy
 }
+
+app.use(globalLimiter);
 
 app.use(
   cors({
@@ -73,42 +65,24 @@ app.get('/', (req, res) => {
   res.send('Le serveur backend fonctionne 🚀');
 });
 
+// Health check endpoint pour le reverse proxy
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
-// Configuration du serveur en fonction de l'environnement
-if (process.env.NODE_ENV === 'production') {
-  // Production: Utiliser HTTPS avec certificats SSL réels
-  try {
-    const options = {
-      key: fs.readFileSync(process.env.SSL_KEY_PATH || '/etc/ssl/private/private.key'),
-      cert: fs.readFileSync(process.env.SSL_CERT_PATH || '/etc/ssl/certs/certificate.crt'),
-      ca: process.env.SSL_CA_PATH ? fs.readFileSync(process.env.SSL_CA_PATH) : undefined
-    };
+// Configuration simple - le reverse proxy gère HTTPS
+app.listen(PORT, () => {
+  const env = process.env.NODE_ENV || 'development';
 
-    // Serveur HTTPS
-    https.createServer(options, app).listen(PORT, () => {
-      console.log(`Serveur HTTPS (production) démarré sur port ${PORT}`);
-      initCronJobs();
-    });
-
-    // Serveur HTTP pour redirection
-    http.createServer(app).listen(PORT, () => {
-      console.log(`Serveur HTTP (redirection) démarré sur port ${PORT}`);
-    });
-
-  } catch (error) {
-    console.error('Erreur lors du chargement des certificats SSL:', error.message);
-    console.log('Démarrage en HTTP uniquement (non recommandé pour la production)');
-    
-    app.listen(PORT, () => {
-      console.log(`Serveur HTTP démarré sur port ${PORT} (PRODUCTION - SSL requis!)`);
-      initCronJobs();
-    });
+  if (process.env.NODE_ENV === 'production') {
+    console.log('HTTPS géré par le reverse proxy');
   }
-} else {
-  // Développement: HTTP simple
-  app.listen(PORT, () => {
-    console.log(`Serveur Express (développement) démarré sur http://localhost:${PORT}`);
-    initCronJobs();
-  });
-}
+  
+  initCronJobs();
+});
