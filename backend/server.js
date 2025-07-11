@@ -4,6 +4,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import https from 'https';
+import http from 'http';
+import fs from 'fs';
 
 import { globalLimiter } from './middleware/rateLimiter.js';
 import initCronJobs from './cron/index.js';
@@ -26,10 +29,20 @@ const app = express();
 
 app.use(globalLimiter);
 
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // This uses http://localhost:3000 from your .env
-    credentials: true, // Important for cookies/authentication
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -49,7 +62,6 @@ app.use('/api/ses', serieRoutes);
 app.use('/api/stat', statistiqueRoutes);
 app.use('/api/usr', userRoutes);
 
-// Handle undefined routes
 // app.all('*', (req, res, next) => {
 //   next(new AppError(404, `Route ${req.originalUrl} introuvable`));
 // });
@@ -63,7 +75,40 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Serveur Express démarré sur http://localhost:${PORT}`);
-  initCronJobs();
-});
+// Configuration du serveur en fonction de l'environnement
+if (process.env.NODE_ENV === 'production') {
+  // Production: Utiliser HTTPS avec certificats SSL réels
+  try {
+    const options = {
+      key: fs.readFileSync(process.env.SSL_KEY_PATH || '/etc/ssl/private/private.key'),
+      cert: fs.readFileSync(process.env.SSL_CERT_PATH || '/etc/ssl/certs/certificate.crt'),
+      ca: process.env.SSL_CA_PATH ? fs.readFileSync(process.env.SSL_CA_PATH) : undefined
+    };
+
+    // Serveur HTTPS
+    https.createServer(options, app).listen(PORT, () => {
+      console.log(`Serveur HTTPS (production) démarré sur port ${PORT}`);
+      initCronJobs();
+    });
+
+    // Serveur HTTP pour redirection
+    http.createServer(app).listen(PORT, () => {
+      console.log(`Serveur HTTP (redirection) démarré sur port ${PORT}`);
+    });
+
+  } catch (error) {
+    console.error('Erreur lors du chargement des certificats SSL:', error.message);
+    console.log('Démarrage en HTTP uniquement (non recommandé pour la production)');
+    
+    app.listen(PORT, () => {
+      console.log(`Serveur HTTP démarré sur port ${PORT} (PRODUCTION - SSL requis!)`);
+      initCronJobs();
+    });
+  }
+} else {
+  // Développement: HTTP simple
+  app.listen(PORT, () => {
+    console.log(`Serveur Express (développement) démarré sur http://localhost:${PORT}`);
+    initCronJobs();
+  });
+}
