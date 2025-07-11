@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Row, Col } from "react-bootstrap";
 import { FaUsers, FaBook } from "react-icons/fa";
-import { FaUsers, FaBook } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import "../../css/AdminDashboard.css";
 

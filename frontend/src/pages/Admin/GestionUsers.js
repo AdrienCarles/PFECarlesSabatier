@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Container, Alert, Badge } from "react-bootstrap";
+import { Container, Alert, Badge, Row, Col, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { FaUsers } from "react-icons/fa";
 import axiosInstance from "../../api/axiosConfig";
 import CreateUser from "./UserGestion/CreateUser";
@@ -11,6 +12,7 @@ import GenericTable from "../../components/common/GenericTable";
 import { useTableActions } from "../../hooks/useTableActions";
 
 const GestionUsers = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
