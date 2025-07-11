@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Row, Col } from "react-bootstrap";
 import { FaUsers, FaBook } from "react-icons/fa";
+import { FaUsers, FaBook } from "react-icons/fa";
 import AuthContext from "../../context/AuthContext";
 import "../../css/AdminDashboard.css";
 
@@ -16,7 +17,7 @@ const AdminDashboard = () => {
         </h1>
 
         <Row className="justify-content-center w-100">
-          <Col xs={12} sm={6} md={4} className="d-flex justify-content-center">
+          <Col xs={12} sm={6} md={5} className="d-flex justify-content-center">
             <Card
               className="text-center shadow-lg border-0 p-4 hover-card"
               onClick={() => navigate("/admin/AdminDashboard/GestionUsers")}

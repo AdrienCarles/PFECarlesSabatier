@@ -97,7 +97,6 @@ const GestionUsers = () => {
     setSelectedUserId(null);
   };
 
-  // Fonctions pour la configuration des paiements
   const handleConfigShow = (user) => {
     setSelectedOrtho(user);
     setShowConfigModal(true);
@@ -117,12 +116,10 @@ const GestionUsers = () => {
     setError(errorMessage);
   };
 
-  // Fonction pour ajouter un nouvel utilisateur à la liste
   const addUser = (newUser) => {
     setUsers([...users, newUser]);
   };
 
-  // Fonction pour mettre à jour l'utilisateur dans la liste
   const updateUser = (updatedUser) => {
     setUsers(
       users.map((user) =>
@@ -204,7 +201,21 @@ const GestionUsers = () => {
 
   return (
     <Container className="gestion-users">
-      <h1 className="text-center mb-4">Gestion des utilisateurs</h1>
+      {/* Bouton retour et titre */}
+      <Row className="align-items-center mb-3">
+        <Col xs="12" md="auto" className="mb-2 mb-md-0">
+          <Button
+            variant="outline-secondary"
+            onClick={() => navigate("/admin/AdminDashboard")}
+            className="d-flex align-items-center"
+          >
+            Retour au dashboard
+          </Button>
+        </Col>
+        <Col>
+          <h1 className="text-center mb-0">Gestion des utilisateurs</h1>
+        </Col>
+      </Row>
 
       {/* Message d'erreur */}
       {error && (
@@ -231,12 +242,13 @@ const GestionUsers = () => {
         keyField="USR_id"
       />
 
-      {/* Composants modaux */}
+      {/* Modals */}
       <CreateUser
         show={showModal}
         handleClose={handleClose}
         addUser={addUser}
       />
+
 
       <EditUser
         show={showEditModal}

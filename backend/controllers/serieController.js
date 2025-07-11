@@ -207,6 +207,15 @@ const serieController = {
       const { enfantId } = req.params;
       const { seriesIds, parentId } = req.body; // parentId nécessaire pour la table ACCES
 
+      // Vérification de l'enfant et du parent
+      const enfant = await ENFA.findByPk(enfantId);
+      if (!enfant) {
+        return next(new AppError(404, "Enfant non trouvé"));
+      }
+      if (enfant.USR_parent_id !== parentId) {
+        return next(new AppError(400, "Le parent ne correspond pas à l'enfant"));
+      }
+
       // Supprimer tous les accès existants pour cet enfant
       await ACCES.destroy({
         where: { ENFA_id: enfantId },
