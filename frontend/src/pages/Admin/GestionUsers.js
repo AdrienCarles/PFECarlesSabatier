@@ -203,17 +203,8 @@ const GestionUsers = () => {
 
   return (
     <Container className="gestion-users">
-      {/* Bouton retour et titre */}
+      {/* Titre */}
       <Row className="align-items-center mb-3">
-        <Col xs="12" md="auto" className="mb-2 mb-md-0">
-          <Button
-            variant="outline-secondary"
-            onClick={() => navigate("/admin/AdminDashboard")}
-            className="d-flex align-items-center"
-          >
-            Retour au dashboard
-          </Button>
-        </Col>
         <Col>
           <h1 className="text-center mb-0">Gestion des utilisateurs</h1>
         </Col>

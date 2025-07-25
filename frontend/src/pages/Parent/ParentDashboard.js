@@ -23,7 +23,6 @@ const ParentDashboard = () => {
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
 
-
   useEffect(() => {
     const fetchEnfants = async () => {
       try {
@@ -151,14 +150,27 @@ const ParentDashboard = () => {
 
   return (
     <Container fluid className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>  Mes Enfants</h2>
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 className="mb-2 mb-md-0 fs-4 fs-md-2">Mes Enfants</h2>
         <Button
           variant="outline-primary"
+          size="sm"
+          className="d-flex align-items-center justify-content-center w-100 w-md-auto text-nowrap"
+          style={{
+            fontSize: window.innerWidth < 576 ? "0.75rem" : "0.85rem",
+            padding:
+              window.innerWidth < 576 ? "0.4rem 0.6rem" : "0.5rem 0.75rem",
+          }}
           onClick={() => setShowAbonnementModal(true)}
         >
-          <FaCreditCard className="me-2" />
-          Gérer mes abonnements
+          <FaCreditCard
+            className="me-1 me-md-2"
+            style={{ fontSize: window.innerWidth < 576 ? "0.8rem" : "1rem" }}
+          />
+          <span className="d-none d-sm-inline">
+            Informations sur mes abonnements
+          </span>
+          <span className="d-inline d-sm-none">Abonnements</span>
         </Button>
       </div>
 
@@ -199,7 +211,7 @@ const ParentDashboard = () => {
         onSubscribe={handleSubscribe}
         processing={processingPayment}
       />
-      
+
       {/* Modale de gestion des abonnements */}
       <AbonnementModal
         show={showAbonnementModal}

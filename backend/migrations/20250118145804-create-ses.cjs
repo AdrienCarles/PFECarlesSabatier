@@ -14,26 +14,30 @@ module.exports = {
         allowNull: false
       },
       SES_theme: {
-        type: Sequelize.STRING(50)
+        type: Sequelize.STRING(50),
+        allowNull: true
       },
       SES_description: {
-        type: Sequelize.STRING(255)
+        type: Sequelize.STRING(255),
+        allowNull: true
       },
       SES_statut: {
         type: Sequelize.STRING(50),
         allowNull: false
       },
       SES_dateCreation: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
+        type: Sequelize.DATEONLY,  // DATE dans le SQL, pas DATETIME
+        allowNull: true           // NULL autorisé selon le schéma
       },
       SES_icone: {
         type: Sequelize.STRING(255),
-        allowNull: true,
-      },
+        allowNull: true
+      }
     }, {
-      timestamps: false
+      timestamps: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci',
+      engine: 'InnoDB'
     });
   },
   async down(queryInterface, Sequelize) {

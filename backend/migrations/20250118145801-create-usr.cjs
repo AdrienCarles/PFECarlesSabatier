@@ -34,6 +34,7 @@ module.exports = {
         },
         USR_telephone: {
           type: Sequelize.STRING(15),
+          allowNull: true,
         },
         USR_dateCreation: {
           type: Sequelize.DATE,
@@ -41,6 +42,7 @@ module.exports = {
         },
         USR_derniereConnexion: {
           type: Sequelize.DATE,
+          allowNull: true,
         },
         USR_statut: {
           type: Sequelize.STRING(50),
@@ -54,12 +56,18 @@ module.exports = {
           type: Sequelize.DATE,
           allowNull: true,
         },
+        USR_stripe_customer_id: {
+          type: Sequelize.STRING(255),
+          allowNull: true,
+          unique: true,
+        },
       },
       {
         timestamps: false,
       }
     );
   },
+  
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('USR');
   },

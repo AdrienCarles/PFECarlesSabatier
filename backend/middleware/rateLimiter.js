@@ -18,7 +18,7 @@ const loginLimiter = rateLimit({
 
 const globalLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 100, // 100 requêtes max par minute
+    max: 10000,
     message: {
         error: 'Trop de requêtes. Veuillez réessayer plus tard.'
     }

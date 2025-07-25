@@ -50,14 +50,14 @@ const EnfantSeries = () => {
     setCurrentSerie(serie);
     setCurrentAnimationIndex(0);
     setLoading(true);
-    
+
     try {
       const res = await axiosInstance.get(`/ses/${serie.SES_id}/animations`);
       setAnimations(res.data);
       setError("");
     } catch (err) {
       setAnimations([]);
-      setError('Erreur lors du chargement des animations');
+      setError("Erreur lors du chargement des animations");
     } finally {
       setLoading(false);
     }
@@ -75,16 +75,20 @@ const EnfantSeries = () => {
 
   return (
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="mb-0">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+        <h2 className="mb-2 mb-md-0 fs-5 fs-md-4 fs-lg-2 text-truncate">
           Séries de{" "}
-          {enfant ? `${enfant.ENFA_prenom} ${enfant.ENFA_nom}` : "l'enfant"}
+          <span className="d-sm-inline">
+            {enfant ? `${enfant.ENFA_prenom} ${enfant.ENFA_nom}` : "l'enfant"}
+          </span>
         </h2>
         <ReturnButton
-          to="/parent/dashboard"
+          to=""
           label="Retour au dashboard"
+          className="btn-sm w-100 w-md-auto flex-shrink-0"
         />
       </div>
+
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" />

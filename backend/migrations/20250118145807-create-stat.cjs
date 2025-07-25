@@ -2,14 +2,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('ACCES', {
-      USR_id: {
+    await queryInterface.createTable('STAT', {
+      ENFA_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         references: {
-          model: 'USR',
-          key: 'USR_id'
+          model: 'ENFA',
+          key: 'ENFA_id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
@@ -25,22 +25,20 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      ENFA_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        references: {
-          model: 'ENFA',
-          key: 'ENFA_id'
-        },
-        onUpdate: 'NO ACTION',
-        onDelete: 'NO ACTION'
+      STAT_dernierAcces: {
+        type: Sequelize.DATE
+      },
+      STAT_tempUtil: {
+        type: Sequelize.TIME
       }
     }, {
       timestamps: false
     });
+
+    // Ajout de l'index sur SES_id
+    await queryInterface.addIndex('STAT', ['SES_id']);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('ACCES');
+    await queryInterface.dropTable('STAT');
   }
 };

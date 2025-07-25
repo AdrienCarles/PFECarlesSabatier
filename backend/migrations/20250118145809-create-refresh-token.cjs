@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('login_attempts', {
+    await queryInterface.createTable('refresh_tokens', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -15,36 +15,42 @@ module.exports = {
         references: {
           model: 'USR',
           key: 'USR_id'
-        }
+        },
+        onUpdate: 'CASCADE'
       },
-      attempt_time: {
+      token: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      success: {
+      used: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      ip_address: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'USR',
+          key: 'USR_id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       }
+    }, {
+      timestamps: false
     });
-  },
 
+    // Ajout des index
+    await queryInterface.addIndex('refresh_tokens', ['USR_id']);
+    await queryInterface.addIndex('refresh_tokens', ['user_id']);
+  },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('login_attempts');
+    await queryInterface.dropTable('refresh_tokens');
   }
 };

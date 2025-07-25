@@ -151,14 +151,14 @@ const CreatePatient = ({
           {/* Informations du parent */}
           <div className="mb-4">
             <h6 className="text-primary mb-3">
-              👤 Informations du parent responsable
+              Informations du parent responsable
             </h6>
             <div className="border-bottom mb-3"></div>
           </div>
 
           <Alert variant="info" className="mb-4">
             <small>
-              📧 <strong>Activation par email :</strong> Le parent recevra un
+              <strong>Activation par email :</strong> Le parent recevra un
               email d'activation pour configurer son mot de passe et accéder à
               son compte.
             </small>
@@ -223,7 +223,7 @@ const CreatePatient = ({
 
           {/* Informations de l'enfant */}
           <div className="mb-4 mt-4">
-            <h6 className="text-success mb-3">🧒 Informations du patient</h6>
+            <h6 className="text-success mb-3">Informations du patient</h6>
             <div className="border-bottom mb-3"></div>
           </div>
 
@@ -339,7 +339,6 @@ const CreatePatient = ({
                 </>
               ) : (
                 <>
-                  <FaBaby className="me-2" />
                   Créer le Patient
                 </>
               )}

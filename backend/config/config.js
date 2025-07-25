@@ -1,20 +1,9 @@
-import dotenv from 'dotenv';
+import { createRequire } from 'module';
 
-dotenv.config();
+// Créer require pour pouvoir importer le fichier CommonJS
+const require = createRequire(import.meta.url);
 
-export default {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: "mysql"
-  },
-  production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME_PROD,
-    host: process.env.DB_HOST,
-    dialect: "mysql"
-  }
-};
+// Importer la configuration CommonJS
+const config = require('./config.cjs');
+
+export default config;

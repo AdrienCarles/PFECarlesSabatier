@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('OrthophonisteConfig', {
+    await queryInterface.createTable('orthophonisteconfig', {
       CONFIG_id: {
         allowNull: false,
         autoIncrement: true,
@@ -29,30 +29,29 @@ module.exports = {
       CONFIG_prix_par_enfant: {
         type: Sequelize.DECIMAL(10, 2),
         defaultValue: 9.99,
-        allowNull: false,
-        validate: {
-          min: 0
-        }
+        allowNull: false
       },
       createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
+        allowNull: true,
+        type: 'TIMESTAMP',
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
+        allowNull: true,
+        type: 'TIMESTAMP',
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
+    }, {
+      timestamps: false
     });
 
     // Ajouter un index pour améliorer les performances de recherche
-    await queryInterface.addIndex('OrthophonisteConfig', ['USR_orthophoniste_id'], {
+    await queryInterface.addIndex('orthophonisteconfig', ['USR_orthophoniste_id'], {
       name: 'idx_config_orthophoniste_id'
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('OrthophonisteConfig');
+    await queryInterface.dropTable('orthophonisteconfig');
   }
 };

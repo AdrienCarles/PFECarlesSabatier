@@ -10,8 +10,17 @@
     "test": "jest",
     "start": "NODE_ENV=production node server.js",
     "dev": "nodemon server.js",
-    "migrate": "node db/migrate.js",
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:status": "npx sequelize-cli db:migrate:status",
+    "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
+    
+    "seed": "node seeders/seed-runner.js",
+    "seed:all": "node seeders/seed-runner.js all",
+    "seed:clear": "node seeders/seed-runner.js clear",
+    "seed:help": "node seeders/seed-runner.js help",
+
     "sequelize:init": "sequelize init",
+    "seed:clean": "node seeders/clean.js",
     "lint": "eslint .",
     "lint:report": "eslint . --format=html --output-file=eslint-report.html",
     "lint:fix": "eslint . --fix",

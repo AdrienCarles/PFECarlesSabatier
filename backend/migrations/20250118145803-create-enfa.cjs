@@ -22,20 +22,24 @@ module.exports = {
         allowNull: false
       },
       ENFA_niveauAudition: {
-        type: Sequelize.STRING(50)
+        type: Sequelize.STRING(50),
+        allowNull: true
       },
       ENFA_dateCreation: {
         type: Sequelize.DATE,
         allowNull: false
       },
       ENFA_dateDebutSuivi: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: true
       },
       ENFA_dateFinSuivi: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: true
       },
       ENFA_notesSuivi: {
-        type: Sequelize.STRING(255)
+        type: Sequelize.STRING(255),
+        allowNull: true
       },
       USR_parent_id: {
         type: Sequelize.INTEGER,
@@ -58,9 +62,22 @@ module.exports = {
         onDelete: 'RESTRICT'
       }
     }, {
-      timestamps: false
+      timestamps: false,
+      engine: 'InnoDB',
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci'
+    });
+
+    // Ajouter les index
+    await queryInterface.addIndex('ENFA', ['USR_parent_id'], {
+      name: 'USR_parent_id'
+    });
+
+    await queryInterface.addIndex('ENFA', ['USR_orthophoniste_id'], {
+      name: 'USR_orthophoniste_id'
     });
   },
+  
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('ENFA');
   }

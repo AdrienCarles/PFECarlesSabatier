@@ -34,9 +34,34 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT'
+      },
+      ENFA_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'ENFA',
+          key: 'ENFA_id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      ABM_stripe_subscription_id: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        unique: true
+      },
+      ABM_mode_paiement: {
+        type: Sequelize.ENUM('stripe', 'gratuit', 'test'),
+        allowNull: false,
+        defaultValue: 'stripe'
       }
     }, {
       timestamps: false
+    });
+
+    // Ajout des index
+    await queryInterface.addIndex('ABM', ['ENFA_id'], {
+      name: 'idx_abm_enfa_id'
     });
   },
   async down(queryInterface, Sequelize) {

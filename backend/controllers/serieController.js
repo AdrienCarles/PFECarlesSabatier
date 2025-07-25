@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { SES, ANI, ACCES, USR } from '../models/index.js';
+import { SES, ANI, ACCES, USR, ENFA } from '../models/index.js';
 import AppError from '../utils/AppError.js';
 
 const serieController = {
@@ -205,7 +205,7 @@ const serieController = {
   updateEnfantSeries: async (req, res, next) => {
     try {
       const { enfantId } = req.params;
-      const { seriesIds, parentId } = req.body; // parentId nécessaire pour la table ACCES
+      const { seriesIds, parentId } = req.body;
 
       // Vérification de l'enfant et du parent
       const enfant = await ENFA.findByPk(enfantId);
