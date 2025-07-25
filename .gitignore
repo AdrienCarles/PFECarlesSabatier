@@ -6,7 +6,6 @@ backend/node_modules
 frontend/.env
 backend/.env
 backend/temp/
-backend/public/
 
 # misc
 .DS_Store
