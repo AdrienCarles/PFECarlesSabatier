@@ -25,9 +25,6 @@ export default class SesSeeder {
       // Créer les dossiers nécessaires
       await this.setupDirectories();
       
-      // Créer les images d'exemple
-      await this.createSampleImages();
-      
       // Créer les séries
       await this.createSeries();
       
