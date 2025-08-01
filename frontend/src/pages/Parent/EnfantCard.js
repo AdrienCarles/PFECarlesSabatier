@@ -56,9 +56,8 @@ const EnfantCard = ({ enfant, onClick }) => {
             )}
           </small>
         </Card.Text>
-
         {/* Indicateur de statut */}
-        <div className="mt-2">
+        <span className="mt-2 d-inline-block">
           {hasActiveSubscription ? (
             <Badge bg="success" className="p-2">
               <FaCheck className="me-1" />
@@ -70,7 +69,7 @@ const EnfantCard = ({ enfant, onClick }) => {
               Accès limité
             </Badge>
           )}
-        </div>
+        </span>
       </Card.Body>
     </Card>
   );
