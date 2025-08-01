@@ -37,19 +37,22 @@ const EnfantCard = ({ enfant, onClick }) => {
         <Card.Text className="text-muted">
           <small>
             {enfant.ENFA_dateNaissance && (
-              <div>
-                Né(e) le :{" "}
-                {new Date(enfant.ENFA_dateNaissance).toLocaleDateString(
-                  "fr-FR"
-                )}
-              </div>
+              <>
+                <span>
+                  Né(e) le :{" "}
+                  {new Date(enfant.ENFA_dateNaissance).toLocaleDateString("fr-FR")}
+                </span>
+                <br />
+              </>
             )}
             {enfant.orthophoniste && (
-              <div>
-                <strong>Orthophoniste :</strong>
-                <br />
-                {enfant.orthophoniste.USR_prenom} {enfant.orthophoniste.USR_nom}
-              </div>
+              <>
+                <span>
+                  <strong>Orthophoniste :</strong>
+                  <br />
+                  {enfant.orthophoniste.USR_prenom} {enfant.orthophoniste.USR_nom}
+                </span>
+              </>
             )}
           </small>
         </Card.Text>
